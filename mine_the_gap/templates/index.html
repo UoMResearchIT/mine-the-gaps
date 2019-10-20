@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Gap Mining</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+    </head>
+<body>
+    <h1>UK - Location finder</h1>
+
+    {% load leaflet_tags %}
+    {% leaflet_css %}
+    {% leaflet_js %}
+
+    <div>
+        <h1>Click on a location</h1>
+        {% leaflet_map "main" callback="map_init" %}
+    </div>
+
+    <script type="text/javascript">
+        function map_init(map, options) {
+            // get point lat and lon
+            var lon = "-4.5481";
+            var lat = "54.2361";
+            // zoom to point & add it to map
+            map.setView([lat, lon], 5.5);
+            //L.marker([lat, lon]).addTo(map);
+        }
+    </script>
+
+
+</body>
+</html>
+
