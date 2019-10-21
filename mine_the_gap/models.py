@@ -6,3 +6,5 @@ class Shop(models.Model):
     location = models.PointField(null=True)
     address = models.CharField(max_length=100, null=True)
     city = models.CharField(max_length=50, null=True)
+
+
