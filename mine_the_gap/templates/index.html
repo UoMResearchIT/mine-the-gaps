@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
-
 {% block head-javascript %}
+    var actual_data = "{{actual_data | escapejs }}
+    var estimated_data = "{{ estimated_data | escapejs }}
 {% endblock %}
 
 
@@ -9,18 +10,40 @@
 {% block body-class %}page-head{% endblock %}
 
 
+
+
 {% block content %}
 
 
-    <div class="load-files">
-        <form  method="post" id="file-upload-form" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form }}
-            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-        </form>
+    <div class="container load-files">
+        <div class="row">
+
+                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                    <div id="upload-fields" class='col-sm-10'>
+                        {% csrf_token %}
+                        {{ form }}
+                    </div>
+                    <div id="upload-submit" class='col-sm-2'>
+                        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                    </div>
+                </form>
+
+        </div>
     </div>
 
-    <div id="mapid"></div>
+    <div id="map-main-info" class="container">
+        <div class="row">
+            <div id="map" class="col-sm-8">
+                <!-- Actual map -->
+                <div id="mapid"></div>
+                <div id="map-slider"></div>
+            </div>
+            <div id="map-options" class="col-sm-4">
+                <div id="map-overlays"></div>
+                <div id="map-location-data"></div>
+            </div>
+        </div>
+    </div>
 
 
 {% endblock %}

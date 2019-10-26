@@ -1,22 +1,3 @@
-
-function uploadFile(event) {
-    event.preventDefault();
-    var data = new FormData($('form').get(0));
-
-    $.ajax({
-        url: $(this).attr('action'),
-        type: $(this).attr('method'),
-        data: data,
-        cache: false,
-        processData: false,
-        contentType: false,
-        success: function(data) {
-            alert('success');
-        }
-    });
-    return false;
-}
-
 $(document).ready(function(){
     var lon = "-4.5481";
     var lat = "54.2361";
@@ -38,8 +19,26 @@ $(document).ready(function(){
         }
     ).addTo(map);
 
+    var markerClusters = L.markerClusterGroup();
 
-  $("#file-upload-form").submit(function(e){
-    uploadFile(e);
-  });
+    $.each(actual_data['location'], function (i, actual_data_point) {
+
+        url = mapIconPath + '/map-marker_green.png';
+
+        var myIcon = L.icon({
+            iconUrl: url,
+            iconSize: [40, 40],
+            //iconAnchor: [53.4671216, -2.2344166],
+            //popupAnchor: [-3, -76]
+            //shadowUrl: 'my-icon-shadow.png',
+            //shadowSize: [68, 95],
+            //shadowAnchor: [22, 94]
+        });
+        var marker = L.marker([actual_data_point['lat'], actual_data_point['long']], {icon: myIcon});
+        marker.bindPopup("<b>" + actual_data_point['description'] + '</b><br>' + actual_data_point['tags']);
+
+        markerClusters.addLayer(marker);
+    });
+
+    map.addLayer( markerClusters );
 });

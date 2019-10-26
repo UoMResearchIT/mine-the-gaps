@@ -1,5 +1,48 @@
 .leaflet-container {
-    height: 1000px;
-    width: 950px;
+    height: 800px;
+    width: 100%;
+}
+
+#upload-fields{
+    border-style: ridge;
+    height: 160px;
+}
+
+#upload-submit{
+    border-style: ridge;
+    height: 160px;
+    padding: 30px;
+}
+
+#map-main-info{
+    margin-top: 10px;
+    height: 800px;
+}
+
+#map{
+    border-style: ridge;
+    padding-left:0;
+    padding-right:0;
+}
+
+#map-slider{
+    border-style: ridge;
+    height:90px;
+}
+
+#map-options{
+    height: 800px;
+    padding-left:0;
+    padding-right:0;
+}
+
+#map-overlays{
+    border-style: ridge;
+    height: 200px;
+}
+
+#map-location-data{
+    border-style: ridge;
+    height: 700px;
 }
 

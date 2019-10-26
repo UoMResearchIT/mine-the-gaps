@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
-    path('', views.Home.as_view())
+    path('', views.home_page),
 ]
 
 if settings.DEBUG:

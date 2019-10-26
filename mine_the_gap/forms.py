@@ -1,4 +1,6 @@
 from django import forms
 
 class FileUploadForm(forms.Form):
-    file_source = forms.FileField()
+    actual_data_file = forms.FileField(required=False)
+    estimated_data_file = forms.FileField(required=False)
+    region_data_file = forms.FileField(required=False)
