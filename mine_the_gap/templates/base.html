@@ -19,6 +19,10 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.min.js' %}" ></script>
+
     {% block head-title %}
         <title xmlns="http://www.w3.org/1999/html">{{ self.title }}</title>
         <link rel="shortcut icon" type="image/jpg" href="{% static 'img/favicon.ico' %}"/>

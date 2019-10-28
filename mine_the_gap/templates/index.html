@@ -1,16 +1,7 @@
 {% extends "base.html" %}
 
-{% block head-javascript %}
-    var actual_data = "{{actual_data | escapejs }}
-    var estimated_data = "{{ estimated_data | escapejs }}
-{% endblock %}
-
-
 
 {% block body-class %}page-head{% endblock %}
-
-
-
 
 {% block content %}
 
@@ -36,7 +27,7 @@
             <div id="map" class="col-sm-8">
                 <!-- Actual map -->
                 <div id="mapid"></div>
-                <div id="map-slider"></div>
+                <div id="map-slider">{{ date_range_slider.as_p }}</div>
             </div>
             <div id="map-options" class="col-sm-4">
                 <div id="map-overlays"></div>

@@ -5,12 +5,12 @@
 
 #upload-fields{
     border-style: ridge;
-    height: 160px;
+    height: 200px;
 }
 
 #upload-submit{
     border-style: ridge;
-    height: 160px;
+    height: 200px;
     padding: 30px;
 }
 
