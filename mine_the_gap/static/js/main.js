@@ -1,7 +1,11 @@
 $(document).ready(function(){
+    /*    */
+});
+
+function initialise_map(map, options) {
     var lon = "-4.5481";
     var lat = "54.2361";
-    var map = L.map('mapid').setView([lat, lon], 5.5);
+    map.setView([lat, lon], 5.5);
 
     L.tileLayer(
         //'https://api2.ordnancesurvey.co.uk/mapping_api/v1/service/zxy/EPSG%3A3857/Outdoor 3857/{z}/{x}/{y}.png?'
@@ -19,9 +23,10 @@ $(document).ready(function(){
         }
     ).addTo(map);
 
-    var markerClusters = L.markerClusterGroup();
 
-    $.each(actual_data['location'], function (i, actual_data_point) {
+    //var markerClusters = L.markerClusterGroup();
+
+    /*$.each(actual_data['location'], function (i, actual_data_point) {
 
         url = mapIconPath + '/map-marker_green.png';
 
@@ -35,10 +40,14 @@ $(document).ready(function(){
             //shadowAnchor: [22, 94]
         });
         var marker = L.marker([actual_data_point['lat'], actual_data_point['long']], {icon: myIcon});
-        marker.bindPopup("<b>" + actual_data_point['description'] + '</b><br>' + actual_data_point['tags']);
+        //marker.bindPopup("<b>" + actual_data_point['description'] + '</b><br>' + actual_data_point['tags']);
 
         markerClusters.addLayer(marker);
     });
 
-    map.addLayer( markerClusters );
-});
+    map.addLayer( markerClusters );*/
+
+}
+
+
+

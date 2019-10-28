@@ -20,10 +20,15 @@ from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from djgeojson.views import GeoJSONLayerView
+
+from mine_the_gap.models import Sensor
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
+    url(r'^data.geojson$', GeoJSONLayerView.as_view(model=Sensor), name='data'),
     path('', views.home_page),
 ]
 

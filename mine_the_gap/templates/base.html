@@ -1,9 +1,9 @@
 {% load static %}
+{% load leaflet_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
-
     <meta charset="utf-8">
     <title>Gap Mining</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
@@ -22,11 +22,22 @@
     <link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet">
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/jquery-ui.min.js' %}" ></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/leaflet.js' %}"></script>
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block head %}
+       <!-- this can be overruled -->
+    {% endblock %}
 
     {% block head-title %}
         <title xmlns="http://www.w3.org/1999/html">{{ self.title }}</title>
         <link rel="shortcut icon" type="image/jpg" href="{% static 'img/favicon.ico' %}"/>
     {% endblock %}
+
+    {% leaflet_js %}
+    {% leaflet_css %}
 
   </head>
 
@@ -36,11 +47,7 @@
       {% endblock %}
     </div>
 
-    {% block javascript %}
-        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'js/main.js' %}"></script>
-        <script src="{% static 'js/bootstrap.js' %}"></script>
-        <script src="{% static 'js/leaflet.js' %}"></script>
-    {% endblock %}
+
   </body>
+
 </html>
