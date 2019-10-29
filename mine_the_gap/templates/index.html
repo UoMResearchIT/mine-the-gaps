@@ -57,7 +57,33 @@
                         var region_dataurl = '{% url "region_data" %}';
                         $.getJSON(region_dataurl, function (data) {
                             // Add GeoJSON layer
-                            L.geoJson(data).addTo(map);
+                            L.geoJson(
+                                data,
+                                {   onEachFeature: function (feature, layer) {
+                                        //alert(JSON.stringify(feature.geometry.coordinates));
+                                        layer.on('load', function () {
+                                          this.setStyle({
+                                            'fillColor': null
+                                          });
+                                        });
+
+                                        layer.bindPopup(
+                                            '<p>' + JSON.stringify(feature.properties.popupContent) + '</p>');
+
+                                        layer.on('mouseover', function () {
+                                              this.setStyle({
+                                                'fillColor': '#0000ff'
+                                              });
+                                        });
+                                        layer.on('mouseout', function () {
+                                          this.setStyle({
+                                            'fillColor': null
+                                          });
+                                        });
+
+                                    }
+                                }
+                            ).addTo(map);
                         });
                     }
                 </script>
