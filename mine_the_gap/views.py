@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import TemplateView
 from io import TextIOWrapper
-from django.contrib.gis.geos import Polygon, Point
+from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 
 import csv
 
@@ -97,20 +97,42 @@ def handle_uploaded_files(request):
         next(reader, None)  # skip the headers
         for row in reader:
             try:
+                # Initialise polys
+                multipoly_geo = MultiPolygon()
                 poly = ()
+
+                # Split the row
                 poly_split = row[1].split(' ')[1:]
+
+                # make first_point
+                point_split = poly_split[0].strip().split(',')
+                try:
+                    first_point = (float(point_split[0]), float(point_split[1]))
+                except:
+                    continue
+
+                start = True
                 for point_str in poly_split:
                     point_split = point_str.strip().split(',')
                     point = (float(point_split[0]),float(point_split[1]))
                     poly = poly + (point,)
-                # Make an enclosed circle if not already
-                if poly[0] != poly[len(poly)-1]:
-                    poly = poly + (poly[0])
-                poly_geo =  Polygon(poly)
+                    if start != True and point == first_point:
+                        # Restart as enclosed circle found
+                        # Make an enclosed circle
+                        poly_geo = Polygon(poly)
+                        multipoly_geo.append(poly_geo)
+                        poly = ()
+                        start = True
+                    else:
+                        start = False
+
+                #if poly[0] != poly[len(poly)-1]:
+                #    poly = poly + (poly[0])
+
 
                 #((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)), ((4, 4), (4, 6), (6, 6), (6, 4), (4, 4))
                 region = Region_data(   region_label = row[0],
-                                        geom = poly_geo,
+                                        geom = multipoly_geo,
                                         extra_data = str(row[2:])
                                         )
                 region.save()
