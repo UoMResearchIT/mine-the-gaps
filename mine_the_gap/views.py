@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import TemplateView
 from io import TextIOWrapper
-from django.contrib.gis.geos import Polygon
+from django.contrib.gis.geos import Polygon, Point
 
 import csv
 
@@ -59,7 +59,7 @@ def handle_uploaded_files(request):
                 point_loc = Point(x=float(row[0]),y=float(row[1]))
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
-                    metadata=row[2:])
+                    extra_data=row[2:])
                 sensor.save()
             except Exception as err:
                 #print(err)
@@ -79,7 +79,7 @@ def handle_uploaded_files(request):
                 estimated = Estimated_data( timestamp=row[0],
                                             region_label = row[1],
                                             value = float(row[2]),
-                                            metadata = str(row[3:])
+                                            extra_data = str(row[3:])
                                             )
                 estimated.save()
             except Exception as err:
@@ -111,20 +111,12 @@ def handle_uploaded_files(request):
                 #((0, 0), (0, 10), (10, 10), (0, 10), (0, 0)), ((4, 4), (4, 6), (6, 6), (6, 4), (4, 4))
                 region = Region_data(   region_label = row[0],
                                         geom = poly_geo,
-                                        metadata = str(row[2:])
+                                        extra_data = str(row[2:])
                                         )
                 region.save()
             except Exception as err1:
                 print(err1)
                 print(row[0])
-                try:
-                    poly = row[1]
-                    region = Region_data(   region_label=row[0],
-                                            polygon=poly,
-                                            metadata = str(row[2:]))
-                    region.save()
-                except Exception as err2:
-                    print(err2)
-                    continue
+                continue
 
 

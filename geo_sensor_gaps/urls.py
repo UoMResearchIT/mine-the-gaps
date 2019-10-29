@@ -22,13 +22,15 @@ from django.conf.urls.static import static
 
 from djgeojson.views import GeoJSONLayerView
 
-from mine_the_gap.models import Sensor
+from mine_the_gap.models import Sensor, Region_data
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
-    url(r'^data.geojson$', GeoJSONLayerView.as_view(model=Sensor), name='data'),
+    url(r'^sensor_data.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popupContent']), name='sensor_data'),
+    url(r'^region_data.geojson$', GeoJSONLayerView.as_view(model=Region_data, properties=['popupContent']), name='region_data'),
+
     path('', views.home_page),
 ]
 

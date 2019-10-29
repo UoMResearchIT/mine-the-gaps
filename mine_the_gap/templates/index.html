@@ -1,12 +1,5 @@
 {% extends "base.html" %}
-{% load leaflet_tags %}
-
-{% block head %}
-    {% leaflet_js %}
-    {% leaflet_css %}
-{% endblock %}
-
-
+{% load leaflet_tags static %}
 
 
 {% block body-class %}page-head{% endblock %}
@@ -35,19 +28,40 @@
             <div id="map" class="col-sm-8">
                 <!-- Actual map -->
                 <!--div id="mapid"></div-->
-                {% leaflet_map "mapid" callback="main_map_init" %}
+
 
                 <script type="text/javascript">
+                    var mapIconPath = "{% static 'img' %}"
                     function main_map_init (map, options) {
                         initialise_map(map, options);
-                        var dataurl = '{% url "data" %}';
+
+                        var sensor_dataurl = '{% url "sensor_data" %}';
                         // Download GeoJSON via Ajax
-                        $.getJSON(dataurl, function (data) {
+                        $.getJSON(sensor_dataurl, function (data) {
+                            // Add GeoJSON layer
+                            var markers = L.markerClusterGroup();
+                            markers.addLayer(L.geoJson(
+                                data,
+                                {   onEachFeature: function (feature, layer) {
+                                        //alert(JSON.stringify(feature.geometry.coordinates));
+                                        layer.bindPopup(
+                                            '<p>' + JSON.stringify(feature.geometry.coordinates) + '</p>' +
+                                            '<p>' + feature.properties.popupContent.replace("', '", '\'<br>\'').replace('[','').replace(']','') + '</p>');
+                                    }
+                                }
+                            ));
+                            map.addLayer(markers);
+
+                        });
+
+                        var region_dataurl = '{% url "region_data" %}';
+                        $.getJSON(region_dataurl, function (data) {
                             // Add GeoJSON layer
                             L.geoJson(data).addTo(map);
                         });
                     }
                 </script>
+                {% leaflet_map "mapid" callback="main_map_init" %}
 
 
                 <div id="map-slider">{{ date_range_slider.as_p }}</div>
