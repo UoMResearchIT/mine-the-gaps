@@ -1,6 +1,18 @@
 $(document).ready(function(){
-
+    //var timestampList =
 });
+
+
+function initialise_slider(timestampRange){
+    var slider = document.getElementById("timestamp-range");
+    var output = document.getElementById("current-timestamp");
+    output.innerHTML = slider.value;
+
+    slider.oninput = function() {
+      output.innerHTML = this.value;
+    }
+
+}
 
 
 function initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl) {
@@ -100,7 +112,7 @@ function initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl)
                               'weight': '5'
                           });
                           $('#region-label').html(
-                              '<p>' + feature.properties.popupContent.region_label + '</p>');
+                              '<p>' + feature.properties.popupContent.region_id + '</p>');
                           $('#extra-data').html(
                               '<p>' + JSON.stringify(feature.properties.popupContent.extra_data) + '</p>');
                     });

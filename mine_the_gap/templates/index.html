@@ -30,14 +30,23 @@
                 <script type="text/javascript">
                     function main_map_init (map, options) {
                         var mapIconPath = "{% static 'image/leaflet' %}";
-                        var sensorDataUrl = '{% url "sensor_data" %}';
-                        var regionDataUrl = '{% url "region_data" %}';
+                        var sensorDataUrl = '{% url "sensor" %}';
+                        var regionDataUrl = '{% url "region" %}';
                         initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl);
                     }
                 </script>
                 {% leaflet_map "mapid" callback="main_map_init" %}
 
-                <div id="map-slider">{{ date_range_slider.as_p }}</div>
+                <div id="map-slider">
+                    <script type="text/javascript">
+                        var timestampRange = "{{ timestamp_range }}";
+                        initialise_slider(timestampRange);
+                    </script>
+                    <div class="slidecontainer">
+                      <input type="range" min="1" max="100" value="50" class="slider" id="timestamp-range">
+                      <p>Value: <span id="current-timestamp"></span></p>
+                    </div>
+                </div>
             </div>
             <div id="map-options" class="col-sm-4">
                 <div id="map-overlays"></div>
