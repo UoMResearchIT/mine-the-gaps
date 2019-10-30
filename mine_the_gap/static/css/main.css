@@ -38,11 +38,21 @@
 
 #map-overlays{
     border-style: ridge;
-    height: 200px;
+    height: 100px;
 }
 
-#map-location-data{
+#region-data{
     border-style: ridge;
     height: 700px;
+}
+
+#region-label{
+    border-style: dotted;
+    height: 50px;
+}
+
+#extra-data{
+    border-style: dotted;
+    height: 100px;
 }
 

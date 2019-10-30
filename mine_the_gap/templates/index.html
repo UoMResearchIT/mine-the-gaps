@@ -26,75 +26,25 @@
     <div id="map-main-info" class="container">
         <div class="row">
             <div id="map" class="col-sm-8">
-                <!-- Actual map -->
-                <!--div id="mapid"></div-->
-
 
                 <script type="text/javascript">
-                    var mapIconPath = "{% static 'img' %}"
                     function main_map_init (map, options) {
-                        initialise_map(map, options);
-
-                        var sensor_dataurl = '{% url "sensor_data" %}';
-                        // Download GeoJSON via Ajax
-                        $.getJSON(sensor_dataurl, function (data) {
-                            // Add GeoJSON layer
-                            var markers = L.markerClusterGroup();
-                            markers.addLayer(L.geoJson(
-                                data,
-                                {   onEachFeature: function (feature, layer) {
-                                        //alert(JSON.stringify(feature.geometry.coordinates));
-                                        layer.bindPopup(
-                                            '<p>' + JSON.stringify(feature.geometry.coordinates) + '</p>' +
-                                            '<p>' + feature.properties.popupContent.replace("', '", '\'<br>\'').replace('[','').replace(']','') + '</p>');
-                                    }
-                                }
-                            ));
-                            map.addLayer(markers);
-
-                        });
-
-                        var region_dataurl = '{% url "region_data" %}';
-                        $.getJSON(region_dataurl, function (data) {
-                            // Add GeoJSON layer
-                            L.geoJson(
-                                data,
-                                {   onEachFeature: function (feature, layer) {
-                                        //alert(JSON.stringify(feature.geometry.coordinates));
-                                        layer.on('load', function () {
-                                          this.setStyle({
-                                            'fillColor': null
-                                          });
-                                        });
-
-                                        layer.bindPopup(
-                                            '<p>' + JSON.stringify(feature.properties.popupContent) + '</p>');
-
-                                        layer.on('mouseover', function () {
-                                              this.setStyle({
-                                                'fillColor': '#0000ff'
-                                              });
-                                        });
-                                        layer.on('mouseout', function () {
-                                          this.setStyle({
-                                            'fillColor': null
-                                          });
-                                        });
-
-                                    }
-                                }
-                            ).addTo(map);
-                        });
+                        var mapIconPath = "{% static 'image/leaflet' %}";
+                        var sensorDataUrl = '{% url "sensor_data" %}';
+                        var regionDataUrl = '{% url "region_data" %}';
+                        initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl);
                     }
                 </script>
                 {% leaflet_map "mapid" callback="main_map_init" %}
-
 
                 <div id="map-slider">{{ date_range_slider.as_p }}</div>
             </div>
             <div id="map-options" class="col-sm-4">
                 <div id="map-overlays"></div>
-                <div id="map-location-data"></div>
+                <div id="region-data">
+                    <div id="region-label"></div>
+                    <div id="extra-data"></div>
+                </div>
             </div>
         </div>
     </div>

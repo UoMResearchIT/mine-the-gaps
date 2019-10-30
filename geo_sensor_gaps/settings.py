@@ -133,6 +133,6 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-#LEAFLET_CONFIG = {
-#    'SPATIAL_EXTENT': (0.0, 51.5, 7.5, 46)
-#}
+LEAFLET_CONFIG = {
+    'RESET_VIEW' : False
+}
