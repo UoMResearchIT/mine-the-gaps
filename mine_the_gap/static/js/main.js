@@ -3,14 +3,83 @@ $(document).ready(function(){
 });
 
 
-function initialise_slider(timestampRange){
+function initialise_slider(timestampRange, actualDataUrl, estimatedDataUrl){
+    //alert(timestampRange[1]);
+
     var slider = document.getElementById("timestamp-range");
     var output = document.getElementById("current-timestamp");
-    output.innerHTML = slider.value;
+    slider.min = 0;
+    slider.max = timestampRange.length-1;
+    slider.value = 0;
+    output.innerHTML = 0;//timestampRange[this.value]; //slider.value; // Display the default slider value
 
+    // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function() {
-      output.innerHTML = this.value;
+        output.innerHTML = timestampRange[this.value];
+        update_timeseries_map(
+                                actualDataUrl + this.value.toString(),
+                                estimatedDataUrl + this.value.toString()
+                            );
     }
+
+}
+
+function update_timeseries_map(actualDataUrl, estimatedDataUrl){
+
+    // Sensor time series (actual data)
+    //alert(actualDataUrl);
+
+    // Download GeoJSON via Ajax
+    $.getJSON(actualDataUrl, function (data) {
+        // Add GeoJSON layer
+
+        //alert(JSON.stringify(data));
+
+        /*
+            [   {"timestamp":"2017-03-22 00:00:00+00","value":102,"sensor_id":757,"id":640849},
+                {"timestamp":"2017-03-22 00:00:00+00","value":135,"sensor_id":754,"id":640850},
+                {"timestamp":"2017-03-22 00:00:00+00","value":55,"sensor_id":755,"id":640851},
+                ...
+             ]
+         */
+
+        for (var i=0; i < data.length; i++){
+            alert(JSON.stringify(data[i]));
+            alert(L.map);
+
+
+            $.each(L.map._layers, function (ml) {
+                alert(1);
+                var layer = L.map._layers[ml];
+                if (layer.feature) {
+                    alert(2);
+                    // L.marker(latlng, {icon: myIcon, id: feature.properties.popupContent.sensor_id});
+                    if (layer._id = data[i]['sensor_id']){
+                        alert(3);
+                    }
+
+                }
+            });
+        }
+
+
+        /*map.addLayer(L.geoJson(
+            data,
+            {
+                pointToLayer: function (feature, latlng) {
+                    return L.marker(latlng, {icon: myIcon});
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(
+                        '<p>' + JSON.stringify(feature.geometry.coordinates) + '</p>' +
+                        '<p>' + feature.properties.popupContent.replace("', '", '\'<br>\'').replace('[', '').replace(']', '') + '</p>');
+                }
+
+            }
+        ));*/
+
+    });
+
 
 }
 
@@ -62,9 +131,8 @@ function initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl)
                     //popupAnchor: [-3, -76],
                 });
 
-    var sensor_dataurl = sensorDataUrl;
     // Download GeoJSON via Ajax
-    $.getJSON(sensor_dataurl, function (data) {
+    $.getJSON(sensorDataUrl, function (data) {
         // Add GeoJSON layer
 
         // Uncomment (1/2) if we want to use markercluster
@@ -76,12 +144,16 @@ function initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl)
             data,
             {
                 pointToLayer: function (feature, latlng) {
-                    return L.marker(latlng, {icon: myIcon});
+                    return L.marker(latlng, {icon: myIcon, id: feature.properties.popupContent.sensor_id});
                 },
                 onEachFeature: function (feature, layer) {
+                    //layer.id =
                     layer.bindPopup(
                         '<p>' + JSON.stringify(feature.geometry.coordinates) + '</p>' +
-                        '<p>' + feature.properties.popupContent.replace("', '", '\'<br>\'').replace('[', '').replace(']', '') + '</p>');
+                        '<p>'
+                            + feature.properties.popupContent.extra_data.replace(
+                            "', '", '\'<br>\'').replace('[', '').replace(']', '') +
+                        '</p>');
                 }
 
             }
@@ -92,8 +164,7 @@ function initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl)
 
     });
 
-    var region_dataurl = regionDataUrl;
-    $.getJSON(region_dataurl, function (data) {
+    $.getJSON(regionDataUrl, function (data) {
         // Add GeoJSON layer
         L.geoJson(
             data,

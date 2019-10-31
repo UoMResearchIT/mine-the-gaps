@@ -30,8 +30,8 @@ urlpatterns = [
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
     url(r'^sensor.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popupContent']), name='sensor'),
     url(r'^region.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popupContent']), name='region'),
-    url(r'^actual_data.geojson/<int:timestamp>/$', GeoJSONLayerView.as_view(model=Actual_data), name='actual_data'),
-    url(r'^estimated_data.geojson/<int:timestamp>/$', GeoJSONLayerView.as_view(model=Estimated_data), name='estimated_data'),
+    path('actual_data/<int:timestamp_idx>/', views.get_actuals_at_timestamp),
+    path('estimated_data/<int:timestamp_idx>/', views.get_estimates_at_timestamp),
 
     path('', views.home_page),
 ]

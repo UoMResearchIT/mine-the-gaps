@@ -13,12 +13,13 @@ class Sensor(gismodels.Model):
 
     @property
     def popupContent(self):
-        return self.extra_data
+        return {'sensor_id': self.id, 'extra_data': self.extra_data}
 
 class Actual_data(gismodels.Model):
-    timestamp = models.DateField(null=False)
+    timestamp = models.CharField(max_length=30, null=False)
     value = models.FloatField(null=True)
     sensor = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
+
 
 
 
@@ -35,7 +36,7 @@ class Region(gismodels.Model):
         return {'region_id': self.region_id, 'extra_data': self.extra_data}
 
 class Estimated_data(gismodels.Model):
-    timestamp = models.DateField(null=False)
+    timestamp = models.CharField(max_length=30, null=False)
     value = models.FloatField(null=True)
     extra_data = models.CharField(max_length=500, null=True)
     region = models.ForeignKey(Region, null=True, on_delete=models.CASCADE)

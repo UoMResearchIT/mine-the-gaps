@@ -5,8 +5,11 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import TemplateView
 from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
+from django.http import JsonResponse
 
 import csv
+import json
+import datetime
 
 from .forms import FileUploadForm
 from .models import Actual_data, Estimated_data, Region, Sensor
@@ -21,12 +24,51 @@ def home_page(request):
     else:
         form = FileUploadForm(files=request.FILES)
 
-    timestamp_range = [1,2,3,4,5]
+    timestamp_range = get_timestamp_list()
 
     return render(request, 'index.html', {'form': form, 'timestamp_range': timestamp_range})
 
+
+def get_actuals_at_timestamp(request, timestamp_idx):
+    timestamps = get_timestamp_list()
+
+    try:
+        timestamp_d = timestamps[timestamp_idx]
+    except:
+        return None
+
+    query_set = Actual_data.objects.select_related('sensor_id')
+    query_set_2 = query_set.filter(timestamp=timestamp_d)
+    data = list(query_set_2.values())
+
+    return JsonResponse(data, safe=False)
+
+
+
+def get_estimates_at_timestamp(request, timestamp_idx):
+    timestamps = get_timestamp_list()
+
+    try:
+        timestamp_d = timestamps[timestamp_idx]
+    except:
+        return None
+
+    query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
+    data = list(query_set.values())
+
+    return JsonResponse(data, safe=False)
+
+
+
 def get_timestamp_list():
-    return Estimated_data.objects.order_by('timestamp').values('timestamp').distinct()
+    query_set = Estimated_data.objects.order_by('timestamp').values('timestamp').distinct()
+    result = []
+
+    for idx, item in enumerate(query_set):
+        # e.g.: {'timestamp': datetime.date(2017, 1, 1)}
+        result.append(item['timestamp'])
+
+    return result
 
 def handle_uploaded_files(request):
 
