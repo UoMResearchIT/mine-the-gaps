@@ -37,9 +37,12 @@ def get_actuals_at_timestamp(request, timestamp_idx):
     except:
         return None
 
-    query_set = Actual_data.objects.select_related('sensor_id')
-    query_set_2 = query_set.filter(timestamp=timestamp_d)
-    data = list(query_set_2.values())
+    query_set = Actual_data.objects.filter(timestamp=timestamp_d)
+
+    data = []
+
+    for row in query_set.iterator():
+        data.append(row.join_sensor)
 
     return JsonResponse(data, safe=False)
 
@@ -54,7 +57,11 @@ def get_estimates_at_timestamp(request, timestamp_idx):
         return None
 
     query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
-    data = list(query_set.values())
+
+    data = []
+
+    for row in query_set.iterator():
+        data.append(row.join_region)
 
     return JsonResponse(data, safe=False)
 

@@ -20,6 +20,11 @@ class Actual_data(gismodels.Model):
     value = models.FloatField(null=True)
     sensor = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
 
+    @property
+    def join_sensor(self):
+        return {'timestamp': self.timestamp, 'value':self.value, 'sensor_id': self.sensor_id,
+                'geom': self.sensor.geom.coords, 'extra_data': self.sensor.extra_data}
+
 
 
 
@@ -42,8 +47,9 @@ class Estimated_data(gismodels.Model):
     region = models.ForeignKey(Region, null=True, on_delete=models.CASCADE)
 
     @property
-    def popupContent(self):
-        return {'region_id': self.region.region_id, 'extra_data': self.extra_data}
+    def join_region(self):
+        return {'timestamp': self.timestamp, 'value': self.value, 'region_id': self.region_id,
+                'geom': self.region.geom.coords, 'extra_data': self.extra_data, 'region_extra_data': self.region.extra_data}
 
 
 

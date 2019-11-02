@@ -1,5 +1,5 @@
-{% load static %}
-{% load leaflet_tags %}
+{% load static leaflet_tags %}
+{% load  %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,8 +23,9 @@
     <script src="{% static 'js/jquery-ui.min.js' %}" ></script>
     <script src="{% static 'js/bootstrap.js' %}"></script>
 
-    {% leaflet_js %}
     {% leaflet_css %}
+    {% leaflet_js %}
+
 
     <!-- Markcluster for Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css">
@@ -38,6 +39,8 @@
     <!--script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster-src.js'></script-->
     <!--script type='text/javascript' src={% static 'js/leaflet.markercluster.js' %}></script>
     <script type='text/javascript' src={% static 'js/leaflet.markercluster-src.js' %}></script-->
+
+    <script src="{% static 'js/svg-icon.js' %}"></script>
 
     <script src="{% static 'js/main.js' %}"></script>
 

@@ -27,31 +27,27 @@
         <div class="row">
             <div id="map" class="col-sm-8">
 
-                <script type="text/javascript">
-                    function main_map_init (map, options) {
-                        var mapIconPath = "{% static 'image/leaflet' %}";
-                        var sensorDataUrl = '{% url "sensor" %}';
-                        var regionDataUrl = '{% url "region" %}';
-                        initialise_map(map, options, mapIconPath, sensorDataUrl, regionDataUrl);
-                    }
-                </script>
-                {% leaflet_map "mapid" callback="main_map_init" %}
+                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
+                <div id="mapid"></div>
 
                 <div id="map-slider">
                     <div class="slidecontainer">
                       <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
                       <p>Value: <span id="current-timestamp"></span></p>
                     </div>
-                    <script type="text/javascript">
-                        var actualDataUrl = '{{ request.path }}' + 'actual_data/';
-                        //alert(actualDataUrl);
-                        var estimatedDataUrl = '{{ request.path }}' + 'estimated_data/';
-                        var timestampRange = "{{timestamp_range|escapejs }}";
-                        var timestampList = timestampRange.replace('[','').replace(']','').split(',');
-                        //alert(timestampList[0]);
-                        initialise_slider(timestampList, actualDataUrl, estimatedDataUrl);
-                    </script>
                 </div>
+
+                <script type="text/javascript">
+                    var timestampRange = "{{timestamp_range|escapejs }}";
+                    var timestampList = timestampRange.replace('[','').replace(']','').split(',');
+                    var actualDataUrl = '{{ request.path }}' + 'actual_data/';
+                    var estimatedDataUrl = '{{ request.path }}' + 'estimated_data/';
+                    var mapIconPath = "{% static 'image/leaflet' %}";
+                    var sensorDataUrl = '{% url "sensor" %}';
+                    var regionDataUrl = '{% url "region" %}';
+
+                </script>
+
             </div>
             <div id="map-options" class="col-sm-4">
                 <div id="map-overlays"></div>
