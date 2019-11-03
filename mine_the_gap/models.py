@@ -15,6 +15,8 @@ class Sensor(gismodels.Model):
     def popupContent(self):
         return {'sensor_id': self.id, 'extra_data': self.extra_data}
 
+
+
 class Actual_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
     value = models.FloatField(null=True)
@@ -22,7 +24,7 @@ class Actual_data(gismodels.Model):
 
     @property
     def join_sensor(self):
-        return {'timestamp': self.timestamp, 'value':self.value, 'sensor_id': self.sensor_id,
+        return {'timestamp': self.timestamp, 'value': float(self.value), 'sensor_id': self.sensor_id,
                 'geom': self.sensor.geom.coords, 'extra_data': self.sensor.extra_data}
 
 

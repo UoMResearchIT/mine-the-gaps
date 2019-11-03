@@ -9,6 +9,18 @@
 
     <div class="container load-files">
         <div class="row">
+            <div id="selected-files" class="col-sm-10">
+                <span>Current data files:</span><br>
+                <span id="actual-data-file">Actual: {{ filepath_actual }}</span>
+                <span id="estimated-data-file">Estimated: {{ filepath_estimated_data }}</span>
+                <span id="region-data-file">Region: {{ filepath_region_data }}</span>
+                <span id="sensor-data-file">Sensor: {{ filepath_sensor }}</span>
+            </div>
+            <div class="col-sm-2">
+                <button id="btn-select-files">Select files (toggle)</button>
+            </div>
+        </div>
+        <div class="row" id="select-files">
 
                 <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
                     <div id="upload-fields" class='col-sm-10'>

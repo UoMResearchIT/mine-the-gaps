@@ -1,47 +1,16 @@
 $(document).ready(function(){
-    var lon = "-4.5481";
-    var lat = "54.2361";
-    var map = L.map('mapid').setView([lat, lon], 6);
-    map.options.minZoom = 5;
-    map.options.maxZoom = 14;
+    $("div#select-files").hide();
+    // Upload files toggle button
+        $("button#btn-select-files").click(function(){
+        $("div#select-files").toggle('slow');
+      });
 
+
+    //Create map
+    var map = L.map('mapid');
     var sensorsLayer = new L.LayerGroup();
     var regionsLayer = new L.LayerGroup();
     var regions = {};
-
-
-    // Initialise map
-
-    L.tileLayer(
-        //'https://api2.ordnancesurvey.co.uk/mapping_api/v1/service/zxy/EPSG%3A3857/Outdoor 3857/{z}/{x}/{y}.png?'
-        //    + 'key=dLrw1sspLHoFDB0qbDNVPvlfG5FwXkxA',
-        //'https://api2.ordnancesurvey.co.uk/mapping_api/v1/service/zxy/EPSG%3A3857/Outdoor%203857/{z}/{x}/{y}.png?' + 'key=dLrw1sspLHoFDB0qbDNVPvlfG5FwXkxA',
-        //{
-        //    maxZoom: 20,
-        //    minZoom: 7
-        //}
-        'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: 'mapbox.streets',
-            accessToken: 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew'
-        }
-    ).addTo(map);
-
-    function locateBounds () {
-     // geolocate
-        //(49.383639452689664, -17.39866406249996)
-        //(59.53530451232491, 8.968523437500039)
-
-         return L.latLngBounds(
-             [  [49.383639452689664, -17.39866406249996],
-                [59.53530451232491, 8.968523437500039]
-             ]
-         );
-    }
-
-    (new L.Control.ResetView(locateBounds)).addTo(map);
-
 
     initialise_map(map);
     initialise_slider();
@@ -58,6 +27,8 @@ $(document).ready(function(){
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             output.innerHTML = timestampList[this.value];
+        };
+        slider.onchange = function() {
             update_timeseries_map(
                                     actualDataUrl + this.value.toString(),
                                     estimatedDataUrl + this.value.toString()
@@ -75,26 +46,38 @@ $(document).ready(function(){
 
         $.getJSON(actualDataUrl, function (data) {
                 /*[
-                    {
-                        "geom":[-2.1031362,57.1453481],  // Need swapping around!!
+                    {   "extra_data":"['Aberdeen Union Street Roadside', 'AB', '179 Union St, Aberdeen AB11 6BB, UK']",
+                        "value":66,
+                        "timestamp":"2017-01-01 00:00:00+00",
+                        "percent_score":0.436241610738255,
                         "sensor_id":757,
-                        "value":100,
-                        "timestamp":"2017-06-06 00:00:00+00",
-                        "extra_data":"['Aberdeen Union Street Roadside', 'AB', '179 Union St, Aberdeen AB11 6BB, UK']"}
+                        "geom":[-2.1031362,57.1453481]
+                    }
                   ]
                 */
 
             for (var i=0; i<data.length; i++){
                 var loc = data[i];
+                /*if(i==0) {
+                    alert(JSON.stringify(loc));
+                }*/
                 var latlng = [loc.geom[1], loc.geom[0]];
-
-                var iconColor = "rgb(0,0,100)";
-
-                var marker = new L.Marker.SVGMarker(latlng, { iconOptions: { color: iconColor, iconSize: [10,15]}});
+                var valColor = getGreenToRed(loc.percent_score*100).toString();
+                var marker = new L.Marker.SVGMarker(latlng,
+                        {   iconOptions: {
+                                color: valColor,
+                                iconSize: [20,30],
+                                circleText: loc.value.toString(),
+                                circleRatio: 0.7
+                            }
+                        }
+                    );
 
                 // Add marker
-                marker.bindPopup("<b>" + loc.geom + '</b><br><p>Value: ' + loc['value'].toString()  + '</p><br>' +
-                    '<p>Timestamp: ' + loc['timestamp'].toString()  + '</p>' + loc['extra_data'] );
+                marker.bindPopup("<b>" + loc.geom + '</b><br><p>Value: ' + loc['value'].toString() +
+                    '<p>Percentage Score: ' + loc['percent_score'].toString() +
+                    '<br>' +
+                    'Timestamp: ' + loc['timestamp'].toString()  + '</p>' + loc['extra_data'] );
 
                 sensorsLayer.addLayer(marker);
             }
@@ -132,6 +115,7 @@ $(document).ready(function(){
                 var region = data[i];
 
                 var layer = regions[region.region_id];
+
                 layer.setStyle({
                             'fillColor': 'pink',
                             'weight': '1'
@@ -148,9 +132,10 @@ $(document).ready(function(){
         var lon = "-4.5481";
         var lat = "54.2361";
         map.setView([lat, lon], 6);
-
         map.options.minZoom = 5;
         map.options.maxZoom = 14;
+
+        // Initialise map
 
         L.tileLayer(
             //'https://api2.ordnancesurvey.co.uk/mapping_api/v1/service/zxy/EPSG%3A3857/Outdoor 3857/{z}/{x}/{y}.png?'
@@ -170,7 +155,6 @@ $(document).ready(function(){
 
         function locateBounds () {
          // geolocate
-
             //(49.383639452689664, -17.39866406249996)
             //(59.53530451232491, 8.968523437500039)
 
@@ -180,6 +164,7 @@ $(document).ready(function(){
                  ]
              );
         }
+
         (new L.Control.ResetView(locateBounds)).addTo(map);
 
         regionsLayer.clearLayers();
@@ -225,6 +210,12 @@ $(document).ready(function(){
     }
 
 });
+
+function getGreenToRed(percent){
+    r = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
+    g = percent>50 ? 255 : Math.floor((percent*2)*255/100);
+    return 'rgb('+r+','+g+',0)';
+}
 
 
 
