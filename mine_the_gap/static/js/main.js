@@ -66,9 +66,10 @@ $(document).ready(function(){
                 var marker = new L.Marker.SVGMarker(latlng,
                         {   iconOptions: {
                                 color: valColor,
-                                iconSize: [20,30],
+                                iconSize: [30,40],
                                 circleText: loc.value.toString(),
-                                circleRatio: 0.7
+                                circleRatio: 0.8,
+                                fontSize:8
                             }
                         }
                     );
@@ -105,7 +106,8 @@ $(document).ready(function(){
                             [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
                             [-0.2533,51.7197],[-0.25616,51.71952]]]],
                          "extra_data":"['1']",
-                         "timestamp":"2017-08-22 00:00:00+00"
+                         "timestamp":"2017-08-22 00:00:00+00",
+                         "percent_score": 0.33557046979865773
                      }
                   ]
                 */
@@ -116,11 +118,15 @@ $(document).ready(function(){
 
                 var layer = regions[region.region_id];
 
+                var valColor = getGreenToRed(region.percent_score*100).toString();
                 layer.setStyle({
-                            'fillColor': 'pink',
+                            'fillColor': valColor,
                             'weight': '1'
                           });
 
+                layer.bindTooltip(region.value.toString() + '<br>' + region.extra_data,
+                   {permanent: false, direction:"center", opacity:0.9}
+                  )
 
             }
         });
@@ -196,7 +202,7 @@ $(document).ready(function(){
                         layer.on('mouseout', function () {
                           this.setStyle({
                             //'fillColor': 'transparent'
-                              'weight': '1'
+                            'weight': '1'
                           });
                         });
 
@@ -212,8 +218,8 @@ $(document).ready(function(){
 });
 
 function getGreenToRed(percent){
-    r = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
-    g = percent>50 ? 255 : Math.floor((percent*2)*255/100);
+    g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
+    r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
     return 'rgb('+r+','+g+',0)';
 }
 

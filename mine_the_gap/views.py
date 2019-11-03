@@ -12,24 +12,29 @@ from .forms import FileUploadForm
 from .models import Actual_data, Estimated_data, Region, Sensor
 from django.db.models import Max, Min
 
-
+filepath_sensor = ''
+filepath_actual = ''
+filepath_region_data = ''
+filepath_estimated_data = ''
 
 def home_page(request):
-    filepath_sensor = ''
-    filepath_actual = ''
-    filepath_region_data = ''
-    filepath_estimated_data = ''
+    global filepath_sensor
+    global filepath_actual
+    global filepath_region_data
+    global filepath_estimated_data
 
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             handle_uploaded_files(request)
-            #filepath_sensor = request.FILES['sensor_data_file']
-            #filepath_actual = request.FILES['actual_data_file']
-            filepath_sensor = form.cleaned_data.get("sensor_data_file") if form.cleaned_data.get("sensor_data_file") else ''
-            filepath_actual = form.cleaned_data.get("actual_data_file") if form.cleaned_data.get("actual_data_file") else ''
-            filepath_region_data = form.cleaned_data.get("region_data_file") if form.cleaned_data.get("region_data_file") else ''
-            filepath_estimated_data = form.cleaned_data.get("estimated_data_file") if form.cleaned_data.get("estimated_data_file") else ''
+            filepath_sensor = form.cleaned_data.get("sensor_data_file") \
+                if form.cleaned_data.get("sensor_data_file") else filepath_sensor
+            filepath_actual = form.cleaned_data.get("actual_data_file") \
+                if form.cleaned_data.get("actual_data_file") else filepath_actual
+            filepath_region_data = form.cleaned_data.get("region_data_file") \
+                if form.cleaned_data.get("region_data_file") else filepath_region_data
+            filepath_estimated_data = form.cleaned_data.get("estimated_data_file") \
+                if form.cleaned_data.get("estimated_data_file") else filepath_estimated_data
     else:
         form = FileUploadForm(files=request.FILES)
 
@@ -82,8 +87,14 @@ def get_estimates_at_timestamp(request, timestamp_idx):
 
     data = []
 
+    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
+    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
+
     for row in query_set.iterator():
-        data.append(row.join_region)
+        percentage_score = (row.value - min_val) / (max_val - min_val)
+        new_row = dict(row.join_region)
+        new_row['percent_score'] = percentage_score
+        data.append(new_row)
 
     return JsonResponse(data, safe=False)
 
