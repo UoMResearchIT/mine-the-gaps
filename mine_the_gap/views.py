@@ -75,6 +75,55 @@ def get_actuals_at_timestamp(request, timestamp_idx):
     return JsonResponse(data, safe=False)
 
 
+def get_diffusion_estimates_at_timestamp(request, timestamp_idx):
+    timestamps = get_timestamp_list()
+
+    try:
+        timestamp_d = timestamps[timestamp_idx]
+    except:
+        return None
+
+    estimates = []
+
+    data = []
+
+    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
+    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
+
+    for row in estimates.iterator():
+        percentage_score = (row.value - min_val) / (max_val - min_val)
+        new_row = dict(row.join_region)
+        new_row['percent_score'] = percentage_score
+        data.append(new_row)
+
+    return JsonResponse(data, safe=False)
+
+
+def get_distance_estimates_at_timestamp(request, timestamp_idx):
+    timestamps = get_timestamp_list()
+
+    try:
+        timestamp_d = timestamps[timestamp_idx]
+    except:
+        return None
+
+    estimates = []
+
+    data = []
+
+    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
+    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
+
+    for row in estimates.iterator():
+        percentage_score = (row.value - min_val) / (max_val - min_val)
+        new_row = dict(row.join_region)
+        new_row['percent_score'] = percentage_score
+        data.append(new_row)
+
+    return JsonResponse(data, safe=False)
+
+
+
 
 def get_estimates_at_timestamp(request, timestamp_idx):
     timestamps = get_timestamp_list()

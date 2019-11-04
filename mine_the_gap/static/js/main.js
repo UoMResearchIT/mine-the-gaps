@@ -1,9 +1,19 @@
 $(document).ready(function(){
+
     $("div#select-files").hide();
     // Upload files toggle button
         $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');
       });
+
+    var curEstimatedDataUrl = estimatedDataUrl + '_file/';
+    var curActualDataUrl = actualDataUrl + '/';
+
+    $("#estimation-method>input").change(function() {
+        curEstimatedDataUrl = estimatedDataUrl + '_' + this.value + '/';
+        initialise_map(mapType=$("#map-overlays>input").value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        initialise_slider(value=document.getElementById("timestamp-range").value);
+    });
 
 
 
@@ -29,15 +39,15 @@ $(document).ready(function(){
         slider.max = timestampList.length-1;
         slider.value = value;
         output.innerHTML = timestampList[value]; // Display the default slider value
-        update_timeseries_map(actualDataUrl+value.toString(), estimatedDataUrl+value.toString());
+        update_timeseries_map(curActualDataUrl+value.toString(), curEstimatedDataUrl+value.toString());
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             output.innerHTML = timestampList[this.value];
         };
         slider.onchange = function() {
             update_timeseries_map(
-                                    actualDataUrl + this.value.toString(),
-                                    estimatedDataUrl + this.value.toString()
+                                    curActualDataUrl + this.value.toString(),
+                                    curEstimatedDataUrl + this.value.toString()
                                 );
         };
 

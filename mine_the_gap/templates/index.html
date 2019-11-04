@@ -53,8 +53,8 @@
                 <script type="text/javascript">
                     var timestampRange = "{{timestamp_range|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').split(',');
-                    var actualDataUrl = '{{ request.path }}' + 'actual_data/';
-                    var estimatedDataUrl = '{{ request.path }}' + 'estimated_data/';
+                    var actualDataUrl = '{{ request.path }}' + 'actual_data';
+                    var estimatedDataUrl = '{{ request.path }}' + 'estimated_data';
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensor" %}';
                     var regionDataUrl = '{% url "region" %}';
@@ -70,12 +70,12 @@
                 </div>
                 <div id="estimation-method">
                     <span>Select estimation method:</span><br>
-                      <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimation input file<br>
+                      <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
                       <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings) IN PROGRESS<br>
                       <input type="radio" name="estimation-method" value="distance"> Distance INCOMPLETE<br>
                     <br>
                     <span>Select estimation regions:</span><br>
-                      <input type="radio" name="region-method" value="file" checked="checked"> Use region input file<br>
+                      <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
                       <input type="radio" name="region-method" value="squares-1"> Squares (1km) INCOMPLETE<br>
                       <input type="radio" name="region-method" value="squares-10"> Squares (10km) INCOMPLETE<br>
 
