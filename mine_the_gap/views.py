@@ -12,6 +12,7 @@ import csv
 from .forms import FileUploadForm
 from .models import Actual_data, Estimated_data, Region, Sensor
 from django.db.models import Max, Min
+from .region_estimator import Region_estimator
 
 filepath_sensor = ''
 filepath_actual = ''
@@ -75,76 +76,42 @@ def get_actuals_at_timestamp(request, timestamp_idx):
     return JsonResponse(data, safe=False)
 
 
-def get_diffusion_estimates_at_timestamp(request, timestamp_idx):
-    timestamps = get_timestamp_list()
+def get_estimates_at_timestamp(request, method_name, timestamp_idx):
+    data = []
+    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
+    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
 
+
+    timestamps = get_timestamp_list()
     try:
         timestamp_d = timestamps[timestamp_idx]
     except:
         return None
 
-    estimates = []
 
-    data = []
+    if method_name == 'file':
+        query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
 
-    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
-    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
+        for row in query_set.iterator():
+            percentage_score = (row.value - min_val) / (max_val - min_val)
+            new_row = dict(row.join_region)
+            new_row['percent_score'] = percentage_score
+            data.append(new_row)
+    else:
+        estimator = Region_estimator()
+        result = estimator.get_all_region_estimations(method_name, timestamp_d)
 
-    for row in estimates.iterator():
-        percentage_score = (row.value - min_val) / (max_val - min_val)
-        new_row = dict(row.join_region)
-        new_row['percent_score'] = percentage_score
-        data.append(new_row)
-
-    return JsonResponse(data, safe=False)
-
-
-def get_distance_estimates_at_timestamp(request, timestamp_idx):
-    timestamps = get_timestamp_list()
-
-    try:
-        timestamp_d = timestamps[timestamp_idx]
-    except:
-        return None
-
-    estimates = []
-
-    data = []
-
-    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
-    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
-
-    for row in estimates.iterator():
-        percentage_score = (row.value - min_val) / (max_val - min_val)
-        new_row = dict(row.join_region)
-        new_row['percent_score'] = percentage_score
-        data.append(new_row)
-
-    return JsonResponse(data, safe=False)
+        for row in result:
+            percentage_score = (row.value - min_val) / (max_val - min_val)
+            new_row = dict(row.join_region)
+            new_row['percent_score'] = percentage_score
+            data.append(new_row)
 
 
 
 
-def get_estimates_at_timestamp(request, timestamp_idx):
-    timestamps = get_timestamp_list()
 
-    try:
-        timestamp_d = timestamps[timestamp_idx]
-    except:
-        return None
 
-    query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
-
-    data = []
-
-    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
-    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
-
-    for row in query_set.iterator():
-        percentage_score = (row.value - min_val) / (max_val - min_val)
-        new_row = dict(row.join_region)
-        new_row['percent_score'] = percentage_score
-        data.append(new_row)
 
     return JsonResponse(data, safe=False)
 

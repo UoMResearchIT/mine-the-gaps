@@ -6,11 +6,11 @@ $(document).ready(function(){
         $("div#select-files").toggle('slow');
       });
 
-    var curEstimatedDataUrl = estimatedDataUrl + '_file/';
+    var curEstimatedDataUrl = estimatedDataUrl + '/file/';
     var curActualDataUrl = actualDataUrl + '/';
 
     $("#estimation-method>input").change(function() {
-        curEstimatedDataUrl = estimatedDataUrl + '_' + this.value + '/';
+        curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
         initialise_map(mapType=$("#map-overlays>input").value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
