@@ -131,6 +131,7 @@ $(document).ready(function(){
             // Update regions to show values
             for (var i=0; i<data.length; i++){
                 var region = data[i];
+                //alert(JSON.stringify(region));
 
                 var layer = regions[region.region_id];
 
@@ -139,10 +140,13 @@ $(document).ready(function(){
                             'fillColor': valColor,
                             'weight': '1'
                           });
-
-                layer.bindTooltip(region.value.toString() + '<br>' + region.extra_data,
-                   {permanent: false, direction:"center", opacity:0.9}
-                  )
+                try {
+                    layer.bindTooltip(region.value.toString() + '<br>' + region.extra_data,
+                        {permanent: false, direction: "center", opacity: 0.9}
+                    )
+                }catch (e) {
+                    //alert(JSON.stringify(region));
+                }
 
             }
         });

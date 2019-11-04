@@ -42,6 +42,13 @@ class Region(gismodels.Model):
     def popupContent(self):
         return {'region_id': self.region_id, 'extra_data': self.extra_data}
 
+    @property
+    def adjacent_regions(self):
+        return Region.objects.filter(geom__touches=self.geom)
+
+
+
+
 class Estimated_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
     value = models.FloatField(null=True)

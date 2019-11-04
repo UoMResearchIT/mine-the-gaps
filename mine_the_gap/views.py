@@ -9,8 +9,8 @@ from django.contrib.gis.geos import GEOSGeometry
 
 import csv
 
-from .forms import FileUploadForm
-from .models import Actual_data, Estimated_data, Region, Sensor
+from mine_the_gap.forms import FileUploadForm
+from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor
 from django.db.models import Max, Min
 from .region_estimator import Region_estimator
 
@@ -91,7 +91,6 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
 
     if method_name == 'file':
         query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
-
         for row in query_set.iterator():
             percentage_score = (row.value - min_val) / (max_val - min_val)
             new_row = dict(row.join_region)
@@ -100,18 +99,14 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
     else:
         estimator = Region_estimator()
         result = estimator.get_all_region_estimations(method_name, timestamp_d)
-
         for row in result:
-            percentage_score = (row.value - min_val) / (max_val - min_val)
-            new_row = dict(row.join_region)
-            new_row['percent_score'] = percentage_score
-            data.append(new_row)
-
-
-
-
-
-
+            #print('Row:',row)
+            if row['value']:
+                percentage_score = (row['value'] - min_val) / (max_val - min_val)
+            else:
+                percentage_score = None
+            row['percent_score'] = percentage_score
+            data.append(row)
 
     return JsonResponse(data, safe=False)
 
