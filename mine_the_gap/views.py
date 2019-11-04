@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
+from django.contrib.gis.geos import GEOSGeometry
 
 import csv
 

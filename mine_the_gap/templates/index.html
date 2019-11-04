@@ -62,7 +62,24 @@
 
             </div>
             <div id="map-options" class="col-sm-4">
-                <div id="map-overlays"></div>
+                <div id="map-overlays">
+                    <p>Select map:</p>
+                      <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
+                      <input type="radio" name="map-type" value="topology"> Topology <br>
+                </div>
+                <div id="estimation-method">
+                    <p>Select estimation method:</p>
+                      <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimation input file<br>
+                      <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings) <br>
+                      <input type="radio" name="estimation-method" value="distance"> Distance INCOMPLETE<br>
+                      <input type="radio" name="estimation-method" value="distance-alt">  Distance and altitude INCOMPLETE<br>
+
+                    <p>Select estimation regions:</p>
+                      <input type="radio" name="region-method" value="file" checked="checked"> Use region input file<br>
+                      <input type="radio" name="region-method" value="squares-1"> Squares (1km) INCOMPLETE<br>
+                      <input type="radio" name="region-method" value="squares-10"> Squares (10km) INCOMPLETE<br>
+
+                </div>
                 <div id="region-data">
                     <div id="region-label"></div>
                     <div id="extra-data"></div>

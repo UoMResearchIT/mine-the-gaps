@@ -6,6 +6,7 @@ $(document).ready(function(){
       });
 
 
+
     //Create map
     var map = L.map('mapid');
     var sensorsLayer = new L.LayerGroup();
@@ -15,15 +16,20 @@ $(document).ready(function(){
     initialise_map(map);
     initialise_slider();
 
+    $("#map-overlays>input").change(function() {
+        initialise_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        initialise_slider(value=document.getElementById("timestamp-range").value);
+    });
 
-    function initialise_slider(){
+
+    function initialise_slider(value=0){
         var slider = document.getElementById("timestamp-range");
         var output = document.getElementById("current-timestamp");
         slider.min = 0;
         slider.max = timestampList.length-1;
-        slider.value = 0;
-        output.innerHTML = timestampList[0]; // Display the default slider value
-        update_timeseries_map(actualDataUrl+'0', estimatedDataUrl+'0');
+        slider.value = value;
+        output.innerHTML = timestampList[value]; // Display the default slider value
+        update_timeseries_map(actualDataUrl+value.toString(), estimatedDataUrl+value.toString());
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             output.innerHTML = timestampList[this.value];
@@ -134,29 +140,56 @@ $(document).ready(function(){
 
     }
 
-    function initialise_map(){
-        var lon = "-4.5481";
-        var lat = "54.2361";
-        map.setView([lat, lon], 6);
+    function initialise_map(mapType='street-map', zoomLevel=6, mapCenter=["54.2361","-4.5481"]){
+        //var lon = "-4.5481";
+        //var lat = "54.2361";
+        map.setView(mapCenter, zoomLevel);
         map.options.minZoom = 5;
         map.options.maxZoom = 14;
 
         // Initialise map
+        var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
+
+        var mapId = 'mapbox.streets';
+        var mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+        var mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
+                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
+                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+
+        switch(mapType) {
+          case 'street-map':
+            mapId = 'mapbox.streets';
+            mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+            mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
+                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
+                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+            break;
+          case 'topology':
+            mapId = 'mapbox.streets';
+            mapUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+            mapAttribution = 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
+                ' contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: ' +
+                '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> ' +
+                '(<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)';
+            break;
+        }
 
         L.tileLayer(
-            //'https://api2.ordnancesurvey.co.uk/mapping_api/v1/service/zxy/EPSG%3A3857/Outdoor 3857/{z}/{x}/{y}.png?'
-            //    + 'key=dLrw1sspLHoFDB0qbDNVPvlfG5FwXkxA',
-            //'https://api2.ordnancesurvey.co.uk/mapping_api/v1/service/zxy/EPSG%3A3857/Outdoor%203857/{z}/{x}/{y}.png?' + 'key=dLrw1sspLHoFDB0qbDNVPvlfG5FwXkxA',
-            //{
-            //    maxZoom: 20,
-            //    minZoom: 7
-            //}
-            'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            mapUrl,
+           {
+                maxZoom: 18,
+                attribution: mapAttribution,
+                id: mapId,
+                accessToken: accessToken
+            }
+
+
+           /* , {
+                attribution:
                 maxZoom: 18,
                 id: 'mapbox.streets',
                 accessToken: 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew'
-            }
+            }*/
         ).addTo(map);
 
         function locateBounds () {
@@ -222,6 +255,7 @@ function getGreenToRed(percent){
     r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
     return 'rgb('+r+','+g+',0)';
 }
+
 
 
 
