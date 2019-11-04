@@ -146,6 +146,7 @@ $(document).ready(function(){
         map.setView(mapCenter, zoomLevel);
         map.options.minZoom = 5;
         map.options.maxZoom = 14;
+        var bounds = map.getBounds();
 
         // Initialise map
         var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
@@ -194,17 +195,8 @@ $(document).ready(function(){
 
         function locateBounds () {
          // geolocate
-            //(49.383639452689664, -17.39866406249996)
-            //(59.53530451232491, 8.968523437500039)
-
-             return L.latLngBounds(
-                 [  [49.383639452689664, -17.39866406249996],
-                    [59.53530451232491, 8.968523437500039]
-                 ]
-             );
         }
-
-        (new L.Control.ResetView(locateBounds)).addTo(map);
+        (new L.Control.ResetView(bounds)).addTo(map);
 
         regionsLayer.clearLayers();
 
@@ -227,10 +219,9 @@ $(document).ready(function(){
                                 //'fillColor': '#ff3b24'
                                   'weight': '5'
                               });
-                              $('#region-label').html(
-                                  '<p>' + feature.properties.popupContent.region_id + '</p>');
-                              $('#extra-data').html(
-                                  '<p>' + JSON.stringify(feature.properties.popupContent.extra_data) + '</p>');
+                              $('#region-data').html(
+                                  '<p> Region ID: ' + feature.properties.popupContent.region_id + '</p>' +
+                                  '<p> Extra Data: ' + JSON.stringify(feature.properties.popupContent.extra_data) + '</p>');
                         });
                         layer.on('mouseout', function () {
                           this.setStyle({

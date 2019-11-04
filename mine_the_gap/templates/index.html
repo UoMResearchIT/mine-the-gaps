@@ -45,7 +45,8 @@
                 <div id="map-slider">
                     <div class="slidecontainer">
                       <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
-                      <p>Value: <span id="current-timestamp"></span></p>
+                      <div id="slider-value"><p>Value: <span id="current-timestamp"></span></p></div>
+
                     </div>
                 </div>
 
@@ -63,18 +64,17 @@
             </div>
             <div id="map-options" class="col-sm-4">
                 <div id="map-overlays">
-                    <p>Select map:</p>
+                    <span>Select map:</span><br>
                       <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
                       <input type="radio" name="map-type" value="topology"> Topology <br>
                 </div>
                 <div id="estimation-method">
-                    <p>Select estimation method:</p>
+                    <span>Select estimation method:</span><br>
                       <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimation input file<br>
-                      <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings) <br>
+                      <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings) IN PROGRESS<br>
                       <input type="radio" name="estimation-method" value="distance"> Distance INCOMPLETE<br>
-                      <input type="radio" name="estimation-method" value="distance-alt">  Distance and altitude INCOMPLETE<br>
-
-                    <p>Select estimation regions:</p>
+                    <br>
+                    <span>Select estimation regions:</span><br>
                       <input type="radio" name="region-method" value="file" checked="checked"> Use region input file<br>
                       <input type="radio" name="region-method" value="squares-1"> Squares (1km) INCOMPLETE<br>
                       <input type="radio" name="region-method" value="squares-10"> Squares (10km) INCOMPLETE<br>

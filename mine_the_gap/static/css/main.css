@@ -23,11 +23,12 @@
     border-style: ridge;
     padding-left:0;
     padding-right:0;
+
 }
 
 #map-slider{
     border-style: ridge;
-    height:90px;
+    height:50px;
 }
 
 #map-options{
@@ -41,23 +42,27 @@
     height: 100px;
 }
 
+#estimation-method{
+    border-style: ridge;
+
+}
+
 #region-data{
     border-style: ridge;
-    height: 700px;
+    /*height: 700px;*/
 }
 
-#region-label{
-    border-style: dotted;
-    height: 50px;
-}
-
-#extra-data{
-    border-style: dotted;
-    height: 100px;
-}
 
 .slidecontainer {
-  width: 100%; /* Width of the outside container */
+    width: 100%; /* Width of the outside container */
+
+}
+
+#map-slider{
+    bottom:0;
+    position:fixed;
+    width:inherit;
+    z-index: 1000;
 }
 
 /* The slider itself */
@@ -84,14 +89,18 @@
   appearance: none;
   width: 25px; /* Set a specific slider handle width */
   height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
+  background: #653caf; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
 
 .slider::-moz-range-thumb {
   width: 25px; /* Set a specific slider handle width */
   height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
+  background: #653caf; /* Green background */
   cursor: pointer; /* Cursor on hover */
+}
+
+#slider-value{
+    background-color: #e0e0e0;
 }
 
