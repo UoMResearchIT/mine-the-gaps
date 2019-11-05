@@ -5,7 +5,7 @@
 
 #upload-fields{
     border-style: ridge;
-    height: 200px;
+    height: 225px;
 }
 
 #upload-submit{
@@ -114,7 +114,7 @@
 #loader-outer{
     position:absolute;
     top: 15%;
-    
+
     width: 200px;
     z-index: 1000;
 }

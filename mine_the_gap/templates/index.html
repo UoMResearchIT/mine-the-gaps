@@ -23,13 +23,28 @@
         <div class="row" id="select-files">
 
                 <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                    <div id="upload-fields" class='col-sm-10'>
+                    <div id="upload-fields" class='col-sm-12'>
                         {% csrf_token %}
-                        {{ form }}
-                    </div>
-                    <div id="upload-submit" class='col-sm-2'>
+                        <table class="table table-striped">
+                            <tr>
+                              <th scope="col"></th>
+                                <th scope="col">Timestamped data values</th>
+                                <th scope="col">Static metadata</th>
+                            </tr>
+                            <tr>
+                                <th scope="row">Actual data</th>
+                                <td>Sensor data file: <br>{{ form.actual_data_file }}</td>
+                                <td>Sensor metadata file: <br>{{ form.sensor_data_file }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Estimated data</th>
+                                <td>Estimated data file (regions): <br>{{ form.estimated_data_file }}</td>
+                                <td>Estimation region metadata file: <br>{{ form.region_data_file }}</td>
+                            </tr>
+                        </table>
                         <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
                     </div>
+
                 </form>
 
         </div>
