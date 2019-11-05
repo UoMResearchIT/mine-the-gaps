@@ -55,10 +55,17 @@ $(document).ready(function(){
 
 
     function update_timeseries_map(actualDataUrl, estimatedDataUrl){
+        // Set up loader display
+        var loaderDiv = document.createElement('div');
+        loaderDiv.id = 'loader';
+        var resultsDiv = document.getElementById('loader-outer');
+        resultsDiv.appendChild(loaderDiv);
 
         // 1. Update sensors to show values
 
         sensorsLayer.clearLayers();
+
+        drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
 
         $.getJSON(actualDataUrl, function (data) {
                 /*[
@@ -101,8 +108,14 @@ $(document).ready(function(){
 
             sensorsLayer.addTo(map);
 
+            // Clear Loader
+            while (resultsDiv.firstChild) {
+                resultsDiv.removeChild(resultsDiv.firstChild);
+            }
+
         });
 
+        drawLoader(loaderDiv, '<p>Collecting data estimations...</p>');
 
 
         $.getJSON(estimatedDataUrl, function (data) {
@@ -128,6 +141,8 @@ $(document).ready(function(){
                   ]
                 */
 
+
+
             // Update regions to show values
             for (var i=0; i<data.length; i++){
                 var region = data[i];
@@ -148,6 +163,11 @@ $(document).ready(function(){
                     //alert(JSON.stringify(region));
                 }
 
+            }
+
+            // Clear Loader
+            while (resultsDiv.firstChild) {
+                resultsDiv.removeChild(resultsDiv.firstChild);
             }
         });
 
@@ -259,6 +279,36 @@ function getGreenToRed(percent){
     g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
     r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
     return 'rgb('+r+','+g+',0)';
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+
+function drawLoader(loaderDiv, explanation, sizeOneToFive=5){
+    var strClassSuffix = '';
+    if(isNumeric(sizeOneToFive) & parseInt(sizeOneToFive) >=1 & parseInt(sizeOneToFive) <=5) {
+        strClassSuffix = ' size-' + sizeOneToFive.toString();
+    }
+
+    // Delete previous if exists
+    if($(loaderDiv).children(".ajax-waiting-explanation").length){
+        // Remove
+        $(loaderDiv).children(".ajax-waiting-explanation").remove();
+    }
+
+    // Draw new loader
+    var divWaitingExplanation = document.createElement('div');
+    divWaitingExplanation.className = 'ajax-waiting-explanation';
+    var divAjaxWaitText = document.createElement('div');
+    divAjaxWaitText.className = 'ajax-waiting-text' + strClassSuffix;
+    divAjaxWaitText.innerHTML = explanation;
+    var divLoader = document.createElement('div');
+    divLoader.className = 'ajax-call-loader' + strClassSuffix;
+    divWaitingExplanation.appendChild(divLoader);
+    divWaitingExplanation.appendChild(divAjaxWaitText);
+    loaderDiv.appendChild(divWaitingExplanation);
 }
 
 

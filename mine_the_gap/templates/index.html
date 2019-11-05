@@ -38,6 +38,7 @@
     <div id="map-main-info" class="container">
         <div class="row">
             <div id="map" class="col-sm-8">
+                <div id="loader-outer"></div>
 
                 <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
                 <div id="mapid"></div>
@@ -72,13 +73,13 @@
                     <span>Select estimation method:</span><br>
                       <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
                       <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
-                      <input type="radio" name="estimation-method" value="distance"> Distance INCOMPLETE<br>
+                      <input type="radio" name="estimation-method" value="distance"> Distance (simple)<br>
                     <br>
                     <span>Select estimation regions:</span><br>
                       <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
-                      <input type="radio" name="region-method" value="squares-1"> Squares (1km) INCOMPLETE<br>
-                      <input type="radio" name="region-method" value="squares-10"> Squares (10km) INCOMPLETE<br>
-                      <input type="radio" name="region-method" value="hexagon-1"> Hexagons (1km) INCOMPLETE<br>
+                      <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
+                      <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
+                      <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
 
                 </div>
                 <div id="region-data">

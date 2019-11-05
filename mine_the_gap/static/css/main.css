@@ -104,3 +104,91 @@
     background-color: #e0e0e0;
 }
 
+
+/*
+    Timer / spinner to show data loading.
+
+ */
+
+
+#loader-outer{
+    position:absolute;
+    top: 15%;
+    
+    width: 200px;
+    z-index: 1000;
+}
+
+
+.ajax-call-loader {
+  border: 16px solid #725f8b;
+  border-radius: 50%;
+  border-top: 16px solid #ea8511;
+  width: 100px;
+  height: 100px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  float:left;
+}
+
+.ajax-call-loader.size-1{
+  width: 20px;
+  height: 20px;
+}
+.ajax-call-loader.size-2{
+  width: 40px;
+  height: 40px;
+}
+.ajax-call-loader.size-3{
+  width: 60px;
+  height: 60px;
+}
+.ajax-call-loader.size-4{
+  width: 80px;
+  height: 80px;
+}
+.ajax-call-loader.size-5{
+  width: 100px;
+  height: 100px;
+}
+
+.ajax-waiting-text {
+    padding-left: 5%;
+    padding-top: 60px;
+}
+
+.ajax-waiting-text.size-1{
+    padding-left: 7%;
+    padding-top: 6px;
+}
+
+.ajax-waiting-text.size-2{
+    padding-left: 8%;
+    padding-top: 17px;
+}
+
+.ajax-waiting-text.size-3{
+    padding-left: 10%;
+    padding-top: 25px;
+}
+
+.ajax-waiting-text.size-4{
+    padding-left: 12%;
+    padding-top: 40px;
+}
+
+.ajax-waiting-text.size-5{
+    padding-left: 15%;
+    padding-top: 60px;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

@@ -91,37 +91,19 @@ class Region_estimator(object):
 
     def get_distance_estimate(self, timestamp, region):
         result = None
-        # Create an empty queryset for sensors found in regions
-        #sensors_completed = Sensor.objects.none()
 
-        sensor = Sensor.objects.annotate(distance=Distance('geom', region.geom)).order_by(
-            'distance').first()
+        # Get the closest sensor to the region
+        #sensor = Sensor.objects.annotate(distance=Distance('geom', region.geom)).order_by('distance').first()
 
-        actuals = Actual_data.objects.filter(timestamp=timestamp, sensor=sensor)
-        if actuals.count() > 0:
+        actual = Actual_data.objects.filter(timestamp=timestamp).annotate(distance=Distance('sensor__geom', region.geom)).order_by('distance').first()
+
+        # Get the value for that sensor on that timestamp
+        #print('Actuals:', str(actual))
+        if actual:
             # If readings found for the sensors, take the average
-            result = actuals.aggregate(Avg('value'))['value__avg']
-            return result, sensor.extra_data
+            result = actual.value
+            return result, {'closest_sensor_data': actual.sensor.extra_data}
         else:
-            return result, []
-
-
-
-        '''cnt = 0
-        while result == None and cnt<10:
-            # Find closest sensor
-            # Region.objects.filter(region_id__in=adjacent_regions).exclude(region_id__in=regions_completed)
-            sensors = Sensor.objects.all().exclude(pk__in= sensors_completed)
-            sensor = Sensor.objects.filter(pk__in=sensors).annotate(distance=Distance('geom', region.geom)).order_by('distance').first()
-
-            # Get the actual readings for that sensor
-            actuals = Actual_data.objects.filter(timestamp=timestamp, sensor=sensor)
-            if actuals.count() > 0:
-                # If readings found for the sensors, take the average
-                result = actuals.aggregate(Avg('value'))['value__avg']
-                return result, sensor.extra_data
-            else:
-                # If no readings found for sensor, so try next sensor)
-                sensors_completed |= sensor
-
-        return result, []'''
+            print('No values found for region ', str(region.region_id),
+                  '. Closest sensor: ', str(actual.sensor.extra_data), '. Distance: ', str(actual.sensor.distance))
+            return result,  {'closest_sensor_data': None}
