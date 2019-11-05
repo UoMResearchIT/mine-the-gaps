@@ -3,6 +3,14 @@
     width: 100%;
 }
 
+#selected-files{
+    border-style: ridge;
+}
+
+#selected-files tr{
+    height: 5px;
+}
+
 #upload-fields{
     border-style: ridge;
     height: 225px;

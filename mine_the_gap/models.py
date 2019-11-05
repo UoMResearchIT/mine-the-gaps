@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.gis.db import models as gismodels
 
 
+class Filenames(models.Model):
+    actual_data_file = models.CharField(max_length=50, null=True)
+    sensor_data_file = models.CharField(max_length=50, null=True)
+    estimated_data_file = models.CharField(max_length=50, null=True)
+    region_data_file = models.CharField(max_length=50, null=True)
+
 
 class Sensor(gismodels.Model):
     geom = gismodels.PointField(null=True, db_index=True)

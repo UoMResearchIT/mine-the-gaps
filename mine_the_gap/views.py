@@ -1,23 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.datastructures import MultiValueDictKeyError
-from django.views.generic import TemplateView
 from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
-from django.contrib.gis.geos import GEOSGeometry
 
 import csv
 
 from mine_the_gap.forms import FileUploadForm
-from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor
+from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor, Filenames
 from django.db.models import Max, Min
 from .region_estimator import Region_estimator
-
-filepath_sensor = ''
-filepath_actual = ''
-filepath_region_data = ''
-filepath_estimated_data = ''
 
 def home_page(request):
     global filepath_sensor
@@ -29,24 +20,25 @@ def home_page(request):
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             handle_uploaded_files(request)
-            filepath_sensor = form.cleaned_data.get("sensor_data_file") \
-                if form.cleaned_data.get("sensor_data_file") else filepath_sensor
-            filepath_actual = form.cleaned_data.get("actual_data_file") \
-                if form.cleaned_data.get("actual_data_file") else filepath_actual
-            filepath_region_data = form.cleaned_data.get("region_data_file") \
-                if form.cleaned_data.get("region_data_file") else filepath_region_data
-            filepath_estimated_data = form.cleaned_data.get("estimated_data_file") \
-                if form.cleaned_data.get("estimated_data_file") else filepath_estimated_data
+            filenames = Filenames.objects.all().first()
+            if not filenames:
+                filenames = Filenames()
+            if form.cleaned_data.get("sensor_data_file") != '':
+                filenames.sensor_data_file = form.cleaned_data.get("sensor_data_file")
+            if form.cleaned_data.get("actual_data_file") != '':
+                filenames.actual_data_file = form.cleaned_data.get("actual_data_file")
+            if form.cleaned_data.get("region_data_file") != '':
+                filenames.region_data_file = form.cleaned_data.get("region_data_file")
+            if form.cleaned_data.get("estimated_data_file") != '':
+                filenames.estimated_data_file = form.cleaned_data.get("estimated_data_file")
+            filenames.save()
     else:
         form = FileUploadForm(files=request.FILES)
 
     timestamp_range = get_timestamp_list()
 
     context = { 'form': form,
-                'filepath_sensor': filepath_sensor,
-                'filepath_actual': filepath_actual,
-                'filepath_region_data': filepath_region_data,
-                'filepath_estimated_data': filepath_estimated_data,
+                'filepaths': Filenames.objects.all(),
                 'timestamp_range':timestamp_range}
 
     return render(request, 'index.html', context)
