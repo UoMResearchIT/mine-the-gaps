@@ -20,10 +20,10 @@
                     </tr>
                     <tr>
                         {% for row in filepaths %}
-                            <td id="actual-data-file">Actual: {{ row.actual_data_file|safe }}</td>
-                            <td id="estimated-data-file">Estimated: {{ row.estimated_data_file|safe }}</td>
-                            <td id="region-data-file">Region: {{ row.region_data_file|safe }}</td>
-                            <td id="sensor-data-file">Sensor: {{ row.sensor_data_file|safe }}</td>
+                            <td id="actual-data-file">{{ row.actual_data_file|safe }}</td>
+                            <td id="estimated-data-file">{{ row.estimated_data_file|safe }}</td>
+                            <td id="region-data-file">{{ row.region_data_file|safe }}</td>
+                            <td id="sensor-data-file">{{ row.sensor_data_file|safe }}</td>
                         {% endfor %}
                     </tr>
                 </table>
