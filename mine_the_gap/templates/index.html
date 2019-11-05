@@ -11,10 +11,22 @@
         <div class="row">
             <div id="selected-files" class="col-sm-10">
                 <span>Current data files:</span><br>
-                <span id="actual-data-file">Actual: {{ filepath_actual }}</span>
-                <span id="estimated-data-file">Estimated: {{ filepath_estimated_data }}</span>
-                <span id="region-data-file">Region: {{ filepath_region_data }}</span>
-                <span id="sensor-data-file">Sensor: {{ filepath_sensor }}</span>
+                <table class="table">
+                    <tr>
+                        <th scope="col">Sensor data file</th>
+                        <th scope="col">Sensor metadata file</th>
+                        <th scope="col">Estimation data file</th>
+                        <th scope="col">Region metadata file</th>
+                    </tr>
+                    <tr>
+                        {% for row in filepaths %}
+                            <td id="actual-data-file">Actual: {{ row.actual_data_file|safe }}</td>
+                            <td id="estimated-data-file">Estimated: {{ row.estimated_data_file|safe }}</td>
+                            <td id="region-data-file">Region: {{ row.region_data_file|safe }}</td>
+                            <td id="sensor-data-file">Sensor: {{ row.sensor_data_file|safe }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
             </div>
             <div class="col-sm-2">
                 <button id="btn-select-files">Select files (toggle)</button>
@@ -22,31 +34,30 @@
         </div>
         <div class="row" id="select-files">
 
-                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                    <div id="upload-fields" class='col-sm-12'>
-                        {% csrf_token %}
-                        <table class="table table-striped">
-                            <tr>
-                              <th scope="col"></th>
-                                <th scope="col">Timestamped data values</th>
-                                <th scope="col">Static metadata</th>
-                            </tr>
-                            <tr>
-                                <th scope="row">Actual data</th>
-                                <td>Sensor data file: <br>{{ form.actual_data_file }}</td>
-                                <td>Sensor metadata file: <br>{{ form.sensor_data_file }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Estimated data</th>
-                                <td>Estimated data file (regions): <br>{{ form.estimated_data_file }}</td>
-                                <td>Estimation region metadata file: <br>{{ form.region_data_file }}</td>
-                            </tr>
-                        </table>
-                        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-                    </div>
+            <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                <div id="upload-fields" class='col-sm-12'>
+                    {% csrf_token %}
+                    <table class="table table-striped">
+                        <tr>
+                          <th scope="col"></th>
+                            <th scope="col">Timestamped data values</th>
+                            <th scope="col">Static metadata</th>
+                        </tr>
+                        <tr>
+                            <th scope="row">Actual data</th>
+                            <td>Sensor data file: <br>{{ form.actual_data_file }}</td>
+                            <td>Sensor metadata file: <br>{{ form.sensor_data_file }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Estimated data</th>
+                            <td>Estimated data file (regions): <br>{{ form.estimated_data_file }}</td>
+                            <td>Estimation region metadata file: <br>{{ form.region_data_file }}</td>
+                        </tr>
+                    </table>
+                    <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                </div>
 
-                </form>
-
+            </form>
         </div>
     </div>
 
