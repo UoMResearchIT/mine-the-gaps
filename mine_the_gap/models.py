@@ -8,9 +8,6 @@ class Sensor(gismodels.Model):
     name = models.CharField(max_length=50, null=True)
     extra_data = gismodels.CharField(max_length=500, null=True)
 
-    def __unicode__(self):
-        return self.name
-
     @property
     def popupContent(self):
         return {'sensor_id': self.id, 'extra_data': self.extra_data}

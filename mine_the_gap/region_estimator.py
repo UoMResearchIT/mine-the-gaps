@@ -1,5 +1,6 @@
 from django.contrib.gis.geos import GEOSGeometry
 from .models import Actual_data, Region, Sensor
+from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Avg
 import json
 
@@ -33,32 +34,41 @@ class Region_estimator(object):
 
 
     def get_adjacent_regions(self, regions, regions_completed):
-        select_regions = Region.objects.none()
+        # Create an empty queryset for adjacent regions
+        adjacent_regions = Region.objects.none()
 
+        # Get all adjacent regions for each region
         for region in regions.iterator():
-            select_regions |= region.adjacent_regions
-        result = Region.objects.filter(region_id__in= select_regions).exclude(region_id__in=regions_completed)
+            adjacent_regions |= region.adjacent_regions
 
-        return result
+        # Return all adjacent regions as a querySet and remove any that are in the completed/ignore list.
+        return Region.objects.filter(region_id__in= adjacent_regions).exclude(region_id__in=regions_completed)
 
 
     def get_diffusion_estimate_recursive(self, regions, timestamp, diffuse_level, regions_completed):
+        # Create an empty queryset for sensors found in regions
         sensors = Sensor.objects.none()
 
+        # Find sensors
         for region in regions.iterator():
             sensors |= Sensor.objects.filter(geom__within=region.geom)
 
+        # Get the actual readings for those sensors
         actuals = Actual_data.objects.filter(timestamp=timestamp, sensor__in=sensors)
         if actuals.count() > 0:
+            # If readings found for the sensors, take the average
             result = actuals.aggregate(Avg('value'))['value__avg']
-            print('Result (level ' + str(diffuse_level)  +'):', result)
+            #print('Result (level ' + str(diffuse_level)  +'):', result)
             return result, diffuse_level
         else:
+            # If no readings/sensors found, go up a diffusion level (adding completed regions to ignore list)
             regions_completed |= regions
             diffuse_level += 1
 
+            # Find the next set of regions
             next_regions = self.get_adjacent_regions(regions, regions_completed)
 
+            # If regions are found, continue, if not exit from the process
             if next_regions.count() > 0:
                 return self.get_diffusion_estimate_recursive(next_regions, timestamp, diffuse_level, regions_completed)
             else:
@@ -67,37 +77,51 @@ class Region_estimator(object):
 
 
     def get_diffusion_estimate(self, timestamp, region):
+        # Create a queryset with just the single input region
         regions = Region.objects.none()
-        regions_completed = Region.objects.none()
         regions |= region
-        print('regions at start:', regions)
-        result, diffuse_level = self.get_diffusion_estimate_recursive(Region.objects.filter(pk=region.pk), timestamp, 0, regions_completed)
 
-        '''while result == None and diffuse_level < 10:
-            sensors = Sensor.objects.none()
-            regions = region.adjacent_regions
-            #print('adjacent regions:', regions)
+        # Create an empty queryset for storing completed regions
+        regions_completed = Region.objects.none()
 
-            for region in regions.iterator():
-                sensors |= Sensor.objects.filter(geom__within=region.geom)
-                actuals = Actual_data.objects.filter(timestamp=timestamp, sensor__in=sensors)
-                avg = actuals.aggregate(Avg('value'))['value__avg']
-                if avg:
-                    result = avg
-                    print('Result (level 1):', result)
-            regions_completed.append(regions)
-
-            diffuse_level += 1'''
-
-        return result, diffuse_level
+        # Recursively find the sensors in each diffusion ring (starting at 0)
+        return self.get_diffusion_estimate_recursive(Region.objects.filter(pk=region.pk), timestamp, 0, regions_completed)
 
 
-    def get_distance_estimate(self, timestamp, region_id):
-        result = {}
-        counter = 0
 
-        while result == {}:
-            counter += 1
+    def get_distance_estimate(self, timestamp, region):
+        result = None
+        # Create an empty queryset for sensors found in regions
+        #sensors_completed = Sensor.objects.none()
+
+        sensor = Sensor.objects.annotate(distance=Distance('geom', region.geom)).order_by(
+            'distance').first()
+
+        actuals = Actual_data.objects.filter(timestamp=timestamp, sensor=sensor)
+        if actuals.count() > 0:
+            # If readings found for the sensors, take the average
+            result = actuals.aggregate(Avg('value'))['value__avg']
+            return result, sensor.extra_data
+        else:
+            return result, []
 
 
-        return result
+
+        '''cnt = 0
+        while result == None and cnt<10:
+            # Find closest sensor
+            # Region.objects.filter(region_id__in=adjacent_regions).exclude(region_id__in=regions_completed)
+            sensors = Sensor.objects.all().exclude(pk__in= sensors_completed)
+            sensor = Sensor.objects.filter(pk__in=sensors).annotate(distance=Distance('geom', region.geom)).order_by('distance').first()
+
+            # Get the actual readings for that sensor
+            actuals = Actual_data.objects.filter(timestamp=timestamp, sensor=sensor)
+            if actuals.count() > 0:
+                # If readings found for the sensors, take the average
+                result = actuals.aggregate(Avg('value'))['value__avg']
+                return result, sensor.extra_data
+            else:
+                # If no readings found for sensor, so try next sensor)
+                sensors_completed |= sensor
+
+        return result, []'''
