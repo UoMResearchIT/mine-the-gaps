@@ -1,5 +1,13 @@
 $(document).ready(function(){
 
+    $("#upload-btn").on("submit", function () {
+        var loaderDiv = document.createElement('div');
+        loaderDiv.id = 'loader';
+        var resultsDiv = document.getElementById('loader-outer');
+        resultsDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Loading data from file(s)...</p>');
+    });
+
     $("div#select-files").hide();
     // Upload files toggle button
         $("button#btn-select-files").click(function(){
@@ -24,6 +32,7 @@ $(document).ready(function(){
     var regions = {};
 
     initialise_map(map);
+    var bounds = map.getBounds();
     initialise_slider();
 
     $("#map-overlays>input").change(function() {
@@ -60,13 +69,11 @@ $(document).ready(function(){
         loaderDiv.id = 'loader';
         var resultsDiv = document.getElementById('loader-outer');
         resultsDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Collecting sensor and estimation data...</p>');
+
 
         // 1. Update sensors to show values
-
         sensorsLayer.clearLayers();
-
-        drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
-
         $.getJSON(actualDataUrl, function (data) {
                 /*[
                     {   "extra_data":"['Aberdeen Union Street Roadside', 'AB', '179 Union St, Aberdeen AB11 6BB, UK']",
@@ -111,16 +118,7 @@ $(document).ready(function(){
             }
 
             sensorsLayer.addTo(map);
-
-            // Clear Loader
-            while (resultsDiv.firstChild) {
-                resultsDiv.removeChild(resultsDiv.firstChild);
-            }
-
         });
-
-        drawLoader(loaderDiv, '<p>Collecting data estimations...</p>');
-
 
 
         $.getJSON(estimatedDataUrl, function (data) {
@@ -172,24 +170,18 @@ $(document).ready(function(){
                 }
 
             }
-
-            // Clear Loader
-            while (resultsDiv.firstChild) {
-                resultsDiv.removeChild(resultsDiv.firstChild);
-            }
         });
 
-
+        // Clear Loader
+        while (resultsDiv.firstChild) {
+            resultsDiv.removeChild(resultsDiv.firstChild);
+        }
     }
 
     function initialise_map(mapType='street-map', zoomLevel=6, mapCenter=["54.2361","-4.5481"]){
-        //var lon = "-4.5481";
-        //var lat = "54.2361";
         map.setView(mapCenter, zoomLevel);
         map.options.minZoom = 5;
         map.options.maxZoom = 14;
-        var bounds = map.getBounds();
-
         // Initialise map
         var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 

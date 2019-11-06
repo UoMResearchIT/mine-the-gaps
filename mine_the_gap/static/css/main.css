@@ -126,7 +126,6 @@
 #loader-outer{
     position:absolute;
     top: 15%;
-
     width: 200px;
     z-index: 1000;
 }
