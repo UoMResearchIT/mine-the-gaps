@@ -40,8 +40,8 @@
                     <table class="table table-striped">
                         <tr>
                           <th scope="col"></th>
-                            <th scope="col">Timestamped data values</th>
-                            <th scope="col">Static metadata</th>
+                            <th scope="col">Timestamped data</th>
+                            <th scope="col">Metadata</th>
                         </tr>
                         <tr>
                             <th scope="row">Actual data</th>
@@ -54,7 +54,9 @@
                             <td>Estimation region metadata file: <br>{{ form.region_data_file }}</td>
                         </tr>
                     </table>
-                    <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                    <button type="submit" class="btn btn-primary"
+                            id='upload-btn'
+                            onclick="return confirm('Do you really want to submit the form?');">Upload</button>
                 </div>
 
             </form>
