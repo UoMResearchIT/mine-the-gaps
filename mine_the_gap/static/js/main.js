@@ -19,7 +19,7 @@ $(document).ready(function(){
 
     $("#estimation-method>input").change(function() {
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        update_map(mapType=$("#map-overlays>input").value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
