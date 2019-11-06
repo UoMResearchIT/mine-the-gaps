@@ -9,7 +9,7 @@
 
     <div class="container load-files">
         <div class="row">
-            <div id="selected-files" class="col-sm-10">
+            <!--div id="selected-files" class="col-sm-10">
                 <span>Current data files:</span><br>
                 <table class="table">
                     <tr>
@@ -27,39 +27,44 @@
                         {% endfor %}
                     </tr>
                 </table>
-            </div>
+            </div-->
             <div class="col-sm-2">
                 <button id="btn-select-files">Select files (toggle)</button>
             </div>
         </div>
         <div class="row" id="select-files">
+            {% for row in filepaths %}
+                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                    <div id="upload-fields" class='col-sm-12'>
+                        {% csrf_token %}
+                        <table class="table table-striped">
+                            <tr>
+                              <th scope="col"></th>
+                                <th scope="col">Timestamped data</th>
+                                <th scope="col">Metadata</th>
+                            </tr>
+                            <tr>
+                                <th scope="row">Actual data</th>
+                                <td><span class="current-filename">Sensor data file: (current: {{ row.actual_data_file|safe }})</span>
+                                    <br>{{ form.actual_data_file }}</td>
+                                <td><span class="current-filename">Sensor metadata file: (current: {{ row.sensor_data_file|safe }})</span>
+                                    <br>{{ form.sensor_data_file }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Estimated data</th>
+                                <td><span class="current-filename">Estimated data file: (current: {{ row.estimated_data_file|safe }})</span>
+                                    <br>{{ form.estimated_data_file }}</td>
+                                <td><span class="current-filename">Estimation metadata file: (current: {{ row.region_data_file|safe }})</span>
+                                    <br>{{ form.region_data_file }}</td>
+                            </tr>
+                        </table>
+                        <button type="submit" class="btn btn-primary"
+                                id='upload-btn'
+                                onclick="return confirm('Do you really want to replace these files?');">Upload</button>
+                    </div>
 
-            <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                <div id="upload-fields" class='col-sm-12'>
-                    {% csrf_token %}
-                    <table class="table table-striped">
-                        <tr>
-                          <th scope="col"></th>
-                            <th scope="col">Timestamped data</th>
-                            <th scope="col">Metadata</th>
-                        </tr>
-                        <tr>
-                            <th scope="row">Actual data</th>
-                            <td>Sensor data file: <br>{{ form.actual_data_file }}</td>
-                            <td>Sensor metadata file: <br>{{ form.sensor_data_file }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Estimated data</th>
-                            <td>Estimated data file (regions): <br>{{ form.estimated_data_file }}</td>
-                            <td>Estimation region metadata file: <br>{{ form.region_data_file }}</td>
-                        </tr>
-                    </table>
-                    <button type="submit" class="btn btn-primary"
-                            id='upload-btn'
-                            onclick="return confirm('Do you really want to submit the form?');">Upload</button>
-                </div>
-
-            </form>
+                </form>
+            {% endfor %}
         </div>
     </div>
 

@@ -1,3 +1,7 @@
+.current-filename{
+    color: darkgreen;
+}
+
 .leaflet-container {
     height: 800px;
     width: 100%;
