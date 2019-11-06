@@ -2,6 +2,7 @@ from django.shortcuts import render
 from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
+from django.http import HttpResponseRedirect
 
 import csv
 import json
@@ -20,23 +21,17 @@ def home_page(request):
             if not filenames:
                 filenames = Filenames()
 
-            print("Estimated data file", form.cleaned_data.get("estimated_data_file"))
-            print("Actual data file", form.cleaned_data.get("actual_data_file"))
             if form.cleaned_data.get("sensor_data_file"):
-
                 filenames.sensor_data_file = form.cleaned_data.get("sensor_data_file")
-
             if form.cleaned_data.get("actual_data_file"):
                 filenames.actual_data_file = form.cleaned_data.get("actual_data_file")
-
             if form.cleaned_data.get("region_data_file"):
                 filenames.region_data_file = form.cleaned_data.get("region_data_file")
-
             if form.cleaned_data.get("estimated_data_file"):
                 filenames.estimated_data_file = form.cleaned_data.get("estimated_data_file")
             filenames.save()
 
-        request.FILES.clear()
+            return HttpResponseRedirect(request.path_info)
 
     timestamp_range = get_timestamp_list()
 
@@ -129,7 +124,7 @@ def handle_uploaded_files(request):
         filepath_actual = request.FILES['actual_data_file']
     except Exception as err:
         filepath_sensor, filepath_actual = False,False
-        print(err)
+        #print(err)
     else:
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
@@ -237,8 +232,8 @@ def handle_uploaded_files(request):
                                 )
                 region.save()
             except Exception as err1:
-                print('Region file error. ', err1)
-                print('Region file error. Row: ', row[0])
+                #print('Region file error. ', err1)
+                #print('Region file error. Row: ', row[0])
                 continue
 
         file = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
@@ -259,8 +254,8 @@ def handle_uploaded_files(request):
                                             )
                 estimated.save()
             except Exception as err:
-                print(row)
-                print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
+                #print(row)
+                #print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
                 continue
 
 
