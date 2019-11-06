@@ -19,25 +19,34 @@ $(document).ready(function(){
 
     $("#estimation-method>input").change(function() {
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        initialise_map(mapType=$("#map-overlays>input").value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        update_map(mapType=$("#map-overlays>input").value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
 
-
-    //Create map
-    var map = L.map('mapid');
+    // Initialise layer lists for later use
     var sensorsLayer = new L.LayerGroup();
     var regionsLayer = new L.LayerGroup();
     var regions = {};
 
-    initialise_map(map);
+    //Create map
+    var map = L.map('mapid');
+    var initZoom = 6;
+    var initCenter = ["54.2361","-4.5481"];
+    map.setView(initCenter, initZoom);
+    map.options.minZoom = 5;
+    map.options.maxZoom = 14;
     // bounds must be set after only the first initialisation of map
     var bounds = map.getBounds();
+
+    update_map(map);
+    // bounds must be set after only the first initialisation of map
     initialise_slider();
 
+
+
     $("#map-overlays>input").change(function() {
-        initialise_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
@@ -178,10 +187,9 @@ $(document).ready(function(){
         }
     }
 
-    function initialise_map(mapType='street-map', zoomLevel=6, mapCenter=["54.2361","-4.5481"]){
+    function update_map(mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
         map.setView(mapCenter, zoomLevel);
-        map.options.minZoom = 5;
-        map.options.maxZoom = 14;
+
         // Initialise map
         var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 
@@ -217,14 +225,6 @@ $(document).ready(function(){
                 id: mapId,
                 accessToken: accessToken
             }
-
-
-           /* , {
-                attribution:
-                maxZoom: 18,
-                id: 'mapbox.streets',
-                accessToken: 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew'
-            }*/
         ).addTo(map);
 
         function locateBounds () {
