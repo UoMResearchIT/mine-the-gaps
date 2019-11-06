@@ -32,6 +32,7 @@ $(document).ready(function(){
     var regions = {};
 
     initialise_map(map);
+    // bounds must be set after only the first initialisation of map
     var bounds = map.getBounds();
     initialise_slider();
 
@@ -70,7 +71,6 @@ $(document).ready(function(){
         var resultsDiv = document.getElementById('loader-outer');
         resultsDiv.appendChild(loaderDiv);
         drawLoader(loaderDiv, '<p>Collecting sensor and estimation data...</p>');
-
 
         // 1. Update sensors to show values
         sensorsLayer.clearLayers();

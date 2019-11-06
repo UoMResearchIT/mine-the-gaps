@@ -16,16 +16,23 @@ def home_page(request):
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             handle_uploaded_files(request)
-            filenames = Filenames.objects.all().first()
+            filenames = Filenames.objects.first()
             if not filenames:
                 filenames = Filenames()
-            if form.cleaned_data.get("sensor_data_file") != '':
+
+            print("Estimated data file", form.cleaned_data.get("estimated_data_file"))
+            print("Actual data file", form.cleaned_data.get("actual_data_file"))
+            if form.cleaned_data.get("sensor_data_file"):
+
                 filenames.sensor_data_file = form.cleaned_data.get("sensor_data_file")
-            if form.cleaned_data.get("actual_data_file") != '':
+
+            if form.cleaned_data.get("actual_data_file"):
                 filenames.actual_data_file = form.cleaned_data.get("actual_data_file")
-            if form.cleaned_data.get("region_data_file") != '':
+
+            if form.cleaned_data.get("region_data_file"):
                 filenames.region_data_file = form.cleaned_data.get("region_data_file")
-            if form.cleaned_data.get("estimated_data_file") != '':
+
+            if form.cleaned_data.get("estimated_data_file"):
                 filenames.estimated_data_file = form.cleaned_data.get("estimated_data_file")
             filenames.save()
 
@@ -50,8 +57,6 @@ def get_actuals_at_timestamp(request, timestamp_idx):
 
 
     query_set = Actual_data.objects.filter(timestamp=timestamp_d)
-    print('timestamp:', timestamp_d)
-    print('result count:', query_set.count())
 
     data = []
 
@@ -190,14 +195,13 @@ def handle_uploaded_files(request):
         file = TextIOWrapper(filepath_region.file, encoding=request.encoding)
         reader = csv.reader(file)
         field_titles = next(reader, None)  # skip the headers
-        print('field titles:', field_titles)
+        #print('field titles:', field_titles)
 
         for row in reader:
             try:
                 extra_data = {}
                 for idx, item in enumerate(field_titles[2:]):
                     extra_data[item] = row[idx + 2]
-                print(str(extra_data))
                 # Initialise polys
                 multipoly_geo = MultiPolygon()
                 poly = ()
@@ -240,14 +244,13 @@ def handle_uploaded_files(request):
         file = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
         reader = csv.reader(file)
         field_titles = next(reader, None)  # skip the headers
-        print('field titles:', field_titles)
+        #print('field titles:', field_titles)
 
         for row in reader:
             try:
                 extra_data = {}
                 for idx, item in enumerate(field_titles[3:]):
                     extra_data[item] = row[idx + 3]
-                print(str(extra_data))
 
                 estimated = Estimated_data( timestamp=row[0],
                                             region=Region.objects.get(region_id=str(row[1])),
