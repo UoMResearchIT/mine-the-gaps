@@ -24,10 +24,15 @@ class Actual_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
     value = models.FloatField(null=True)
     sensor = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
+    extra_data = gismodels.CharField(max_length=500, null=True)
 
     @property
     def join_sensor(self):
-        return {'timestamp': self.timestamp, 'value': float(self.value), 'sensor_id': self.sensor_id,
+        try:
+            fvalue = float(self.value)
+        except:
+            fvalue = None
+        return {'timestamp': self.timestamp, 'value': fvalue, 'sensor_id': self.sensor_id,
                 'geom': self.sensor.geom.coords, 'extra_data': self.sensor.extra_data}
 
 

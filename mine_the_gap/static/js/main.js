@@ -84,8 +84,12 @@ $(document).ready(function(){
                 /*if(i==0) {
                     alert(JSON.stringify(loc));
                 }*/
+                if (loc.value == null){
+                    continue;
+                }
                 var latlng = [loc.geom[1], loc.geom[0]];
                 var valColor = getGreenToRed(loc.percent_score*100).toString();
+
                 var marker = new L.Marker.SVGMarker(latlng,
                         {   iconOptions: {
                                 color: valColor,
@@ -98,10 +102,10 @@ $(document).ready(function(){
                     );
 
                 // Add marker
-                marker.bindPopup("<b>" + loc.geom + '</b><br><p>Value: ' + loc['value'].toString() +
-                    '<p>Percentage Score: ' + loc['percent_score'].toString() +
+                marker.bindPopup("<b>" + loc.geom + '</b><br><p>Value: ' + loc.value +
+                    '<p>Percentage Score: ' + loc.percent_score.toString() +
                     '<br>' +
-                    'Timestamp: ' + loc['timestamp'].toString()  + '</p>' + loc['extra_data'] );
+                    'Timestamp: ' + loc['timestamp'].toString()  + '</p>' + JSON.stringify(loc['extra_data']) );
 
                 sensorsLayer.addLayer(marker);
             }
@@ -116,6 +120,7 @@ $(document).ready(function(){
         });
 
         drawLoader(loaderDiv, '<p>Collecting data estimations...</p>');
+
 
 
         $.getJSON(estimatedDataUrl, function (data) {
@@ -146,6 +151,9 @@ $(document).ready(function(){
             // Update regions to show values
             for (var i=0; i<data.length; i++){
                 var region = data[i];
+                if (region.value == null){
+                    continue;
+                }
                 //alert(JSON.stringify(region));
 
                 var layer = regions[region.region_id];
@@ -156,7 +164,7 @@ $(document).ready(function(){
                             'weight': '1'
                           });
                 try {
-                    layer.bindTooltip(region.value.toString() + '<br>' + region.extra_data,
+                    layer.bindTooltip(region.value.toString() + '<br>' + JSON.stringify(region.extra_data),
                         {permanent: false, direction: "center", opacity: 0.9}
                     )
                 }catch (e) {

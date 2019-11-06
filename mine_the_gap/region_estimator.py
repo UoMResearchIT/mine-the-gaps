@@ -15,16 +15,13 @@ class Region_estimator(object):
             region_result = {'timestamp': timestamp, 'region_id': region.region_id,
              'geom': region.geom.coords, 'region_extra_data': region.extra_data}
 
-            region_result['value'], diffusion_level = self.get_region_estimation(method_name, timestamp, region)
-            region_result['extra_data'] = [diffusion_level]
+            region_result['value'], region_result['extra_data'] = self.get_region_estimation(method_name, timestamp, region)
             result.append(region_result)
 
         return result
 
 
     def get_region_estimation(self, method_name, timestamp, region):
-        result = {}
-
         if method_name == 'diffusion':
             result, extra_info = self.get_diffusion_estimate(timestamp, region)
         elif method_name == 'distance':
@@ -59,7 +56,7 @@ class Region_estimator(object):
             # If readings found for the sensors, take the average
             result = actuals.aggregate(Avg('value'))['value__avg']
             #print('Result (level ' + str(diffuse_level)  +'):', result)
-            return result, diffuse_level
+            return result, {'rings': diffuse_level}
         else:
             # If no readings/sensors found, go up a diffusion level (adding completed regions to ignore list)
             regions_completed |= regions
@@ -72,7 +69,7 @@ class Region_estimator(object):
             if next_regions.count() > 0:
                 return self.get_diffusion_estimate_recursive(next_regions, timestamp, diffuse_level, regions_completed)
             else:
-                return None, diffuse_level
+                return None, {'rings': diffuse_level}
 
 
 
@@ -90,20 +87,14 @@ class Region_estimator(object):
 
 
     def get_distance_estimate(self, timestamp, region):
-        result = None
+        result = None, {'closest_sensor_data': None}
 
         # Get the closest sensor to the region
-        #sensor = Sensor.objects.annotate(distance=Distance('geom', region.geom)).order_by('distance').first()
-
         actual = Actual_data.objects.filter(timestamp=timestamp).annotate(distance=Distance('sensor__geom', region.geom)).order_by('distance').first()
 
         # Get the value for that sensor on that timestamp
         #print('Actuals:', str(actual))
         if actual:
             # If readings found for the sensors, take the average
-            result = actual.value
-            return result, {'closest_sensor_data': actual.sensor.extra_data}
-        else:
-            print('No values found for region ', str(region.region_id),
-                  '. Closest sensor: ', str(actual.sensor.extra_data), '. Distance: ', str(actual.sensor.distance))
-            return result,  {'closest_sensor_data': None}
+            result = actual.value, {'closest_sensor_data': actual.sensor.extra_data}
+        return result
