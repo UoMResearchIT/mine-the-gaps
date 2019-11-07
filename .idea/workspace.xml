@@ -4,12 +4,6 @@
     <list default="true" id="3e183ce1-f930-4a30-a501-03459a828594" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geo_sensor_gaps/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/geo_sensor_gaps/settings/production.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geo_sensor_gaps/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/geo_sensor_gaps/wsgi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/WhereAreTheJavascriptFiles.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/img/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/leaflet-svgicon-master.zip" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -77,7 +71,7 @@
           <entry key="Django Console" value="26" />
           <entry key="css" value="1030" />
           <entry key="dummy" value="17" />
-          <entry key="gitignore" value="12" />
+          <entry key="gitignore" value="40" />
           <entry key="html" value="6706" />
           <entry key="js" value="10255" />
           <entry key="py" value="16903" />
@@ -89,7 +83,7 @@
           <entry key="CSS" value="1030" />
           <entry key="HTML" value="6708" />
           <entry key="JavaScript" value="10253" />
-          <entry key="PLAIN_TEXT" value="109" />
+          <entry key="PLAIN_TEXT" value="137" />
           <entry key="Python" value="16927" />
           <entry key="SQL" value="2" />
         </counts>
@@ -110,14 +104,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/manage.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="135">
-              <caret line="9" column="68" lean-forward="true" selection-start-line="9" selection-start-column="68" selection-end-line="9" selection-end-column="68" />
+              <caret line="9" column="68" selection-start-line="9" selection-start-column="68" selection-end-line="9" selection-end-column="68" />
               <folding>
                 <element signature="e#22#78#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="11" column="7" lean-forward="true" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
             </state>
           </provider>
         </entry>
@@ -126,7 +129,7 @@
         <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/base.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1830">
-              <caret line="122" lean-forward="true" selection-start-line="122" selection-end-line="122" />
+              <caret line="122" selection-start-line="122" selection-end-line="122" />
               <folding>
                 <element signature="e#316#372#0" expanded="true" />
               </folding>
@@ -138,7 +141,7 @@
         <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/local.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="210">
-              <caret line="14" column="65" lean-forward="true" selection-start-line="14" selection-start-column="65" selection-end-line="14" selection-end-column="65" />
+              <caret line="14" column="65" selection-start-line="14" selection-start-column="65" selection-end-line="14" selection-end-column="65" />
             </state>
           </provider>
         </entry>
@@ -159,7 +162,7 @@
         <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/production.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="135">
-              <caret line="9" column="8" lean-forward="true" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
+              <caret line="9" column="8" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
               <folding>
                 <element signature="e#0#56#0" expanded="true" />
               </folding>
@@ -242,13 +245,13 @@
         <option value="$PROJECT_DIR$/mine_the_gap/region_estimator.py" />
         <option value="$PROJECT_DIR$/mine_the_gap/models.py" />
         <option value="$PROJECT_DIR$/mine_the_gap/static/js/main.js" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/geo_sensor_gaps/settings/local.py" />
         <option value="$PROJECT_DIR$/geo_sensor_gaps/settings/base.py" />
         <option value="$PROJECT_DIR$/geo_sensor_gaps/settings/dev.py" />
         <option value="$PROJECT_DIR$/geo_sensor_gaps/settings/production.py" />
         <option value="$PROJECT_DIR$/geo_sensor_gaps/wsgi.py" />
         <option value="$PROJECT_DIR$/manage.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -259,9 +262,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="28" />
-    <option name="width" value="1900" />
-    <option name="height" value="458" />
+    <option name="y" value="-28" />
+    <option name="width" value="1920" />
+    <option name="height" value="1108" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -281,17 +284,6 @@
               <item name="geo_sensor_gaps" type="b2602c69:ProjectViewProjectNode" />
               <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
               <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="geo_sensor_gaps" type="b2602c69:ProjectViewProjectNode" />
-              <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
-              <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
-              <item name="settings" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="geo_sensor_gaps" type="b2602c69:ProjectViewProjectNode" />
-              <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
-              <item name="mine_the_gap" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -613,9 +605,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
           <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="4" />
-          <folding>
-            <element signature="e#24#63#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -710,9 +699,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
           <caret line="10" column="43" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="43" />
-          <folding>
-            <element signature="e#0#32#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -727,9 +713,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
           <caret line="14" selection-start-line="14" selection-end-line="14" />
-          <folding>
-            <element signature="e#0#24#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -792,9 +775,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/production/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/production/__init__.py" />
     <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/urls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
@@ -802,20 +783,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mine_the_gap/static/WhereAreTheJavascriptFiles.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/static/WhereAreTheJavascriptFiles.txt" />
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
+        <state relative-caret-position="165">
+          <caret line="11" column="7" lean-forward="true" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/base.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1830">
-          <caret line="122" lean-forward="true" selection-start-line="122" selection-end-line="122" />
+          <caret line="122" selection-start-line="122" selection-end-line="122" />
           <folding>
             <element signature="e#316#372#0" expanded="true" />
           </folding>
@@ -825,7 +804,7 @@
     <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/production.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
-          <caret line="9" column="8" lean-forward="true" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
+          <caret line="9" column="8" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
           <folding>
             <element signature="e#0#56#0" expanded="true" />
           </folding>
@@ -848,7 +827,7 @@
     <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/local.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
-          <caret line="14" column="65" lean-forward="true" selection-start-line="14" selection-start-column="65" selection-end-line="14" selection-end-column="65" />
+          <caret line="14" column="65" selection-start-line="14" selection-start-column="65" selection-end-line="14" selection-end-column="65" />
         </state>
       </provider>
     </entry>
@@ -862,7 +841,7 @@
     <entry file="file://$PROJECT_DIR$/manage.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
-          <caret line="9" column="68" lean-forward="true" selection-start-line="9" selection-start-column="68" selection-end-line="9" selection-end-column="68" />
+          <caret line="9" column="68" selection-start-line="9" selection-start-column="68" selection-end-line="9" selection-end-column="68" />
           <folding>
             <element signature="e#22#78#0" expanded="true" />
           </folding>
