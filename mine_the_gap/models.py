@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.gis.db import models as gismodels
+import json
 
 
 class Filenames(models.Model):
@@ -10,13 +11,14 @@ class Filenames(models.Model):
 
 
 class Sensor(gismodels.Model):
-    geom = gismodels.PointField(null=True, db_index=True)
+    geom = gismodels.PointField(null=False, db_index=True)
     name = models.CharField(max_length=50, null=True)
     extra_data = gismodels.CharField(max_length=500, null=True)
 
     @property
     def popupContent(self):
-        return {'sensor_id': self.id, 'extra_data': self.extra_data}
+        return {'sensor_id': self.id,
+                'extra_data': json.loads(self.extra_data)}
 
 
 
@@ -32,15 +34,18 @@ class Actual_data(gismodels.Model):
             fvalue = float(self.value)
         except:
             fvalue = None
-        return {'timestamp': self.timestamp, 'value': fvalue, 'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords, 'extra_data': self.sensor.extra_data}
+        return {'timestamp': self.timestamp,
+                'value': fvalue,
+                'sensor_id': self.sensor_id,
+                'geom': self.sensor.geom.coords,
+                'extra_data': json.loads(self.sensor.extra_data)}
 
 
 
 
 class Region(gismodels.Model):
     region_id = models.CharField(max_length=30, primary_key=True)
-    geom = gismodels.MultiPolygonField(max_length=2000)
+    geom = gismodels.MultiPolygonField(max_length=2000, null=False)
     extra_data = models.CharField(max_length=20000, null=True)
 
     def __unicode__(self):
@@ -48,7 +53,7 @@ class Region(gismodels.Model):
 
     @property
     def popupContent(self):
-        return {'region_id': self.region_id, 'extra_data': self.extra_data}
+        return {'region_id': self.region_id, 'extra_data': json.loads(self.extra_data)}
 
     @property
     def adjacent_regions(self):
@@ -65,8 +70,12 @@ class Estimated_data(gismodels.Model):
 
     @property
     def join_region(self):
-        return {'timestamp': self.timestamp, 'value': self.value, 'region_id': self.region_id,
-                'geom': self.region.geom.coords, 'extra_data': self.extra_data, 'region_extra_data': self.region.extra_data}
+        return {'timestamp': self.timestamp,
+                'value': self.value,
+                'region_id': self.region_id,
+                'geom': self.region.geom.coords,
+                'extra_data': json.loads(self.extra_data),
+                'region_extra_data': json.loads(self.region.extra_data)}
 
 
 

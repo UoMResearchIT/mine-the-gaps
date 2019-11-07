@@ -96,5 +96,5 @@ class Region_estimator(object):
         #print('Actuals:', str(actual))
         if actual:
             # If readings found for the sensors, take the average
-            result = actual.value, {'closest_sensor_data': actual.sensor.extra_data}
+            result = actual.value, {'closest_sensor_location': str(actual.sensor.geom.coords)}
         return result
