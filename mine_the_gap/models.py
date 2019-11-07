@@ -18,6 +18,7 @@ class Sensor(gismodels.Model):
     @property
     def popupContent(self):
         return {'sensor_id': self.id,
+                'name': self.name,
                 'extra_data': json.loads(self.extra_data)}
 
 
@@ -35,6 +36,7 @@ class Actual_data(gismodels.Model):
         except:
             fvalue = None
         return {'timestamp': self.timestamp,
+                'name': self.sensor.name,
                 'value': fvalue,
                 'sensor_id': self.sensor_id,
                 'geom': self.sensor.geom.coords,

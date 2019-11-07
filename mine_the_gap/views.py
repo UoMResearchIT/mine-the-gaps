@@ -134,16 +134,17 @@ def handle_uploaded_files(request):
         reader = csv.reader(file)
         field_titles = next(reader, None)  # skip the headers
 
-        #titles: ['long', 'lat', 'Location', 'Postcode3', 'Address']
+        #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
 
         for row in reader:
             try:
                 extra_data = {}
-                for idx, item in enumerate(field_titles[2:]):
-                    extra_data[item] = row[idx+2]
+                for idx, item in enumerate(field_titles[3:]):
+                    extra_data[item] = row[idx+3]
                 point_loc = Point(x=float(row[0]),y=float(row[1]))
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
+                    name =  row[2],
                     extra_data=json.dumps(extra_data))
                 sensor.save()
             except Exception as err:

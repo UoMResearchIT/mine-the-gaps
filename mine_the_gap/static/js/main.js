@@ -85,15 +85,27 @@ $(document).ready(function(){
         sensorsLayer.clearLayers();
         $.getJSON(actualDataUrl, function (data) {
                 /*[
-                    {   "extra_data":"['Aberdeen Union Street Roadside', 'AB', '179 Union St, Aberdeen AB11 6BB, UK']",
+                    {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
                         "value":66,
                         "timestamp":"2017-01-01 00:00:00+00",
                         "percent_score":0.436241610738255,
                         "sensor_id":757,
-                        "geom":[-2.1031362,57.1453481]
+                        "geom":[-2.1031362,57.1453481],
+                        "name": 'Aberdeen Union Street Roadside'
                     }
                   ]
                 */
+
+            function replaceLongVals(key, value) {
+                // Filtering out properties
+                if (typeof value === 'string' & key.length + value.length > 20) {
+                  //return value.match(/.{1,18}/g).join('<br/>  ');
+                  return '<br/>  ' + value;
+                }
+                return value;
+            }
+
+
 
             for (var i=0; i<data.length; i++){
                 var loc = data[i];
@@ -119,11 +131,12 @@ $(document).ready(function(){
                     );
 
                 // Add marker
-                marker.bindPopup("<b>" + loc.geom + '</b><br><p>Value: ' + loc.value +
-                    '<p>Percentage Score: ' + loc.percent_score.toString() +
+                marker.bindPopup("<b>Name: " + loc.name + '</b><br>' + loc.geom +
+                    '<br>Timestamp: ' + loc['timestamp'].toString() +
+                    '<p>Value: ' + loc.value + '<br>' +
+                     'Percentage Score: ' + (loc.percent_score*100).toFixed(2).toString() +
                     '<br>' +
-                    'Timestamp: ' + loc['timestamp'].toString()  +
-                    '</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], null, 1) + '</pre>');
+                    '</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], replaceLongVals, 1) + '</pre>');
 
                 sensorsLayer.addLayer(marker);
             }
@@ -155,7 +168,14 @@ $(document).ready(function(){
                   ]
                 */
 
-
+            function replaceLongVals(key, value) {
+                // Filtering out properties
+                if (typeof value === 'string' & key.length + value.length > 15) {
+                  //return value.match(/.{1,18}/g).join('<br/>  ');
+                  return '<br/>  ' + value;
+                }
+                return value;
+            }
 
             // Update regions to show values
             for (var i=0; i<data.length; i++){
@@ -180,7 +200,6 @@ $(document).ready(function(){
                 }catch (e) {
                     //alert(JSON.stringify(region));
                 }
-
             }
         });
 
@@ -237,6 +256,15 @@ $(document).ready(function(){
 
         regionsLayer.clearLayers();
 
+        function replaceLongVals(key, value) {
+          // Filtering out properties
+          if (typeof value === 'string' & key.length + value.length > 40) {
+              //return value.match(/.{1,18}/g).join('<br/>  ');
+              return '<br/>    ' + value;
+          }
+          return value;
+        }
+
         $.getJSON(regionDataUrl, function (data) {
             // Add GeoJSON layer
             var geoLayer = L.geoJson(
@@ -253,8 +281,8 @@ $(document).ready(function(){
                                   'weight': '5'
                               });
                               $('#region-data').html(
-                                  '<p> Region ID: ' + feature.properties.popupContent.region_id + '</p>' +
-                                  '<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, null, 1) + '</pre></p>');
+                                  '<p> Region: ' + feature.properties.popupContent.region_id + '</p>' +
+                                  '<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, replaceLongVals, 1) + '</pre></p>');
                         });
                         layer.on('mouseout', function () {
                           this.setStyle({
@@ -309,6 +337,7 @@ function drawLoader(loaderDiv, explanation, sizeOneToFive=5){
     divWaitingExplanation.appendChild(divAjaxWaitText);
     loaderDiv.appendChild(divWaitingExplanation);
 }
+
 
 
 
