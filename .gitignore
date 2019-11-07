@@ -5,7 +5,7 @@
 *.pyc
 __pycache__/
 migrations/
-/settings/local.py
+geo_sensor_gaps/settings/local.py
 local_settings.py
 db.sqlite3
 /media
