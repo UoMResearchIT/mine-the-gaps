@@ -144,7 +144,7 @@ def handle_uploaded_files(request):
                 point_loc = Point(x=float(row[0]),y=float(row[1]))
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
-                    extra_data=str(extra_data))
+                    extra_data=json.dumps(extra_data))
                 sensor.save()
             except Exception as err:
                 #print(err)
@@ -169,7 +169,7 @@ def handle_uploaded_files(request):
                 actual = Actual_data(   timestamp=row[0],
                                         sensor = Sensor.objects.get(geom=point_loc),
                                         value = fvalue,
-                                        extra_data = str(extra_data)
+                                        extra_data = json.dumps(extra_data)
                                         )
                 actual.save()
             except Exception as err:
@@ -228,7 +228,7 @@ def handle_uploaded_files(request):
 
                 region = Region(region_id=str(row[0]),
                                 geom=multipoly_geo,
-                                extra_data=str(extra_data)
+                                extra_data=json.dumps(extra_data)
                                 )
                 region.save()
             except Exception as err1:
@@ -250,7 +250,7 @@ def handle_uploaded_files(request):
                 estimated = Estimated_data( timestamp=row[0],
                                             region=Region.objects.get(region_id=str(row[1])),
                                             value = float(row[2]),
-                                            extra_data = str(extra_data)
+                                            extra_data = json.dumps(extra_data)
                                             )
                 estimated.save()
             except Exception as err:

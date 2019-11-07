@@ -97,15 +97,16 @@ $(document).ready(function(){
 
             for (var i=0; i<data.length; i++){
                 var loc = data[i];
+
                 /*if(i==0) {
-                    alert(JSON.stringify(loc));
-                }*/
+                    alert(JSON.stringify(loc, null, 1));
+                };*/
+
                 if (loc.value == null){
                     continue;
                 }
                 var latlng = [loc.geom[1], loc.geom[0]];
                 var valColor = getGreenToRed(loc.percent_score*100).toString();
-
                 var marker = new L.Marker.SVGMarker(latlng,
                         {   iconOptions: {
                                 color: valColor,
@@ -121,7 +122,8 @@ $(document).ready(function(){
                 marker.bindPopup("<b>" + loc.geom + '</b><br><p>Value: ' + loc.value +
                     '<p>Percentage Score: ' + loc.percent_score.toString() +
                     '<br>' +
-                    'Timestamp: ' + loc['timestamp'].toString()  + '</p>' + JSON.stringify(loc['extra_data']) );
+                    'Timestamp: ' + loc['timestamp'].toString()  +
+                    '</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], null, 1) + '</pre>');
 
                 sensorsLayer.addLayer(marker);
             }
@@ -171,8 +173,9 @@ $(document).ready(function(){
                             'weight': '1'
                           });
                 try {
-                    layer.bindTooltip(region.value.toString() + '<br>' + JSON.stringify(region.extra_data),
-                        {permanent: false, direction: "center", opacity: 0.9}
+                    layer.bindTooltip(region.value.toString() +
+                        '<br>' + JSON.stringify(region.extra_data, null, 1),
+                        {permanent: false, direction: "center", opacity: 0.8, minWidth: 200, maxWidth: 200}
                     )
                 }catch (e) {
                     //alert(JSON.stringify(region));
@@ -244,10 +247,6 @@ $(document).ready(function(){
                             'fillColor': 'transparent',
                             'weight': '1'
                           });
-
-                        //layer.bindPopup(
-                        //    '<p>' + JSON.stringify(feature.properties.popupContent) + '</p>');
-
                         layer.on('mouseover', function () {
                               this.setStyle({
                                 //'fillColor': '#ff3b24'
@@ -255,7 +254,7 @@ $(document).ready(function(){
                               });
                               $('#region-data').html(
                                   '<p> Region ID: ' + feature.properties.popupContent.region_id + '</p>' +
-                                  '<p> Extra Data: ' + JSON.stringify(feature.properties.popupContent.extra_data) + '</p>');
+                                  '<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, null, 1) + '</pre></p>');
                         });
                         layer.on('mouseout', function () {
                           this.setStyle({
