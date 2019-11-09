@@ -42,6 +42,32 @@ def home_page(request):
     return render(request, 'index.html', context)
 
 
+def get_sensor_fields(request):
+    result = []
+
+    # Check sensors exist
+    try:
+        first_sensor = Sensor.objects.first()
+    except:
+        # No sensors are loaded so return empty list
+        pass
+    else:
+        # Sensors exist so get field names from the Sensor model
+        for field in Sensor._meta.get_fields():
+            if not (field.many_to_one) and field.related_model is None:
+                field_name = field.name
+
+                if field_name == 'id' or field_name == 'geom':
+                    continue
+                elif field_name == 'extra_data':
+                    result.extend(json.loads(first_sensor.extra_data).keys())
+                else:
+                    result.append(field_name)
+
+    #print(str(result))
+    return JsonResponse(result, safe=False)
+
+
 def get_actuals_at_timestamp(request, timestamp_idx):
     timestamps = get_timestamp_list()
 

@@ -74,6 +74,14 @@ pre {
     border-style: ridge;
 }
 
+#sensor-field-data{
+    border-style: ridge;
+}
+
+#sensor-field-data input[type=text]{
+    width: 100%;
+}
+
 
 .slidecontainer {
     width: 100%; /* Width of the outside container */
