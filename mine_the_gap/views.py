@@ -10,7 +10,7 @@ import json
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor, Filenames
 from django.db.models import Max, Min
-from .region_estimator import Region_estimator
+from .region_estimator_factory import Region_estimator_factory
 
 def home_page(request):
     if request.method == 'POST':
@@ -92,16 +92,20 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
             new_row['percent_score'] = percentage_score
             data.append(new_row)
     else:
-        estimator = Region_estimator()
-        result = estimator.get_all_region_estimations(method_name, timestamp_d)
-        for row in result:
-            #print('Row:', row['value'])
-            if row['value']:
-                percentage_score = (row['value'] - min_val) / (max_val - min_val)
-            else:
-                percentage_score = None
-            row['percent_score'] = percentage_score
-            data.append(row)
+        try:
+            estimator = Region_estimator_factory.create_region_estimator(method_name)
+        except Exception as err:
+            print(err)
+        else:
+            result = estimator.get_all_region_estimations(timestamp_d)
+            for row in result:
+                #print('Row:', row['value'])
+                if row['value']:
+                    percentage_score = (row['value'] - min_val) / (max_val - min_val)
+                else:
+                    percentage_score = None
+                row['percent_score'] = percentage_score
+                data.append(row)
 
     return JsonResponse(data, safe=False)
 
