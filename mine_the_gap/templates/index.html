@@ -73,6 +73,7 @@
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensor" %}';
                     var regionDataUrl = '{% url "region" %}';
+                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
 
                 </script>
 
@@ -96,10 +97,9 @@
                       <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
 
                 </div>
-                <div id="region-data">
-                    <div id="region-label"></div>
-                    <div id="extra-data"></div>
-                </div>
+
+                <div id="sensor-field-data"></div>
+                <div id="region-data"></div>
             </div>
         </div>
     </div>

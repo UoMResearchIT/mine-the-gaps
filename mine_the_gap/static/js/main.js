@@ -10,9 +10,9 @@ $(document).ready(function(){
 
     $("div#select-files").hide();
     // Upload files toggle button
-        $("button#btn-select-files").click(function(){
+    $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');
-      });
+    });
 
     var curEstimatedDataUrl = estimatedDataUrl + '/file/';
     var curActualDataUrl = actualDataUrl + '/';
@@ -28,6 +28,7 @@ $(document).ready(function(){
     var sensorsLayer = new L.LayerGroup();
     var regionsLayer = new L.LayerGroup();
     var regions = {};
+    var sensors = {};
 
     //Create map
     var map = L.map('mapid');
@@ -43,12 +44,69 @@ $(document).ready(function(){
     // bounds must be set after only the first initialisation of map
     initialise_slider();
 
+    initialise_sensor_fields();
+
 
 
     $("#map-overlays>input").change(function() {
         update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
+
+    function initialise_sensor_fields(){
+        /*
+                Add Sensor fields (for UI  filtering mechanism)
+
+         */
+
+        $.getJSON(sensorFieldsUrl, function (data) {
+            // Add GeoJSON layer
+            //alert(JSON.stringify(data));
+
+            var sensor_fields = '<table class="table table-striped">';
+
+            for (var i=0; i<data.length; i++){
+                var fieldName = data[i];
+
+                // Add sensor field data to sensor data div
+                var row = '<tr class="select-button-row">' +
+                    '<td><button class="field-selector-button">' + fieldName + '</button></td>' +
+                    '<td></td></tr>';
+                sensor_fields += row;
+                // Add user input fields for selecting sensors
+                var rows = '<tr class="selector-field info"><td>Select values:</td>' +
+                    '<td><input type="text" placeholder="E.G. a,b,c"></td></tr>' +
+                    '<tr class="selector-field info"><td>Omit values:</td>' +
+                    '<td><input type="text" placeholder="E.G. a,b,c"></td></tr>';
+                sensor_fields += rows;
+            }
+            sensor_fields += '</table>';
+
+            $('#sensor-field-data').html(
+                '<b>Select sensors using fields:</b>' +
+                '<br>(Use comma delimited list of values)<br><br>'
+                + sensor_fields
+            );
+
+            $("tr.selector-field").hide();
+            // Upload files toggle button
+            $("table button.field-selector-button").click(function(){
+                //alert(1);
+                $(this).closest( "tr" ).nextUntil("tr.select-button-row").toggle('slow');
+            });
+
+            $("tr.selector-field input").on('keypress', function(e){
+                if(e.keyCode == 13){ // Enter key
+                    alert(1);
+                }
+
+
+                //update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+                //initialise_slider(value=document.getElementById("timestamp-range").value);
+            });
+
+        });
+    }
 
 
     function initialise_slider(value=0){
@@ -58,22 +116,22 @@ $(document).ready(function(){
         slider.max = timestampList.length-1;
         slider.value = value;
         output.innerHTML = timestampList[value]; // Display the default slider value
-        update_timeseries_map(curActualDataUrl+value.toString(), curEstimatedDataUrl+value.toString());
+        update_timeseries_map(value);
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             output.innerHTML = timestampList[this.value];
         };
         slider.onchange = function() {
-            update_timeseries_map(
-                                    curActualDataUrl + this.value.toString(),
-                                    curEstimatedDataUrl + this.value.toString()
-                                );
+            update_timeseries_map(this.value);
         };
 
     }
 
 
-    function update_timeseries_map(actualDataUrl, estimatedDataUrl){
+    function update_timeseries_map(timeseries_idx, sensor_inclusions, sensor_exclusions){
+        var actualDataUrl = curActualDataUrl + timeseries_idx.toString();
+        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString();
+
         // Set up loader display
         var loaderDiv = document.createElement('div');
         loaderDiv.id = 'loader';
@@ -95,15 +153,6 @@ $(document).ready(function(){
                     }
                   ]
                 */
-
-            function replaceLongVals(key, value) {
-                // Filtering out properties
-                if (typeof value === 'string' & key.length + value.length > 20) {
-                  //return value.match(/.{1,18}/g).join('<br/>  ');
-                  return '<br/>  ' + value;
-                }
-                return value;
-            }
 
             for (var i=0; i<data.length; i++){
                 var loc = data[i];
@@ -144,8 +193,7 @@ $(document).ready(function(){
                 marker.bindPopup(extraData);
 
                 sensorsLayer.addLayer(marker);
-            }
-
+            };
             sensorsLayer.addTo(map);
         });
 
@@ -172,15 +220,6 @@ $(document).ready(function(){
                      }
                   ]
                 */
-
-            function replaceLongVals(key, value) {
-                // Filtering out properties
-                if (typeof value === 'string' & key.length + value.length > 15) {
-                  //return value.match(/.{1,18}/g).join('<br/>  ');
-                  return '<br/>  ' + value;
-                }
-                return value;
-            }
 
             // Update regions to show values
             for (var i=0; i<data.length; i++){
@@ -224,7 +263,11 @@ $(document).ready(function(){
     function update_map(mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
         map.setView(mapCenter, zoomLevel);
 
-        // Initialise map
+        /*
+                Initialise map
+
+         */
+
         var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 
         var mapId = 'mapbox.streets';
@@ -266,17 +309,13 @@ $(document).ready(function(){
         }
         (new L.Control.ResetView(bounds)).addTo(map);
 
+
+         /*
+                Add Regions to map
+
+         */
+
         regionsLayer.clearLayers();
-
-        function replaceLongVals(key, value) {
-          // Filtering out properties
-          if (typeof value === 'string' & key.length + value.length > 40) {
-              //return value.match(/.{1,18}/g).join('<br/>  ');
-              return '<br/>    ' + value;
-          }
-          return value;
-        }
-
         $.getJSON(regionDataUrl, function (data) {
             // Add GeoJSON layer
             var geoLayer = L.geoJson(
@@ -316,7 +355,6 @@ $(document).ready(function(){
             );
             regionsLayer.addLayer(geoLayer);
         });
-
         regionsLayer.addTo(map);
     }
 
