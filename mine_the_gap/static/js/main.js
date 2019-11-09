@@ -76,7 +76,7 @@ $(document).ready(function(){
                 // Add user input fields for selecting sensors
                 var rows = '<tr class="selector-field info"><td>Select values:</td>' +
                     '<td><input type="text" placeholder="E.G. a,b,c"></td></tr>' +
-                    '<tr class="selector-field info"><td>Omit values:</td>' +
+                    '<tr class="omittor-field info"><td>Omit values:</td>' +
                     '<td><input type="text" placeholder="E.G. a,b,c"></td></tr>';
                 sensor_fields += rows;
             }
@@ -88,26 +88,41 @@ $(document).ready(function(){
                 + sensor_fields
             );
 
-            $("tr.selector-field").hide();
+            $("tr.selector-field, tr.omittor-field").hide();
             // Upload files toggle button
             $("table button.field-selector-button").click(function(){
-                //alert(1);
                 $(this).closest( "tr" ).nextUntil("tr.select-button-row").toggle('slow');
             });
 
-            $("tr.selector-field input").on('keypress', function(e){
+            $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
                 if(e.keyCode == 13){ // Enter key
-                    alert(1);
+                    if(check_sensor_select_params() == true) {
+                        alert(JSON.stringify(get_sensor_select_url_params()));
+                        update_timeseries_map(document.getElementById("timestamp-range").value);
+                    }
                 }
-
-
-                //update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
-                //initialise_slider(value=document.getElementById("timestamp-range").value);
             });
-
         });
     }
 
+    function get_sensor_select_url_params(){
+        var result = [];
+        $('#sensor-field-data table button.field-selector-button').each(function(index){
+            var dict = {};
+            var fieldName = $(this).text();
+            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().split(',');
+            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field').first().find('input').val().split(',');
+            dict[fieldName] = {};
+            dict[fieldName]['select_sensors'] = fieldSelectors;
+            dict[fieldName]['omit_sensors'] = fieldOmittors;
+            result.push(dict);
+        });
+        return result;
+    }
+
+    function check_sensor_select_params(){
+        return true;
+    }
 
     function initialise_slider(value=0){
         var slider = document.getElementById("timestamp-range");
@@ -128,9 +143,9 @@ $(document).ready(function(){
     }
 
 
-    function update_timeseries_map(timeseries_idx, sensor_inclusions, sensor_exclusions){
-        var actualDataUrl = curActualDataUrl + timeseries_idx.toString();
-        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString();
+    function update_timeseries_map(timeseries_idx){
+        var actualDataUrl = curActualDataUrl + timeseries_idx.toString(); // + get_sensor_select_url_params();
+        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString(); // + get_sensor_select_url_params();;
 
         // Set up loader display
         var loaderDiv = document.createElement('div');
