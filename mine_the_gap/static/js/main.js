@@ -130,19 +130,18 @@ $(document).ready(function(){
 
                 // Add marker
 
-                var extraData = '';
+                var extraData = '<table class="table table-striped">';
+                extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
+                extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
+                extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
+                extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
+                extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
                 for (var key in loc['extra_data']){
-                    extraData += '<br>' + key + ': ' + loc['extra_data'][key];
+                    extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
                 };
+                extraData += '</table>';
 
-                marker.bindPopup("<b>Name: " + loc.name + '</b><br>' + loc.geom +
-                    '<br>Timestamp: ' + loc['timestamp'].toString() +
-                    '<br>' +
-                    '<br><b>Value: </b>' + loc.value + '<br>' +
-                     'Percentage Score: ' + (loc.percent_score*100).toFixed(2).toString() +
-                    '<br>' +
-                    //'</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], replaceLongVals, 1) + '</pre>');
-                    '<br><b>Extra data: </b>' + extraData);
+                marker.bindPopup(extraData);
 
                 sensorsLayer.addLayer(marker);
             }
@@ -288,19 +287,21 @@ $(document).ready(function(){
                             'fillColor': 'transparent',
                             'weight': '1'
                           });
-                        var extraData = '';
+
+                        var extraData = '<table class="table table-striped">';
                         for (var key in feature.properties.popupContent.extra_data){
-                            extraData += '<b>' + key  + '</b>: ' + feature.properties.popupContent.extra_data[key] + '<br>';
+                            extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
                         };
+                        extraData += '</table>';
+
                         layer.on('mouseover', function () {
                               this.setStyle({
                                 //'fillColor': '#ff3b24'
                                   'weight': '5'
                               });
                               $('#region-data').html(
-                                  '<p> Region: ' + feature.properties.popupContent.region_id + '</p>' +
-                                  //'<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, replaceLongVals, 1) + '</pre></p>'
-                                  '<p> Extra Data: <pre>' + extraData + '</pre></p>'
+                                  '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
+                                  extraData
                               );
                         });
                         layer.on('mouseout', function () {
