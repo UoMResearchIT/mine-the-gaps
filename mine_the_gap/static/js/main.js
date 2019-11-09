@@ -105,18 +105,16 @@ $(document).ready(function(){
                 return value;
             }
 
-
-
             for (var i=0; i<data.length; i++){
                 var loc = data[i];
-
                 /*if(i==0) {
                     alert(JSON.stringify(loc, null, 1));
                 };*/
 
-                if (loc.value == null){
+                if (loc['value'] == null){
                     continue;
                 }
+
                 var latlng = [loc.geom[1], loc.geom[0]];
                 var valColor = getGreenToRed(loc.percent_score*100).toString();
                 var marker = new L.Marker.SVGMarker(latlng,
@@ -131,12 +129,20 @@ $(document).ready(function(){
                     );
 
                 // Add marker
+
+                var extraData = '';
+                for (var key in loc['extra_data']){
+                    extraData += '<br>' + key + ': ' + loc['extra_data'][key];
+                };
+
                 marker.bindPopup("<b>Name: " + loc.name + '</b><br>' + loc.geom +
                     '<br>Timestamp: ' + loc['timestamp'].toString() +
-                    '<p>Value: ' + loc.value + '<br>' +
+                    '<br>' +
+                    '<br><b>Value: </b>' + loc.value + '<br>' +
                      'Percentage Score: ' + (loc.percent_score*100).toFixed(2).toString() +
                     '<br>' +
-                    '</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], replaceLongVals, 1) + '</pre>');
+                    //'</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], replaceLongVals, 1) + '</pre>');
+                    '<br><b>Extra data: </b>' + extraData);
 
                 sensorsLayer.addLayer(marker);
             }
@@ -180,6 +186,7 @@ $(document).ready(function(){
             // Update regions to show values
             for (var i=0; i<data.length; i++){
                 var region = data[i];
+
                 if (region.value == null){
                     continue;
                 }
@@ -192,9 +199,15 @@ $(document).ready(function(){
                             'fillColor': valColor,
                             'weight': '1'
                           });
+
+                var extraData = '';
+                for (var key in region['extra_data']){
+                    extraData += '<br>' + key + ': ' + region['extra_data'][key];
+                };
                 try {
                     layer.bindTooltip(region.value.toString() +
-                        '<br>' + JSON.stringify(region.extra_data, null, 1),
+                        //'<br>' + JSON.stringify(region.extra_data, null, 1),
+                        extraData,
                         {permanent: false, direction: "center", opacity: 0.8, minWidth: 200, maxWidth: 200}
                     )
                 }catch (e) {
@@ -275,6 +288,10 @@ $(document).ready(function(){
                             'fillColor': 'transparent',
                             'weight': '1'
                           });
+                        var extraData = '';
+                        for (var key in feature.properties.popupContent.extra_data){
+                            extraData += '<b>' + key  + '</b>: ' + feature.properties.popupContent.extra_data[key] + '<br>';
+                        };
                         layer.on('mouseover', function () {
                               this.setStyle({
                                 //'fillColor': '#ff3b24'
@@ -282,7 +299,9 @@ $(document).ready(function(){
                               });
                               $('#region-data').html(
                                   '<p> Region: ' + feature.properties.popupContent.region_id + '</p>' +
-                                  '<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, replaceLongVals, 1) + '</pre></p>');
+                                  //'<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, replaceLongVals, 1) + '</pre></p>'
+                                  '<p> Extra Data: <pre>' + extraData + '</pre></p>'
+                              );
                         });
                         layer.on('mouseout', function () {
                           this.setStyle({

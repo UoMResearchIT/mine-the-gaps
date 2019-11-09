@@ -57,9 +57,12 @@ pre {
     padding-right:0;
 }
 
+#map-options div{
+    padding: 5px;
+}
+
 #map-overlays{
     border-style: ridge;
-    height: 100px;
 }
 
 #estimation-method{
@@ -69,7 +72,6 @@ pre {
 
 #region-data{
     border-style: ridge;
-    /*height: 700px;*/
 }
 
 
