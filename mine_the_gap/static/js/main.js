@@ -246,9 +246,9 @@ $(document).ready(function(){
 
                 for (var i=0; i<data.length; i++){
                     var loc = data[i];
-                    /*if(i==0) {
+                    if(i==0) {
                         alert(JSON.stringify(loc, null, 1));
-                    };*/
+                    };
 
                     if (loc['value'] == null){
                         continue;
