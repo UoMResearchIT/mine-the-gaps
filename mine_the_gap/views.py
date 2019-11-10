@@ -94,10 +94,33 @@ def get_actuals_at_timestamp(request, timestamp_idx):
         else:
             percentage_score = None
         new_row = dict(row.join_sensor)
+        new_row['ignore'] = not params_match(new_row, sensor_params)
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
     return JsonResponse(data, safe=False)
+
+def params_match(row, params):
+    # [{"name": {"omit_sensors": ["Inverness"]}}]
+    # [{"name": {"select_sensors": ["Inverness"]}}]
+    for item in params:
+        item_key = next(iter(item))
+        #print(item_key)
+        if item_key == 'name':
+            cur_field = row['name']
+        else:
+            cur_field = row['extra_data'][item_key]
+
+        dict_item = item[item_key]
+        if dict_item and 'select_sensors' in dict_item and cur_field not in dict_item['select_sensors']:
+            return False
+        if dict_item and 'omit_sensors' in dict_item and cur_field in dict_item['omit_sensors']:
+            return False
+
+    return True
+
+
+
 
 def get_estimates_at_timestamp(request, method_name, timestamp_idx):
     data = []
