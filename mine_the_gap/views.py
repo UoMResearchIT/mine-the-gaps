@@ -3,6 +3,7 @@ from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 import csv
 import json
@@ -12,6 +13,7 @@ from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor, Fil
 from django.db.models import Max, Min
 from .region_estimator_factory import Region_estimator_factory
 
+@ensure_csrf_cookie
 def home_page(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
@@ -67,9 +69,10 @@ def get_sensor_fields(request):
     #print(str(result))
     return JsonResponse(result, safe=False)
 
-
 def get_actuals_at_timestamp(request, timestamp_idx):
     timestamps = get_timestamp_list()
+    sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+    print(json.dumps(sensor_params))
 
     try:
         timestamp_d = timestamps[timestamp_idx]
@@ -95,7 +98,6 @@ def get_actuals_at_timestamp(request, timestamp_idx):
         data.append(new_row)
 
     return JsonResponse(data, safe=False)
-
 
 def get_estimates_at_timestamp(request, method_name, timestamp_idx):
     data = []

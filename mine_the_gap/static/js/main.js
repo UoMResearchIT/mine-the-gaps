@@ -1,4 +1,44 @@
 $(document).ready(function(){
+    // ******************************************************************
+    // ****************** CSRF-TOKEN SET-UP *****************************
+    // ******************************************************************
+
+   // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    // ******************************************************************
+    // ****************** CSRF-TOKEN END *****************************
+    // ******************************************************************
+
+
+
 
     $("#upload-btn").on("submit", function () {
         var loaderDiv = document.createElement('div');
@@ -55,7 +95,7 @@ $(document).ready(function(){
 
     function initialise_sensor_fields(){
         /*
-                Add Sensor fields (for UI  filtering mechanism)
+                Add Sensor fields (to UI sensor selection/filtering mechanism)
 
          */
 
@@ -63,41 +103,54 @@ $(document).ready(function(){
             // Add GeoJSON layer
             //alert(JSON.stringify(data));
 
+            // Create the table for sensor fields
             var sensor_fields = '<table class="table table-striped">';
 
             for (var i=0; i<data.length; i++){
                 var fieldName = data[i];
 
-                // Add sensor field data to sensor data div
+                // Add sensor field data to the table
                 var row = '<tr class="select-button-row">' +
                     '<td><button class="field-selector-button">' + fieldName + '</button></td>' +
                     '<td></td></tr>';
                 sensor_fields += row;
                 // Add user input fields for selecting sensors
-                var rows = '<tr class="selector-field info"><td>Select values:</td>' +
-                    '<td><input type="text" placeholder="E.G. a,b,c"></td></tr>' +
-                    '<tr class="omittor-field info"><td>Omit values:</td>' +
-                    '<td><input type="text" placeholder="E.G. a,b,c"></td></tr>';
+                var rows =
+                    '<tr class="select-field-instructions info">' +
+                        '<td></td>' +
+                        '<td><div id="sensor-select-instructions">' +
+                            '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
+                                '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
+                                '(\'Omit values\' ignored if both used)' +
+                    '       </em></div>' +
+                    '   </td>' +
+                    '</tr>' +
+                    '<tr class="selector-field info">' +
+                        '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>' +
+                    '<tr class="omittor-field info">' +
+                    '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>';
                 sensor_fields += rows;
             }
             sensor_fields += '</table>';
 
+            // Add the table and instructions to the html div
             $('#sensor-field-data').html(
-                '<b>Select sensors using fields:</b>' +
-                '<br>(Use comma delimited list of values)<br><br>'
-                + sensor_fields
+                '<b>Select sensors using fields:</b>'+ sensor_fields
             );
 
-            $("tr.selector-field, tr.omittor-field").hide();
-            // Upload files toggle button
+            // Toggle the field selector / omittor fields (and instructions div) until required
+            $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
             $("table button.field-selector-button").click(function(){
                 $(this).closest( "tr" ).nextUntil("tr.select-button-row").toggle('slow');
             });
 
+            // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
             $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
                 if(e.keyCode == 13){ // Enter key
                     if(check_sensor_select_params() == true) {
-                        alert(JSON.stringify(get_sensor_select_url_params()));
+                        //alert(JSON.stringify(get_sensor_select_url_params()));
                         update_timeseries_map(document.getElementById("timestamp-range").value);
                     }
                 }
@@ -106,16 +159,28 @@ $(document).ready(function(){
     }
 
     function get_sensor_select_url_params(){
-        var result = [];
+        var result = {'selectors':[]};
         $('#sensor-field-data table button.field-selector-button').each(function(index){
-            var dict = {};
+            var fieldDict = {};
             var fieldName = $(this).text();
-            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().split(',');
-            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field').first().find('input').val().split(',');
-            dict[fieldName] = {};
-            dict[fieldName]['select_sensors'] = fieldSelectors;
-            dict[fieldName]['omit_sensors'] = fieldOmittors;
-            result.push(dict);
+            var dictFieldName = {};
+
+            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
+            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field') .first().find('input').val().trim();
+            var fieldSelectorsJson = fieldSelectors.split(',').filter(Boolean);
+            var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
+
+            if (fieldSelectorsJson.length > 0){
+                dictFieldName['select_sensors'] = fieldSelectorsJson;
+            }else{
+                if (fieldOmittorsJson.length > 0) {
+                    dictFieldName['omit_sensors'] = fieldOmittorsJson;
+                }
+            }
+            if(Object.keys(dictFieldName).length > 0){
+                fieldDict[fieldName] = dictFieldName;
+                result['selectors'].push(fieldDict);
+            }
         });
         return result;
     }
@@ -144,8 +209,10 @@ $(document).ready(function(){
 
 
     function update_timeseries_map(timeseries_idx){
-        var actualDataUrl = curActualDataUrl + timeseries_idx.toString(); // + get_sensor_select_url_params();
-        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString(); // + get_sensor_select_url_params();;
+        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/';
+        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/';
+        var jsonParams = get_sensor_select_url_params();
+        jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
 
         // Set up loader display
         var loaderDiv = document.createElement('div');
@@ -156,7 +223,15 @@ $(document).ready(function(){
 
         // 1. Update sensors to show values
         sensorsLayer.clearLayers();
-        $.getJSON(actualDataUrl, function (data) {
+
+        $.ajax({
+            url: actualDataUrl,
+            data:JSON.stringify(jsonParams),
+            headers: { "X-CSRFToken": csrftoken},
+            dataType: 'json',
+            method: 'POST',
+            success: function (data) {
+
                 /*[
                     {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
                         "value":66,
@@ -169,51 +244,59 @@ $(document).ready(function(){
                   ]
                 */
 
-            for (var i=0; i<data.length; i++){
-                var loc = data[i];
-                /*if(i==0) {
-                    alert(JSON.stringify(loc, null, 1));
-                };*/
+                for (var i=0; i<data.length; i++){
+                    var loc = data[i];
+                    /*if(i==0) {
+                        alert(JSON.stringify(loc, null, 1));
+                    };*/
 
-                if (loc['value'] == null){
-                    continue;
-                }
+                    if (loc['value'] == null){
+                        continue;
+                    }
 
-                var latlng = [loc.geom[1], loc.geom[0]];
-                var valColor = getGreenToRed(loc.percent_score*100).toString();
-                var marker = new L.Marker.SVGMarker(latlng,
-                        {   iconOptions: {
-                                color: valColor,
-                                iconSize: [30,40],
-                                circleText: loc.value.toString(),
-                                circleRatio: 0.8,
-                                fontSize:8
+                    var latlng = [loc.geom[1], loc.geom[0]];
+                    var valColor = getGreenToRed(loc.percent_score*100).toString();
+                    var marker = new L.Marker.SVGMarker(latlng,
+                            {   iconOptions: {
+                                    color: valColor,
+                                    iconSize: [30,40],
+                                    circleText: loc.value.toString(),
+                                    circleRatio: 0.8,
+                                    fontSize:8
+                                }
                             }
-                        }
-                    );
+                        );
 
-                // Add marker
+                    // Add marker
 
-                var extraData = '<table class="table table-striped">';
-                extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
-                extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
-                extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
-                extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
-                extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
-                for (var key in loc['extra_data']){
-                    extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                    var extraData = '<table class="table table-striped">';
+                    extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
+                    extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
+                    extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
+                    extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
+                    extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+                    for (var key in loc['extra_data']){
+                        extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                    };
+                    extraData += '</table>';
+
+                    marker.bindPopup(extraData);
+
+                    sensorsLayer.addLayer(marker);
                 };
-                extraData += '</table>';
-
-                marker.bindPopup(extraData);
-
-                sensorsLayer.addLayer(marker);
-            };
-            sensorsLayer.addTo(map);
+                sensorsLayer.addTo(map);
+            }
         });
 
 
-        $.getJSON(estimatedDataUrl, function (data) {
+        $.ajax({
+            url: estimatedDataUrl,
+            data: JSON.stringify(jsonParams),
+            headers: {"X-CSRFToken": csrftoken},
+            dataType: 'json',
+            method: 'POST',
+            success: function (data) {
+
                 /*[
                     {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
                         "region_id":"AL",
@@ -236,37 +319,43 @@ $(document).ready(function(){
                   ]
                 */
 
-            // Update regions to show values
-            for (var i=0; i<data.length; i++){
-                var region = data[i];
+                // Update regions to show values
+                for (var i=0; i<data.length; i++){
+                    var region = data[i];
 
-                if (region.value == null){
-                    continue;
-                }
-                //alert(JSON.stringify(region));
-
-                var layer = regions[region.region_id];
-
-                var valColor = getGreenToRed(region.percent_score*100).toString();
-                layer.setStyle({
-                            'fillColor': valColor,
-                            'weight': '1'
-                          });
-
-                var extraData = '';
-                for (var key in region['extra_data']){
-                    extraData += '<br>' + key + ': ' + region['extra_data'][key];
-                };
-                try {
-                    layer.bindTooltip(region.value.toString() +
-                        //'<br>' + JSON.stringify(region.extra_data, null, 1),
-                        extraData,
-                        {permanent: false, direction: "center", opacity: 0.8, minWidth: 200, maxWidth: 200}
-                    )
-                }catch (e) {
+                    if (region.value == null){
+                        continue;
+                    }
                     //alert(JSON.stringify(region));
+
+                    var layer = regions[region.region_id];
+
+                    var valColor = getGreenToRed(region.percent_score*100).toString();
+                    layer.setStyle({
+                                'fillColor': valColor,
+                                'weight': '1'
+                              });
+
+                    var extraData = '';
+                    for (var key in region['extra_data']){
+                        extraData += '<br>' + key + ': ' + region['extra_data'][key];
+                    };
+                    try {
+                        layer.bindTooltip(region.value.toString() +
+                            //'<br>' + JSON.stringify(region.extra_data, null, 1),
+                            extraData,
+                            {permanent: false, direction: "center", opacity: 0.8, minWidth: 200, maxWidth: 200}
+                        )
+                    }catch (e) {
+                        //alert(JSON.stringify(region));
+                    }
                 }
             }
+        });
+
+
+        $.getJSON(estimatedDataUrl, jsonParams, function (data) {
+
         });
 
         // Clear Loader
