@@ -1,4 +1,4 @@
-from .models import Actual_data, Region, Sensor
+from mine_the_gap.models import Region
 from abc import ABCMeta, abstractmethod
 
 

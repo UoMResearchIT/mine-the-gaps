@@ -1,7 +1,7 @@
-from .models import Actual_data, Region, Sensor
+from mine_the_gap.models import Actual_data, Region, Sensor
 from django.db.models import Avg
 
-from mine_the_gap.region_estimator import Region_estimator
+from mine_the_gap.region_estimators.region_estimator import Region_estimator
 
 
 class Diffusion_estimator(Region_estimator):

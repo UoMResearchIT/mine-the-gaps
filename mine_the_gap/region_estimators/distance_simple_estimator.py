@@ -1,7 +1,7 @@
-from .models import Actual_data, Region, Sensor
+from mine_the_gap.models import Actual_data, Region
 from django.contrib.gis.db.models.functions import Distance
 
-from mine_the_gap.region_estimator import Region_estimator
+from mine_the_gap.region_estimators.region_estimator import Region_estimator
 
 
 class Distance_simple_estimator(Region_estimator):

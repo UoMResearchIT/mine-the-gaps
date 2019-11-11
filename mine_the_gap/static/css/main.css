@@ -43,13 +43,11 @@ pre {
     border-style: ridge;
     padding-left:0;
     padding-right:0;
+    bottom:50px;
 
 }
 
-#map-slider{
-    border-style: ridge;
-    height:50px;
-}
+
 
 #map-options{
     height: 800px;
@@ -88,11 +86,27 @@ pre {
 
 }
 
+#slider-value{
+
+}
+
+
+#map-sliderheader {
+  padding: 2px;
+  cursor: move;
+  z-index: 1001;
+  background-color: #e0e0e0;
+  color: #000000;
+}
+
 #map-slider{
-    bottom:0;
-    position:fixed;
-    width:inherit;
+    position:absolute;
+    width: 100%;
     z-index: 1000;
+    border-style: ridge;
+    height:50px;
+    resize: horizontal;
+    overflow: hidden;
 }
 
 /* The slider itself */
@@ -130,9 +144,6 @@ pre {
   cursor: pointer; /* Cursor on hover */
 }
 
-#slider-value{
-    background-color: #e0e0e0;
-}
 
 
 /*
@@ -145,7 +156,7 @@ pre {
     position:absolute;
     top: 15%;
     width: 200px;
-    z-index: 1000;
+    z-index: 11;
 }
 
 

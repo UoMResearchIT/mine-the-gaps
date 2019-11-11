@@ -3,7 +3,7 @@ from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 import csv
 import json
@@ -11,7 +11,7 @@ import json
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor, Filenames
 from django.db.models import Max, Min
-from .region_estimator_factory import Region_estimator_factory
+from mine_the_gap.region_estimators.region_estimator_factory import Region_estimator_factory
 
 @ensure_csrf_cookie
 def home_page(request):
@@ -72,7 +72,7 @@ def get_sensor_fields(request):
 def get_actuals_at_timestamp(request, timestamp_idx):
     timestamps = get_timestamp_list()
     sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
-    print(json.dumps(sensor_params))
+    #print(json.dumps(sensor_params))
 
     try:
         timestamp_d = timestamps[timestamp_idx]
@@ -123,10 +123,12 @@ def params_match(row, params):
 
 
 def get_estimates_at_timestamp(request, method_name, timestamp_idx):
+    sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+    # print(json.dumps(sensor_params))
+
     data = []
     min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
     max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
-
 
     timestamps = get_timestamp_list()
     try:
