@@ -1,12 +1,13 @@
 # Polymorphic factory methods.
 from __future__ import generators
-from mine_the_gap.diffusion_estimator import Diffusion_estimator
-from mine_the_gap.distance_simple_estimator import Distance_simple_estimator
+
+# These region estimators must stay - despite not appearing to be used!!
+from mine_the_gap.region_estimators.diffusion_estimator import Diffusion_estimator
+from mine_the_gap.region_estimators.distance_simple_estimator import Distance_simple_estimator
 
 
 class Region_estimator_factory:
     factories = {}
-
 
 
     def add_factory(id, region_estimator_factory):

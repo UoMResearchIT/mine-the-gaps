@@ -37,7 +37,8 @@ $(document).ready(function(){
     // ****************** CSRF-TOKEN END *****************************
     // ******************************************************************
 
-
+    // Make the timestamp slider draggable:
+    dragElement(document.getElementById("map-slider"));
 
 
     $("#upload-btn").on("submit", function () {
@@ -213,13 +214,13 @@ $(document).ready(function(){
         var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/';
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
+        var loaderOuterDiv = document.getElementById('loader-outer');
 
         // Set up loader display
         var loaderDiv = document.createElement('div');
         loaderDiv.id = 'loader';
-        var resultsDiv = document.getElementById('loader-outer');
-        resultsDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Collecting sensor and estimation data...</p>');
+        loaderOuterDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
 
         // 1. Update sensors to show values
         sensorsLayer.clearLayers();
@@ -239,23 +240,29 @@ $(document).ready(function(){
                         "percent_score":0.436241610738255,
                         "sensor_id":757,
                         "geom":[-2.1031362,57.1453481],
-                        "name": 'Aberdeen Union Street Roadside'
+                        "name": 'Aberdeen Union Street Roadside',
+                        "ignore": False,
                     }
                   ]
                 */
 
                 for (var i=0; i<data.length; i++){
                     var loc = data[i];
-                    if(i==0) {
+                    /*if(i==0) {
                         alert(JSON.stringify(loc, null, 1));
-                    };
+                    };*/
 
                     if (loc['value'] == null){
                         continue;
                     }
 
                     var latlng = [loc.geom[1], loc.geom[0]];
-                    var valColor = getGreenToRed(loc.percent_score*100).toString();
+
+                    var valColor = 'blue';
+                    if (!loc['ignore']) {
+                        var valColor = getGreenToRed(loc.percent_score * 100).toString();
+                    };
+
                     var marker = new L.Marker.SVGMarker(latlng,
                             {   iconOptions: {
                                     color: valColor,
@@ -285,8 +292,20 @@ $(document).ready(function(){
                     sensorsLayer.addLayer(marker);
                 };
                 sensorsLayer.addTo(map);
+            },
+            error: function (request, state, errors) {
+                    alert("There was an problem fetching the sensor data: " + errors.toString());
+            },
+            complete: function (request, status) {
+                    // Clear Loader
+                while (loaderOuterDiv.firstChild) {
+                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                }
             }
         });
+
+        // Set up loader display
+        drawLoader(loaderDiv, '<p>Collecting estimation data...</p>');
 
 
         $.ajax({
@@ -350,18 +369,20 @@ $(document).ready(function(){
                         //alert(JSON.stringify(region));
                     }
                 }
+            },
+            error: function (request, state, errors) {
+                    alert("There was an problem fetching the estimation data: " + errors.toString());
+            },
+            complete: function (request, status) {
+                    // Clear Loader
+                while (loaderOuterDiv.firstChild) {
+                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                }
             }
         });
 
 
-        $.getJSON(estimatedDataUrl, jsonParams, function (data) {
 
-        });
-
-        // Clear Loader
-        while (resultsDiv.firstChild) {
-            resultsDiv.removeChild(resultsDiv.firstChild);
-        }
     }
 
     function update_map(mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
@@ -498,6 +519,49 @@ function drawLoader(loaderDiv, explanation, sizeOneToFive=5){
     divWaitingExplanation.appendChild(divLoader);
     divWaitingExplanation.appendChild(divAjaxWaitText);
     loaderDiv.appendChild(divWaitingExplanation);
+}
+
+// Make the DIV element draggable:
+// Code from: https://www.w3schools.com/howto/howto_js_draggable.asp
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
 }
 
 
