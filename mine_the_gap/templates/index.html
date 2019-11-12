@@ -14,8 +14,8 @@
             </div>
         </div>
         <div class="row" id="select-files">
-            {% for row in filepaths %}
-                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+            {% with filepaths|first as filepath %}
+                         <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
                     <div id="upload-fields" class='col-sm-12'>
                         {% csrf_token %}
                         <table class="table table-striped">
@@ -26,31 +26,32 @@
                             </tr>
                             <tr>
                                 <th scope="row">Actual data</th>
-                                <td><span class="current-filename">Sensor data file: (current: {{ row.actual_data_file|safe }})</span>
+                                <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_file|safe }})</span>
                                     <br>{{ form.actual_data_file }}</td>
-                                <td><span class="current-filename">Sensor metadata file: (current: {{ row.sensor_data_file|safe }})</span>
+                                <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_data_file|safe }})</span>
                                     <br>{{ form.sensor_data_file }}</td>
                             </tr>
                             <tr>
                                 <th scope="row">Estimated data</th>
-                                <td><span class="current-filename">Estimated data file: (current: {{ row.estimated_data_file|safe }})</span>
+                                <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_file|safe }})</span>
                                     <br>{{ form.estimated_data_file }}</td>
-                                <td><span class="current-filename">Estimation metadata file: (current: {{ row.region_data_file|safe }})</span>
+                                <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_data_file|safe }})</span>
                                     <br>{{ form.region_data_file }}</td>
                             </tr>
                         </table>
                         <button type="submit" class="btn btn-primary"
                                 id='upload-btn'
-                                onclick="return confirm('Do you really want to replace these files?');">Upload</button>
+                                onclick="return confirm('Do you really want to replace these files?');">Upload
+                        </button>
                     </div>
 
                 </form>
-            {% endfor %}
+            {% endwith %}
         </div>
     </div>
 
     <div id="map-main-info" class="container">
-        <div class="row">
+        <div class="row" id="main">
             <div id="map" class="col-sm-8">
                 <div id="loader-outer"></div>
 

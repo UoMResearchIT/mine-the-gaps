@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'leaflet',
     'django.contrib.gis',
+    'django.contrib.postgres.fields.jsonb',
     'djgeojson',
     'mine_the_gap',
     'django.contrib.admin',

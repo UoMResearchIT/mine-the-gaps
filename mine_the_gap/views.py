@@ -48,12 +48,9 @@ def get_sensor_fields(request):
     result = []
 
     # Check sensors exist
-    try:
-        first_sensor = Sensor.objects.first()
-    except:
-        # No sensors are loaded so return empty list
-        pass
-    else:
+    first_sensor = Sensor.objects.first()
+
+    if first_sensor:
         # Sensors exist so get field names from the Sensor model
         for field in Sensor._meta.get_fields():
             if not (field.many_to_one) and field.related_model is None:
@@ -62,7 +59,7 @@ def get_sensor_fields(request):
                 if field_name == 'id' or field_name == 'geom':
                     continue
                 elif field_name == 'extra_data':
-                    result.extend(json.loads(first_sensor.extra_data).keys())
+                    result.extend(first_sensor.extra_data.keys())
                 else:
                     result.append(field_name)
 
@@ -71,18 +68,22 @@ def get_sensor_fields(request):
 
 def get_actuals_at_timestamp(request, timestamp_idx):
     timestamps = get_timestamp_list()
-    sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
-    #print(json.dumps(sensor_params))
+    try:
+        sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+    except:
+        sensor_params = []
+
+    data = []
+
 
     try:
         timestamp_d = timestamps[timestamp_idx]
     except:
-        return None
-
+        return JsonResponse(data, safe=False)
 
     query_set = Actual_data.objects.filter(timestamp=timestamp_d)
 
-    data = []
+
 
     min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
     max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
@@ -94,36 +95,71 @@ def get_actuals_at_timestamp(request, timestamp_idx):
         else:
             percentage_score = None
         new_row = dict(row.join_sensor)
-        new_row['ignore'] = not params_match(new_row, sensor_params)
+
+        new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
+
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
     return JsonResponse(data, safe=False)
 
-def params_match(row, params):
+def select_sensor(sensor, params):
     # [{"name": {"omit_sensors": ["Inverness"]}}]
     # [{"name": {"select_sensors": ["Inverness"]}}]
     for item in params:
         item_key = next(iter(item))
-        #print(item_key)
         if item_key == 'name':
-            cur_field = row['name']
+            sensor_field = sensor['name']
         else:
-            cur_field = row['extra_data'][item_key]
+            sensor_field = sensor['extra_data'][item_key]
 
         dict_item = item[item_key]
-        if dict_item and 'select_sensors' in dict_item and cur_field not in dict_item['select_sensors']:
+        if dict_item and 'select_sensors' in dict_item and sensor_field not in dict_item['select_sensors']:
             return False
-        if dict_item and 'omit_sensors' in dict_item and cur_field in dict_item['omit_sensors']:
+        if dict_item and 'omit_sensors' in dict_item and sensor_field in dict_item['omit_sensors']:
             return False
 
     return True
 
+def filter_sensors(sensors, params):
+    # [{"name": {"omit_sensors": ["Inverness"]}}]
+    # [{"pc": {"select_sensors": ["kdljdflja"]}}]
 
+    for item in params:
+        # print(item_key)
+        item_key = next(iter(item))
+        dict_selector = item[item_key]
+        omit_or_select = next(iter(dict_selector))
+        include = True if omit_or_select == 'select_sensors' else False
+        values = item[item_key][omit_or_select]
+
+        print('item_key: ', item_key)
+        print('dict_selector: ', dict_selector)
+        print('Include: ', str(include))
+        print('Values: ', str(values))
+
+        if item_key == 'name':
+            if include:
+                print('sensors.filter(name__in=', str(values), ')')
+                sensors = sensors.filter(name__in=values)
+            else:
+                sensors = sensors.exclude(name__in=values)
+        else:
+            extra_data_key = item_key
+            if include:
+                sensors = sensors.filter(extra_data___contains={extra_data_key: values})
+            else:
+                sensors = sensors.exclude(extra_data___contains={extra_data_key: values})
+
+    return sensors
 
 
 def get_estimates_at_timestamp(request, method_name, timestamp_idx):
-    sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+
+    try:
+        sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+    except:
+        sensor_params = []
     # print(json.dumps(sensor_params))
 
     data = []
@@ -134,7 +170,7 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
     try:
         timestamp_d = timestamps[timestamp_idx]
     except:
-        return None
+        return JsonResponse(data, safe=False)
 
 
     if method_name == 'file':
@@ -145,8 +181,10 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
             new_row['percent_score'] = percentage_score
             data.append(new_row)
     else:
+        sensors = filter_sensors(Sensor.objects.all(), sensor_params)
         try:
-            estimator = Region_estimator_factory.create_region_estimator(method_name)
+            print(sensors)
+            estimator = Region_estimator_factory.create_region_estimator(method_name, sensors)
         except Exception as err:
             print(err)
         else:
@@ -202,7 +240,7 @@ def handle_uploaded_files(request):
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
                     name =  row[2],
-                    extra_data=json.dumps(extra_data))
+                    extra_data=extra_data)
                 sensor.save()
             except Exception as err:
                 #print(err)
@@ -227,7 +265,7 @@ def handle_uploaded_files(request):
                 actual = Actual_data(   timestamp=row[0],
                                         sensor = Sensor.objects.get(geom=point_loc),
                                         value = fvalue,
-                                        extra_data = json.dumps(extra_data)
+                                        extra_data = extra_data
                                         )
                 actual.save()
             except Exception as err:
@@ -286,7 +324,7 @@ def handle_uploaded_files(request):
 
                 region = Region(region_id=str(row[0]),
                                 geom=multipoly_geo,
-                                extra_data=json.dumps(extra_data)
+                                extra_data=extra_data
                                 )
                 region.save()
             except Exception as err1:
@@ -308,7 +346,7 @@ def handle_uploaded_files(request):
                 estimated = Estimated_data( timestamp=row[0],
                                             region=Region.objects.get(region_id=str(row[1])),
                                             value = float(row[2]),
-                                            extra_data = json.dumps(extra_data)
+                                            extra_data = extra_data
                                             )
                 estimated.save()
             except Exception as err:
