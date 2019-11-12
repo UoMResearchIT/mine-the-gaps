@@ -4,6 +4,9 @@ from abc import ABCMeta, abstractmethod
 
 class Region_estimator(object):
 
+    def __init__(self, sensors):
+        self.sensors = sensors
+
     @abstractmethod
     def get_all_region_estimations(self, timestamp):
         pass

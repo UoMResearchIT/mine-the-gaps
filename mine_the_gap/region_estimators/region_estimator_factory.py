@@ -15,11 +15,11 @@ class Region_estimator_factory:
     add_factory = staticmethod(add_factory)
 
     # A Template Method:
-    def create_region_estimator(method_name):
+    def create_region_estimator(method_name, sensors=None):
         class_name = get_classname(method_name)
         if class_name not in Region_estimator_factory.factories:
             Region_estimator_factory.factories[class_name] = eval(class_name + '.Factory()')
-        return Region_estimator_factory.factories[class_name].create()
+        return Region_estimator_factory.factories[class_name].create(sensors)
 
     create_region_estimator = staticmethod(create_region_estimator)
 

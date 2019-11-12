@@ -6,8 +6,11 @@ from mine_the_gap.region_estimators.region_estimator import Region_estimator
 
 class Diffusion_estimator(Region_estimator):
 
+    def __init__(self, sensors=Sensor.objects.all()):
+        super(Diffusion_estimator, self).__init__(sensors)
+
     class Factory:
-        def create(self): return Diffusion_estimator()
+        def create(self, sensors): return Diffusion_estimator(sensors)
 
     def get_all_region_estimations(self, timestamp):
         result = []
@@ -41,7 +44,7 @@ class Diffusion_estimator(Region_estimator):
 
         # Find sensors
         for region in regions.iterator():
-            sensors |= Sensor.objects.filter(geom__within=region.geom)
+            sensors |= self.sensors.filter(geom__within=region.geom)
 
         # Get the actual readings for those sensors
         actuals = Actual_data.objects.filter(timestamp=timestamp, sensor__in=sensors)
