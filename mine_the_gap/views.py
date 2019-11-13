@@ -126,30 +126,23 @@ def filter_sensors(sensors, params):
     # [{"pc": {"select_sensors": ["kdljdflja"]}}]
 
     for item in params:
-        # print(item_key)
         item_key = next(iter(item))
         dict_selector = item[item_key]
         omit_or_select = next(iter(dict_selector))
         include = True if omit_or_select == 'select_sensors' else False
         values = item[item_key][omit_or_select]
 
-        print('item_key: ', item_key)
-        print('dict_selector: ', dict_selector)
-        print('Include: ', str(include))
-        print('Values: ', str(values))
-
         if item_key == 'name':
             if include:
-                print('sensors.filter(name__in=', str(values), ')')
                 sensors = sensors.filter(name__in=values)
             else:
                 sensors = sensors.exclude(name__in=values)
         else:
-            extra_data_key = item_key
-            if include:
-                sensors = sensors.filter(extra_data___contains={extra_data_key: values})
-            else:
-                sensors = sensors.exclude(extra_data___contains={extra_data_key: values})
+            for value in values:
+                if include:
+                    sensors = sensors.filter(extra_data__contains={item_key: value})
+                else:
+                    sensors = sensors.exclude(extra_data__contains={item_key: value})
 
     return sensors
 
@@ -183,7 +176,6 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
     else:
         sensors = filter_sensors(Sensor.objects.all(), sensor_params)
         try:
-            print(sensors)
             estimator = Region_estimator_factory.create_region_estimator(method_name, sensors)
         except Exception as err:
             print(err)

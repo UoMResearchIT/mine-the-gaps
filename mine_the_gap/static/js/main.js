@@ -252,22 +252,28 @@ $(document).ready(function(){
                         alert(JSON.stringify(loc, null, 1));
                     };*/
 
-                    if (loc['value'] == null){
-                        continue;
-                    }
-
                     var latlng = [loc.geom[1], loc.geom[0]];
 
-                    var valColor = 'blue';
-                    if (!loc['ignore']) {
-                        var valColor = getGreenToRed(loc.percent_score * 100).toString();
+
+
+                    var valColor = 'grey';
+                    var locValue = 'null';
+
+                    if (loc['value'] != null){
+                        valColor = getGreenToRed(loc.percent_score * 100).toString();
+                        locValue = loc.value.toString();
                     };
+
+                    if (loc['ignore']) {
+                        valColor = 'blue';
+                    };
+
 
                     var marker = new L.Marker.SVGMarker(latlng,
                             {   iconOptions: {
                                     color: valColor,
                                     iconSize: [30,40],
-                                    circleText: loc.value.toString(),
+                                    circleText: locValue,
                                     circleRatio: 0.8,
                                     fontSize:8
                                 }
@@ -341,33 +347,37 @@ $(document).ready(function(){
                 // Update regions to show values
                 for (var i=0; i<data.length; i++){
                     var region = data[i];
-
-                    if (region.value == null){
-                        continue;
-                    }
-                    //alert(JSON.stringify(region));
+                    //if (i==0){
+                    //    alert(JSON.stringify(region));
+                    //}
 
                     var layer = regions[region.region_id];
 
-                    var valColor = getGreenToRed(region.percent_score*100).toString();
-                    layer.setStyle({
-                                'fillColor': valColor,
-                                'weight': '1'
-                              });
+                    if (region.value == null){
+                        layer.setStyle({
+                                    'fillColor': 'grey',
+                                    'fillOpacity': 0.7,
+                                    'weight': '1'
+                                  });
+                        var regionValue = 'null';
 
+                    }else {
+                        var valColor = getGreenToRed(region.percent_score * 100).toString();
+                        layer.setStyle({
+                            'fillColor': valColor,
+                            'fillOpacity': 0.2,
+                            'weight': '1'
+                        });
+                        var regionValue = region.value.toString();
+                    }
                     var extraData = '';
                     for (var key in region['extra_data']){
                         extraData += '<br>' + key + ': ' + region['extra_data'][key];
                     };
-                    try {
-                        layer.bindTooltip(region.value.toString() +
-                            //'<br>' + JSON.stringify(region.extra_data, null, 1),
-                            extraData,
-                            {permanent: false, direction: "center", opacity: 0.8, minWidth: 200, maxWidth: 200}
-                        )
-                    }catch (e) {
-                        //alert(JSON.stringify(region));
-                    }
+                    layer.bindTooltip(regionValue +
+                        extraData,
+                        {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
+                    )
                 }
             },
             error: function (request, state, errors) {
