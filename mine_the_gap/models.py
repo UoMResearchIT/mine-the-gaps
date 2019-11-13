@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models as gismodels
+from django.contrib.gis.geos import Point
 import json
 
 

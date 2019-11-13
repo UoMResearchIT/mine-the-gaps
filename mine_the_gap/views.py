@@ -36,11 +36,10 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    timestamp_range = get_timestamp_list()
-
     context = { 'form': FileUploadForm(),
+                'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
-                'timestamp_range':timestamp_range}
+                'timestamp_range': get_timestamp_list()}
 
     return render(request, 'index.html', context)
 
@@ -204,6 +203,21 @@ def get_timestamp_list():
         result.append(item['timestamp'])
 
     return result
+
+def get_center_latlng():
+    x_average = 0
+    y_average = 0
+
+    for idx, sensor in enumerate(Sensor.objects.all()):
+        found = True
+        x_average = x_average * (idx / (idx + 1)) + sensor.geom.coords[0] / (idx + 1)
+        y_average = y_average * (idx / (idx + 1)) + sensor.geom.coords[1] / (idx + 1)
+
+    if found:
+        return json.dumps([str(y_average), str(x_average)])
+    else:
+        return ["54.2361", "-4.5481"]  # UK default
+
 
 def handle_uploaded_files(request):
 
