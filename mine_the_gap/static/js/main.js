@@ -42,11 +42,12 @@ $(document).ready(function(){
 
 
     $("#upload-btn").on("submit", function () {
+        var loaderOuterDiv = document.getElementById('loader-outer');
+        // Set up loader display
         var loaderDiv = document.createElement('div');
         loaderDiv.id = 'loader';
-        var resultsDiv = document.getElementById('loader-outer');
-        resultsDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Loading data from file(s)...</p>');
+        loaderOuterDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Uploading data...</p>');
     });
 
     $("div#select-files").hide();
@@ -60,7 +61,7 @@ $(document).ready(function(){
 
     $("#estimation-method>input").change(function() {
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        //update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
@@ -214,9 +215,10 @@ $(document).ready(function(){
         var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/';
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
-        var loaderOuterDiv = document.getElementById('loader-outer');
+
 
         // Set up loader display
+        var loaderOuterDiv = document.getElementById('loader-outer');
         var loaderDiv = document.createElement('div');
         loaderDiv.id = 'loader';
         loaderOuterDiv.appendChild(loaderDiv);
@@ -309,9 +311,9 @@ $(document).ready(function(){
             },
             complete: function (request, status) {
                     // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                }
+                //while (loaderOuterDiv.firstChild) {
+                //    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                //}
             }
         });
 
@@ -434,6 +436,13 @@ $(document).ready(function(){
             break;
         }
 
+        // Set up loader display
+        var loaderOuterDiv = document.getElementById('loader-outer');
+        var loaderDiv = document.createElement('div');
+        loaderDiv.id = 'loader';
+        loaderOuterDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Setting up map and region data...</p>');
+
         L.tileLayer(
             mapUrl,
            {
@@ -491,11 +500,16 @@ $(document).ready(function(){
                         });
 
                     }
-                }
+                },
+
             );
             regionsLayer.addLayer(geoLayer);
         });
         regionsLayer.addTo(map);
+
+        while (loaderOuterDiv.firstChild) {
+            loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+        }
     }
 
 });
@@ -511,7 +525,8 @@ function isNumeric(n) {
 }
 
 
-function drawLoader(loaderDiv, explanation, sizeOneToFive=5){
+function drawLoader(loaderDiv, explanation, sizeOneToFive=3){
+    loaderDiv.style.zIndex = 2000;
     var strClassSuffix = '';
     if(isNumeric(sizeOneToFive) & parseInt(sizeOneToFive) >=1 & parseInt(sizeOneToFive) <=5) {
         strClassSuffix = ' size-' + sizeOneToFive.toString();
