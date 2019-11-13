@@ -223,7 +223,16 @@ $(document).ready(function(){
         drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
 
         // 1. Update sensors to show values
+
+        // Clear sensor and region data
         sensorsLayer.clearLayers();
+        for (var key in regions){
+            regions[key].setStyle({
+                'fillColor': 'transparent',
+                'fillOpacity': 0.2,
+              });
+        };
+
 
         $.ajax({
             url: actualDataUrl,
@@ -253,9 +262,6 @@ $(document).ready(function(){
                     };*/
 
                     var latlng = [loc.geom[1], loc.geom[0]];
-
-
-
                     var valColor = 'grey';
                     var locValue = 'null';
 
@@ -263,7 +269,6 @@ $(document).ready(function(){
                         valColor = getGreenToRed(loc.percent_score * 100).toString();
                         locValue = loc.value.toString();
                     };
-
                     if (loc['ignore']) {
                         valColor = 'blue';
                     };
