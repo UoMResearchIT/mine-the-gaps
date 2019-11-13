@@ -40,15 +40,20 @@ $(document).ready(function(){
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
 
-
-    $("#upload-btn").on("submit", function () {
-        var loaderOuterDiv = document.getElementById('loader-outer');
-        // Set up loader display
-        var loaderDiv = document.createElement('div');
-        loaderDiv.id = 'loader';
-        loaderOuterDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Uploading data...</p>');
+    $("#file-upload-form").on("submit", function(){
+        if(confirm('Do you really want to replace these files?')){
+            var loaderOuterDiv = document.getElementById('loader-outer');
+            // Set up loader display
+            var loaderDiv = document.createElement('div');
+            loaderDiv.id = 'loader';
+            loaderOuterDiv.appendChild(loaderDiv);
+            drawLoader(loaderDiv, '<p>Uploading data...</p>');
+            return true;
+        }else{
+            return false;
+        }
     });
+
 
     $("div#select-files").hide();
     // Upload files toggle button
@@ -242,6 +247,7 @@ $(document).ready(function(){
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
+            timeout: 20000,
             success: function (data) {
 
                 /*[
@@ -311,9 +317,9 @@ $(document).ready(function(){
             },
             complete: function (request, status) {
                     // Clear Loader
-                //while (loaderOuterDiv.firstChild) {
-                //    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                //}
+                while (loaderOuterDiv.firstChild) {
+                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                }
             }
         });
 
@@ -327,6 +333,7 @@ $(document).ready(function(){
             headers: {"X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
+            timeout: 20000,
             success: function (data) {
 
                 /*[
