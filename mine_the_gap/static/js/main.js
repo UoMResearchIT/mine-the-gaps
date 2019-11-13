@@ -1,4 +1,11 @@
+
 $(document).ready(function(){
+
+    // Initialise layer lists for later use
+    var sensorsLayer = new L.LayerGroup();
+    var regionsLayer = new L.LayerGroup();
+    var regions = {};
+
     // ******************************************************************
     // ****************** CSRF-TOKEN SET-UP *****************************
     // ******************************************************************
@@ -71,16 +78,12 @@ $(document).ready(function(){
     });
 
 
-    // Initialise layer lists for later use
-    var sensorsLayer = new L.LayerGroup();
-    var regionsLayer = new L.LayerGroup();
-    var regions = {};
-    var sensors = {};
+
 
     //Create map
     var map = L.map('mapid');
     var initZoom = 6;
-    var initCenter = ["54.2361","-4.5481"];
+    var initCenter = jQuery.parseJSON(centerLatLng);
     map.setView(initCenter, initZoom);
     map.options.minZoom = 5;
     map.options.maxZoom = 14;
@@ -366,6 +369,10 @@ $(document).ready(function(){
                     //}
 
                     var layer = regions[region.region_id];
+                    if (layer == null){
+                        alert(region.region_id);
+                        alert(JSON.stringify(region));
+                    }
 
                     if (region.value == null){
                         layer.setStyle({
@@ -472,48 +479,52 @@ $(document).ready(function(){
          */
 
         regionsLayer.clearLayers();
-        $.getJSON(regionDataUrl, function (data) {
-            // Add GeoJSON layer
-            var geoLayer = L.geoJson(
-                data,
-                {   onEachFeature: function (feature, layer) {
-                        regions[feature.properties.popupContent.region_id] = layer;
-                        layer.setStyle({
-                            'fillColor': 'transparent',
-                            'weight': '1'
-                          });
+        $.ajax({
+            url: regionDataUrl,
+            dataType: 'json',
+            async: false,
+            success: function(data) {
 
-                        var extraData = '<table class="table table-striped">';
-                        for (var key in feature.properties.popupContent.extra_data){
-                            extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
-                        };
-                        extraData += '</table>';
-
-                        layer.on('mouseover', function () {
-                              this.setStyle({
-                                //'fillColor': '#ff3b24'
-                                  'weight': '5'
+                // Add GeoJSON layer
+                var geoLayer = L.geoJson(
+                    data,
+                    {   onEachFeature: function (feature, layer) {
+                            regions[feature.properties.popupContent.region_id] = layer;
+                            layer.setStyle({
+                                'fillColor': 'transparent',
+                                'weight': '1'
                               });
-                              $('#region-data').html(
-                                  '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
-                                  extraData
-                              );
-                        });
-                        layer.on('mouseout', function () {
-                          this.setStyle({
-                            //'fillColor': 'transparent'
-                            'weight': '1'
-                          });
-                        });
-
-                    }
-                },
-
-            );
-            regionsLayer.addLayer(geoLayer);
+                            var extraData = '<table class="table table-striped">';
+                            for (var key in feature.properties.popupContent.extra_data){
+                                extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
+                            };
+                            extraData += '</table>';
+                            layer.on('mouseover', function () {
+                                  this.setStyle({
+                                    //'fillColor': '#ff3b24'
+                                      'weight': '5'
+                                  });
+                                  $('#region-data').html(
+                                      '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
+                                      extraData
+                                  );
+                            });
+                            layer.on('mouseout', function () {
+                              this.setStyle({
+                                //'fillColor': 'transparent'
+                                'weight': '1'
+                              });
+                            });
+                        }
+                    },
+                );
+                regionsLayer.addLayer(geoLayer);
+                regionsLayer.addTo(map);
+            }
         });
-        regionsLayer.addTo(map);
-
+        //$.getJSON(regionDataUrl, function (data) {
+        //});
+        
         while (loaderOuterDiv.firstChild) {
             loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
         }
