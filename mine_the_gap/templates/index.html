@@ -15,7 +15,7 @@
         </div>
         <div class="row" id="select-files">
             {% with filepaths|first as filepath %}
-                         <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
                     <div id="upload-fields" class='col-sm-12'>
                         {% csrf_token %}
                         <table class="table table-striped">
@@ -39,10 +39,7 @@
                                     <br>{{ form.region_data_file }}</td>
                             </tr>
                         </table>
-                        <button type="submit" class="btn btn-primary"
-                                id='upload-btn'
-                                onclick="return confirm('Do you really want to replace these files?');">Upload
-                        </button>
+                        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
                     </div>
 
                 </form>
