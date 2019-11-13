@@ -151,22 +151,24 @@ pre {
 
 
 #loader-outer{
-    position:absolute;
-    top: 15%;
-    width: 200px;
-    z-index: 11;
+    position:fixed;
+    top: 20%;
+    left: 15%;
+    z-index: 2000;
+    width:400px;
 }
 
 
 .ajax-call-loader {
-  border: 16px solid #725f8b;
+  border: 16px solid #3e6b8c;
   border-radius: 50%;
-  border-top: 16px solid #ea8511;
+  border-top: 16px solid #d1eeaa;
   width: 100px;
   height: 100px;
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
   float:left;
+    border-style: groove;
 }
 
 .ajax-call-loader.size-1{
@@ -193,6 +195,7 @@ pre {
 .ajax-waiting-text {
     padding-left: 5%;
     padding-top: 60px;
+    font-weight: bold;
 }
 
 .ajax-waiting-text.size-1{
