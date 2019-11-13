@@ -33,7 +33,8 @@ urlpatterns = [
     url(r'^region.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popupContent']), name='region'),
     #url(r'^estimated_data.geojson$', GeoJSONLayerView.as_view(model=Estimated_data, properties=['popupContent']), name='estimated_data'),
     path('actual_data/<int:timestamp_idx>/', views.get_actuals_at_timestamp),
-    path('estimated_data/<slug:method_name>/<int:timestamp_idx>', views.get_estimates_at_timestamp),
+    path('estimated_data/<slug:method_name>/<int:timestamp_idx>/', views.get_estimates_at_timestamp),
+    path('sensor_fields', views.get_sensor_fields),
 
     path('', views.home_page),
 ]

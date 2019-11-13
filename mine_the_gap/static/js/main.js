@@ -1,25 +1,67 @@
 $(document).ready(function(){
+    // ******************************************************************
+    // ****************** CSRF-TOKEN SET-UP *****************************
+    // ******************************************************************
+
+   // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    // ******************************************************************
+    // ****************** CSRF-TOKEN END *****************************
+    // ******************************************************************
+
+    // Make the timestamp slider draggable:
+    dragElement(document.getElementById("map-slider"));
+
 
     $("#upload-btn").on("submit", function () {
+        var loaderOuterDiv = document.getElementById('loader-outer');
+        // Set up loader display
         var loaderDiv = document.createElement('div');
         loaderDiv.id = 'loader';
-        var resultsDiv = document.getElementById('loader-outer');
-        resultsDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Loading data from file(s)...</p>');
+        loaderOuterDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Uploading data...</p>');
     });
 
     $("div#select-files").hide();
     // Upload files toggle button
-        $("button#btn-select-files").click(function(){
+    $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');
-      });
+    });
 
     var curEstimatedDataUrl = estimatedDataUrl + '/file/';
     var curActualDataUrl = actualDataUrl + '/';
 
     $("#estimation-method>input").change(function() {
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        //update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
@@ -28,6 +70,7 @@ $(document).ready(function(){
     var sensorsLayer = new L.LayerGroup();
     var regionsLayer = new L.LayerGroup();
     var regions = {};
+    var sensors = {};
 
     //Create map
     var map = L.map('mapid');
@@ -43,6 +86,8 @@ $(document).ready(function(){
     // bounds must be set after only the first initialisation of map
     initialise_slider();
 
+    initialise_sensor_fields();
+
 
 
     $("#map-overlays>input").change(function() {
@@ -50,6 +95,101 @@ $(document).ready(function(){
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
+    function initialise_sensor_fields(){
+        /*
+                Add Sensor fields (to UI sensor selection/filtering mechanism)
+
+         */
+
+        $.getJSON(sensorFieldsUrl, function (data) {
+            // Add GeoJSON layer
+            //alert(JSON.stringify(data));
+
+            // Create the table for sensor fields
+            var sensor_fields = '<table class="table table-striped">';
+
+            for (var i=0; i<data.length; i++){
+                var fieldName = data[i];
+
+                // Add sensor field data to the table
+                var row = '<tr class="select-button-row">' +
+                    '<td><button class="field-selector-button">' + fieldName + '</button></td>' +
+                    '<td></td></tr>';
+                sensor_fields += row;
+                // Add user input fields for selecting sensors
+                var rows =
+                    '<tr class="select-field-instructions info">' +
+                        '<td></td>' +
+                        '<td><div id="sensor-select-instructions">' +
+                            '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
+                                '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
+                                '(\'Omit values\' ignored if both used)' +
+                    '       </em></div>' +
+                    '   </td>' +
+                    '</tr>' +
+                    '<tr class="selector-field info">' +
+                        '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>' +
+                    '<tr class="omittor-field info">' +
+                    '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>';
+                sensor_fields += rows;
+            }
+            sensor_fields += '</table>';
+
+            // Add the table and instructions to the html div
+            $('#sensor-field-data').html(
+                '<b>Select sensors using fields:</b>'+ sensor_fields
+            );
+
+            // Toggle the field selector / omittor fields (and instructions div) until required
+            $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
+            $("table button.field-selector-button").click(function(){
+                $(this).closest( "tr" ).nextUntil("tr.select-button-row").toggle('slow');
+            });
+
+            // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
+            $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
+                if(e.keyCode == 13){ // Enter key
+                    if(check_sensor_select_params() == true) {
+                        //alert(JSON.stringify(get_sensor_select_url_params()));
+                        update_timeseries_map(document.getElementById("timestamp-range").value);
+                    }
+                }
+            });
+        });
+    }
+
+    function get_sensor_select_url_params(){
+        var result = {'selectors':[]};
+        $('#sensor-field-data table button.field-selector-button').each(function(index){
+            var fieldDict = {};
+            var fieldName = $(this).text();
+            var dictFieldName = {};
+
+            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
+            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field') .first().find('input').val().trim();
+            var fieldSelectorsJson = fieldSelectors.split(',').filter(Boolean);
+            var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
+
+            if (fieldSelectorsJson.length > 0){
+                dictFieldName['select_sensors'] = fieldSelectorsJson;
+            }else{
+                if (fieldOmittorsJson.length > 0) {
+                    dictFieldName['omit_sensors'] = fieldOmittorsJson;
+                }
+            }
+            if(Object.keys(dictFieldName).length > 0){
+                fieldDict[fieldName] = dictFieldName;
+                result['selectors'].push(fieldDict);
+            }
+        });
+        return result;
+    }
+
+    function check_sensor_select_params(){
+        return true;
+    }
 
     function initialise_slider(value=0){
         var slider = document.getElementById("timestamp-range");
@@ -58,32 +198,52 @@ $(document).ready(function(){
         slider.max = timestampList.length-1;
         slider.value = value;
         output.innerHTML = timestampList[value]; // Display the default slider value
-        update_timeseries_map(curActualDataUrl+value.toString(), curEstimatedDataUrl+value.toString());
+        update_timeseries_map(value);
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             output.innerHTML = timestampList[this.value];
         };
         slider.onchange = function() {
-            update_timeseries_map(
-                                    curActualDataUrl + this.value.toString(),
-                                    curEstimatedDataUrl + this.value.toString()
-                                );
+            update_timeseries_map(this.value);
         };
 
     }
 
 
-    function update_timeseries_map(actualDataUrl, estimatedDataUrl){
+    function update_timeseries_map(timeseries_idx){
+        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/';
+        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/';
+        var jsonParams = get_sensor_select_url_params();
+        jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
+
+
         // Set up loader display
+        var loaderOuterDiv = document.getElementById('loader-outer');
         var loaderDiv = document.createElement('div');
         loaderDiv.id = 'loader';
-        var resultsDiv = document.getElementById('loader-outer');
-        resultsDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Collecting sensor and estimation data...</p>');
+        loaderOuterDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
 
         // 1. Update sensors to show values
+
+        // Clear sensor and region data
         sensorsLayer.clearLayers();
-        $.getJSON(actualDataUrl, function (data) {
+        for (var key in regions){
+            regions[key].setStyle({
+                'fillColor': 'transparent',
+                'fillOpacity': 0.2,
+              });
+        };
+
+
+        $.ajax({
+            url: actualDataUrl,
+            data:JSON.stringify(jsonParams),
+            headers: { "X-CSRFToken": csrftoken},
+            dataType: 'json',
+            method: 'POST',
+            success: function (data) {
+
                 /*[
                     {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
                         "value":66,
@@ -91,61 +251,84 @@ $(document).ready(function(){
                         "percent_score":0.436241610738255,
                         "sensor_id":757,
                         "geom":[-2.1031362,57.1453481],
-                        "name": 'Aberdeen Union Street Roadside'
+                        "name": 'Aberdeen Union Street Roadside',
+                        "ignore": False,
                     }
                   ]
                 */
 
-            function replaceLongVals(key, value) {
-                // Filtering out properties
-                if (typeof value === 'string' & key.length + value.length > 20) {
-                  //return value.match(/.{1,18}/g).join('<br/>  ');
-                  return '<br/>  ' + value;
-                }
-                return value;
-            }
+                for (var i=0; i<data.length; i++){
+                    var loc = data[i];
+                    /*if(i==0) {
+                        alert(JSON.stringify(loc, null, 1));
+                    };*/
+
+                    var latlng = [loc.geom[1], loc.geom[0]];
+                    var valColor = 'grey';
+                    var locValue = 'null';
+
+                    if (loc['value'] != null){
+                        valColor = getGreenToRed(loc.percent_score * 100).toString();
+                        locValue = loc.value.toString();
+                    };
+                    if (loc['ignore']) {
+                        valColor = 'blue';
+                    };
 
 
-
-            for (var i=0; i<data.length; i++){
-                var loc = data[i];
-
-                /*if(i==0) {
-                    alert(JSON.stringify(loc, null, 1));
-                };*/
-
-                if (loc.value == null){
-                    continue;
-                }
-                var latlng = [loc.geom[1], loc.geom[0]];
-                var valColor = getGreenToRed(loc.percent_score*100).toString();
-                var marker = new L.Marker.SVGMarker(latlng,
-                        {   iconOptions: {
-                                color: valColor,
-                                iconSize: [30,40],
-                                circleText: loc.value.toString(),
-                                circleRatio: 0.8,
-                                fontSize:8
+                    var marker = new L.Marker.SVGMarker(latlng,
+                            {   iconOptions: {
+                                    color: valColor,
+                                    iconSize: [30,40],
+                                    circleText: locValue,
+                                    circleRatio: 0.8,
+                                    fontSize:8
+                                }
                             }
-                        }
-                    );
+                        );
 
-                // Add marker
-                marker.bindPopup("<b>Name: " + loc.name + '</b><br>' + loc.geom +
-                    '<br>Timestamp: ' + loc['timestamp'].toString() +
-                    '<p>Value: ' + loc.value + '<br>' +
-                     'Percentage Score: ' + (loc.percent_score*100).toFixed(2).toString() +
-                    '<br>' +
-                    '</p><br>Extra data:<pre>' + JSON.stringify(loc['extra_data'], replaceLongVals, 1) + '</pre>');
+                    // Add marker
 
-                sensorsLayer.addLayer(marker);
+                    var extraData = '<table class="table table-striped">';
+                    extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
+                    extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
+                    extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
+                    extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
+                    extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+                    for (var key in loc['extra_data']){
+                        extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                    };
+                    extraData += '</table>';
+
+                    marker.bindPopup(extraData);
+
+                    sensorsLayer.addLayer(marker);
+                };
+                sensorsLayer.addTo(map);
+            },
+            error: function (request, state, errors) {
+                    alert("There was an problem fetching the sensor data: " + errors.toString());
+            },
+            complete: function (request, status) {
+                    // Clear Loader
+                //while (loaderOuterDiv.firstChild) {
+                //    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                //}
             }
-
-            sensorsLayer.addTo(map);
         });
 
+        // Set up loader display
+        drawLoader(loaderDiv, '<p>Collecting estimation data...</p>');
 
-        $.getJSON(estimatedDataUrl, function (data) {
+
+        $.ajax({
+            url: estimatedDataUrl,
+            data: JSON.stringify(jsonParams),
+            headers: {"X-CSRFToken": csrftoken},
+            dataType: 'json',
+            method: 'POST',
+            success: function (data) {
+
                 /*[
                     {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
                         "region_id":"AL",
@@ -168,51 +351,65 @@ $(document).ready(function(){
                   ]
                 */
 
-            function replaceLongVals(key, value) {
-                // Filtering out properties
-                if (typeof value === 'string' & key.length + value.length > 15) {
-                  //return value.match(/.{1,18}/g).join('<br/>  ');
-                  return '<br/>  ' + value;
-                }
-                return value;
-            }
+                // Update regions to show values
+                for (var i=0; i<data.length; i++){
+                    var region = data[i];
+                    //if (i==0){
+                    //    alert(JSON.stringify(region));
+                    //}
 
-            // Update regions to show values
-            for (var i=0; i<data.length; i++){
-                var region = data[i];
-                if (region.value == null){
-                    continue;
-                }
-                //alert(JSON.stringify(region));
+                    var layer = regions[region.region_id];
 
-                var layer = regions[region.region_id];
+                    if (region.value == null){
+                        layer.setStyle({
+                                    'fillColor': 'grey',
+                                    'fillOpacity': 0.7,
+                                    'weight': '1'
+                                  });
+                        var regionValue = 'null';
 
-                var valColor = getGreenToRed(region.percent_score*100).toString();
-                layer.setStyle({
+                    }else {
+                        var valColor = getGreenToRed(region.percent_score * 100).toString();
+                        layer.setStyle({
                             'fillColor': valColor,
+                            'fillOpacity': 0.2,
                             'weight': '1'
-                          });
-                try {
-                    layer.bindTooltip(region.value.toString() +
-                        '<br>' + JSON.stringify(region.extra_data, null, 1),
-                        {permanent: false, direction: "center", opacity: 0.8, minWidth: 200, maxWidth: 200}
+                        });
+                        var regionValue = region.value.toString();
+                    }
+                    var extraData = '';
+                    for (var key in region['extra_data']){
+                        extraData += '<br>' + key + ': ' + region['extra_data'][key];
+                    };
+                    layer.bindTooltip(regionValue +
+                        extraData,
+                        {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
                     )
-                }catch (e) {
-                    //alert(JSON.stringify(region));
+                }
+            },
+            error: function (request, state, errors) {
+                    alert("There was an problem fetching the estimation data: " + errors.toString());
+            },
+            complete: function (request, status) {
+                    // Clear Loader
+                while (loaderOuterDiv.firstChild) {
+                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
                 }
             }
         });
 
-        // Clear Loader
-        while (resultsDiv.firstChild) {
-            resultsDiv.removeChild(resultsDiv.firstChild);
-        }
+
+
     }
 
     function update_map(mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
         map.setView(mapCenter, zoomLevel);
 
-        // Initialise map
+        /*
+                Initialise map
+
+         */
+
         var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 
         var mapId = 'mapbox.streets';
@@ -239,6 +436,13 @@ $(document).ready(function(){
             break;
         }
 
+        // Set up loader display
+        var loaderOuterDiv = document.getElementById('loader-outer');
+        var loaderDiv = document.createElement('div');
+        loaderDiv.id = 'loader';
+        loaderOuterDiv.appendChild(loaderDiv);
+        drawLoader(loaderDiv, '<p>Setting up map and region data...</p>');
+
         L.tileLayer(
             mapUrl,
            {
@@ -254,17 +458,13 @@ $(document).ready(function(){
         }
         (new L.Control.ResetView(bounds)).addTo(map);
 
+
+         /*
+                Add Regions to map
+
+         */
+
         regionsLayer.clearLayers();
-
-        function replaceLongVals(key, value) {
-          // Filtering out properties
-          if (typeof value === 'string' & key.length + value.length > 40) {
-              //return value.match(/.{1,18}/g).join('<br/>  ');
-              return '<br/>    ' + value;
-          }
-          return value;
-        }
-
         $.getJSON(regionDataUrl, function (data) {
             // Add GeoJSON layer
             var geoLayer = L.geoJson(
@@ -275,14 +475,22 @@ $(document).ready(function(){
                             'fillColor': 'transparent',
                             'weight': '1'
                           });
+
+                        var extraData = '<table class="table table-striped">';
+                        for (var key in feature.properties.popupContent.extra_data){
+                            extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
+                        };
+                        extraData += '</table>';
+
                         layer.on('mouseover', function () {
                               this.setStyle({
                                 //'fillColor': '#ff3b24'
                                   'weight': '5'
                               });
                               $('#region-data').html(
-                                  '<p> Region: ' + feature.properties.popupContent.region_id + '</p>' +
-                                  '<p> Extra Data: <pre>' + JSON.stringify(feature.properties.popupContent.extra_data, replaceLongVals, 1) + '</pre></p>');
+                                  '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
+                                  extraData
+                              );
                         });
                         layer.on('mouseout', function () {
                           this.setStyle({
@@ -292,12 +500,16 @@ $(document).ready(function(){
                         });
 
                     }
-                }
+                },
+
             );
             regionsLayer.addLayer(geoLayer);
         });
-
         regionsLayer.addTo(map);
+
+        while (loaderOuterDiv.firstChild) {
+            loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+        }
     }
 
 });
@@ -313,7 +525,8 @@ function isNumeric(n) {
 }
 
 
-function drawLoader(loaderDiv, explanation, sizeOneToFive=5){
+function drawLoader(loaderDiv, explanation, sizeOneToFive=3){
+    loaderDiv.style.zIndex = 2000;
     var strClassSuffix = '';
     if(isNumeric(sizeOneToFive) & parseInt(sizeOneToFive) >=1 & parseInt(sizeOneToFive) <=5) {
         strClassSuffix = ' size-' + sizeOneToFive.toString();
@@ -336,6 +549,49 @@ function drawLoader(loaderDiv, explanation, sizeOneToFive=5){
     divWaitingExplanation.appendChild(divLoader);
     divWaitingExplanation.appendChild(divAjaxWaitText);
     loaderDiv.appendChild(divWaitingExplanation);
+}
+
+// Make the DIV element draggable:
+// Code from: https://www.w3schools.com/howto/howto_js_draggable.asp
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
 }
 
 

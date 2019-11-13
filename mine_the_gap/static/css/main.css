@@ -43,13 +43,9 @@ pre {
     border-style: ridge;
     padding-left:0;
     padding-right:0;
-
 }
 
-#map-slider{
-    border-style: ridge;
-    height:50px;
-}
+
 
 #map-options{
     height: 800px;
@@ -57,9 +53,12 @@ pre {
     padding-right:0;
 }
 
+#map-options div{
+    padding: 5px;
+}
+
 #map-overlays{
     border-style: ridge;
-    height: 100px;
 }
 
 #estimation-method{
@@ -69,7 +68,14 @@ pre {
 
 #region-data{
     border-style: ridge;
-    /*height: 700px;*/
+}
+
+#sensor-field-data{
+    border-style: ridge;
+}
+
+#sensor-field-data input[type=text]{
+    width: 100%;
 }
 
 
@@ -78,11 +84,27 @@ pre {
 
 }
 
+#slider-value{
+
+}
+
+
+#map-sliderheader {
+  padding: 2px;
+  cursor: move;
+  z-index: 1001;
+  background-color: #e0e0e0;
+  color: #000000;
+}
+
 #map-slider{
-    bottom:0;
-    position:fixed;
-    width:inherit;
+    position:absolute;
+    width: 100%;
     z-index: 1000;
+    border-style: ridge;
+    height:50px;
+    resize: horizontal;
+    overflow: hidden;
 }
 
 /* The slider itself */
@@ -120,9 +142,6 @@ pre {
   cursor: pointer; /* Cursor on hover */
 }
 
-#slider-value{
-    background-color: #e0e0e0;
-}
 
 
 /*
@@ -132,22 +151,24 @@ pre {
 
 
 #loader-outer{
-    position:absolute;
-    top: 15%;
-    width: 200px;
-    z-index: 1000;
+    position:fixed;
+    top: 20%;
+    left: 15%;
+    z-index: 2000;
+    width:400px;
 }
 
 
 .ajax-call-loader {
-  border: 16px solid #725f8b;
+  border: 16px solid #3e6b8c;
   border-radius: 50%;
-  border-top: 16px solid #ea8511;
+  border-top: 16px solid #d1eeaa;
   width: 100px;
   height: 100px;
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
   float:left;
+    border-style: groove;
 }
 
 .ajax-call-loader.size-1{
@@ -174,6 +195,7 @@ pre {
 .ajax-waiting-text {
     padding-left: 5%;
     padding-top: 60px;
+    font-weight: bold;
 }
 
 .ajax-waiting-text.size-1{
