@@ -47,7 +47,7 @@ class Diffusion_estimator(Region_estimator):
             sensors |= self.sensors.filter(geom__within=region.geom)
 
         # Get the actual readings for those sensors
-        actuals = Actual_data.objects.filter(timestamp=timestamp, sensor__in=sensors)
+        actuals = Actual_data.objects.filter(timestamp=timestamp, sensor__in=sensors, value__isnull=False)
         if actuals.count() > 0:
             # If readings found for the sensors, take the average
             result = actuals.aggregate(Avg('value'))['value__avg']

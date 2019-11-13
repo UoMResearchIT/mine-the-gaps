@@ -30,14 +30,14 @@ class Distance_simple_estimator(Region_estimator):
     def get_distance_estimate(self, timestamp, region):
         result = None, {'closest_sensor_data': None}
 
-        #todo This needs to use self.sensors!!
         # Get the closest sensor to the region
-        actual = Actual_data.objects.filter(timestamp=timestamp).annotate(
+        actuals = Actual_data.objects.filter(sensor__in=self.sensors, value__isnull=False)
+        actual = actuals.filter(timestamp=timestamp).annotate(
             distance=Distance('sensor__geom', region.geom)).order_by('distance').first()
 
         # Get the value for that sensor on that timestamp
-        #print('Actuals:', str(actual))
         if actual:
             # If readings found for the sensors, take the average
             result = actual.value, {'closest_sensor_location': str(actual.sensor.name)}
+
         return result
