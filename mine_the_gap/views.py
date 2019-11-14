@@ -207,6 +207,7 @@ def get_timestamp_list():
 def get_center_latlng():
     x_average = 0
     y_average = 0
+    found=False
 
     for idx, sensor in enumerate(Sensor.objects.all()):
         found = True

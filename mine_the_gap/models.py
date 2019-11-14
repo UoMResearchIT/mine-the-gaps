@@ -12,6 +12,8 @@ class Filenames(models.Model):
     region_data_file = models.CharField(max_length=50, null=True)
 
 
+
+
 class Sensor(gismodels.Model):
     geom = gismodels.PointField(null=False, db_index=True)
     name = models.CharField(max_length=50, null=True)
