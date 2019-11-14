@@ -83,7 +83,11 @@ $(document).ready(function(){
     //Create map
     var map = L.map('mapid');
     var initZoom = 6;
-    var initCenter = jQuery.parseJSON(centerLatLng);
+    try {
+        var initCenter = jQuery.parseJSON(centerLatLng);
+    }catch{
+        var initCenter = ["54.2361", "-4.5481"];
+    }
     map.setView(initCenter, initZoom);
     map.options.minZoom = 5;
     map.options.maxZoom = 14;
@@ -524,7 +528,7 @@ $(document).ready(function(){
         });
         //$.getJSON(regionDataUrl, function (data) {
         //});
-        
+
         while (loaderOuterDiv.firstChild) {
             loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
         }
