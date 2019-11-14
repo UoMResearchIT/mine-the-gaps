@@ -69,6 +69,7 @@
 
                 <script type="text/javascript">
                     var timestampRange = "{{timestamp_range|escapejs }}";
+                    var centerLatLng = "{{center|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').split(',');
                     var actualDataUrl = '{{ request.path }}' + 'actual_data';
                     var estimatedDataUrl = '{{ request.path }}' + 'estimated_data';

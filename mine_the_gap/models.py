@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models as gismodels
+from django.contrib.gis.geos import Point
 import json
 
 
@@ -9,6 +10,8 @@ class Filenames(models.Model):
     sensor_data_file = models.CharField(max_length=50, null=True)
     estimated_data_file = models.CharField(max_length=50, null=True)
     region_data_file = models.CharField(max_length=50, null=True)
+
+
 
 
 class Sensor(gismodels.Model):

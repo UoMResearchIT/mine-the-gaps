@@ -36,11 +36,10 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    timestamp_range = get_timestamp_list()
-
     context = { 'form': FileUploadForm(),
+                'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
-                'timestamp_range':timestamp_range}
+                'timestamp_range': get_timestamp_list()}
 
     return render(request, 'index.html', context)
 
@@ -205,6 +204,22 @@ def get_timestamp_list():
 
     return result
 
+def get_center_latlng():
+    x_average = 0
+    y_average = 0
+    found=False
+
+    for idx, sensor in enumerate(Sensor.objects.all()):
+        found = True
+        x_average = x_average * (idx / (idx + 1)) + sensor.geom.coords[0] / (idx + 1)
+        y_average = y_average * (idx / (idx + 1)) + sensor.geom.coords[1] / (idx + 1)
+
+    if found:
+        return json.dumps([str(y_average), str(x_average)])
+    else:
+        return ["54.2361", "-4.5481"]  # UK default
+
+
 def handle_uploaded_files(request):
 
     try:
@@ -255,11 +270,15 @@ def handle_uploaded_files(request):
                     fvalue = float(row[3])
                 except:
                     fvalue = None
-                actual = Actual_data(   timestamp=row[0],
-                                        sensor = Sensor.objects.get(geom=point_loc),
-                                        value = fvalue,
-                                        extra_data = extra_data
-                                        )
+
+                sensor = Sensor.objects.get(geom=point_loc)
+
+                if sensor:
+                    actual = Actual_data(   timestamp=row[0],
+                                            sensor=sensor,
+                                            value = fvalue,
+                                            extra_data = extra_data
+                                            )
                 actual.save()
             except Exception as err:
                 #print(err)
@@ -336,11 +355,14 @@ def handle_uploaded_files(request):
                 for idx, item in enumerate(field_titles[3:]):
                     extra_data[item] = row[idx + 3]
 
-                estimated = Estimated_data( timestamp=row[0],
-                                            region=Region.objects.get(region_id=str(row[1])),
-                                            value = float(row[2]),
-                                            extra_data = extra_data
-                                            )
+                region = Region.objects.get(region_id=str(row[1]))
+
+                if region:
+                    estimated = Estimated_data( timestamp=row[0],
+                                                region=region,
+                                                value = float(row[2]),
+                                                extra_data = extra_data
+                                                )
                 estimated.save()
             except Exception as err:
                 #print(row)
