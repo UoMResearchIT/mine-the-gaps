@@ -270,11 +270,15 @@ def handle_uploaded_files(request):
                     fvalue = float(row[3])
                 except:
                     fvalue = None
-                actual = Actual_data(   timestamp=row[0],
-                                        sensor = Sensor.objects.get(geom=point_loc),
-                                        value = fvalue,
-                                        extra_data = extra_data
-                                        )
+
+                sensor = Sensor.objects.get(geom=point_loc)
+
+                if sensor:
+                    actual = Actual_data(   timestamp=row[0],
+                                            sensor=sensor,
+                                            value = fvalue,
+                                            extra_data = extra_data
+                                            )
                 actual.save()
             except Exception as err:
                 #print(err)
@@ -351,11 +355,14 @@ def handle_uploaded_files(request):
                 for idx, item in enumerate(field_titles[3:]):
                     extra_data[item] = row[idx + 3]
 
-                estimated = Estimated_data( timestamp=row[0],
-                                            region=Region.objects.get(region_id=str(row[1])),
-                                            value = float(row[2]),
-                                            extra_data = extra_data
-                                            )
+                region = Region.objects.get(region_id=str(row[1]))
+
+                if region:
+                    estimated = Estimated_data( timestamp=row[0],
+                                                region=region,
+                                                value = float(row[2]),
+                                                extra_data = extra_data
+                                                )
                 estimated.save()
             except Exception as err:
                 #print(row)
