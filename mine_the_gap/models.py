@@ -26,8 +26,22 @@ class Sensor(gismodels.Model):
 
 class Actual_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
-    value = models.FloatField(null=True)
     sensor = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
+
+    @property
+    def join_sensor(self):
+        return {'timestamp': self.timestamp,
+                'name': self.sensor.name,
+                'sensor_id': self.sensor_id,
+                'geom': self.sensor.geom.coords,
+                'extra_data': self.sensor.extra_data}
+
+
+
+class Actual_value(gismodels.Model):
+    actual_data = models.ForeignKey(Actual_data, null=True, on_delete=models.CASCADE)
+    measurement_name = models.CharField(max_length=30, null=False, db_index=True)
+    value = models.FloatField(null=True)
     extra_data = JSONField(null=True)
 
     @property
@@ -36,12 +50,12 @@ class Actual_data(gismodels.Model):
             fvalue = float(self.value)
         except:
             fvalue = None
-        return {'timestamp': self.timestamp,
-                'name': self.sensor.name,
-                'value': fvalue,
-                'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords,
-                'extra_data': self.sensor.extra_data}
+        result = self.actual_data.join_sensor
+        result.update({'measurement_name': self.measurement_name,
+             'value': fvalue,
+             'actual_value_id': self.actual_data_id,
+             'value_extra_data': self.extra_data})
+        return result
 
 
 
