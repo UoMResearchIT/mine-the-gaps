@@ -1,16 +1,18 @@
 from django.shortcuts import render
-from io import TextIOWrapper
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from slugify import slugify
+from io import TextIOWrapper
+
 import csv
 import json
 
 from mine_the_gap.forms import FileUploadForm
-from mine_the_gap.models import Actual_data, Estimated_data, Region, Sensor, Filenames
+from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames
 from django.db.models import Max, Min
 from mine_the_gap.region_estimators.region_estimator_factory import Region_estimator_factory
 
@@ -39,9 +41,20 @@ def home_page(request):
     context = { 'form': FileUploadForm(),
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
+                'measurement_names': get_measurement_names(),
                 'timestamp_range': get_timestamp_list()}
 
     return render(request, 'index.html', context)
+
+
+def get_measurement_names():
+    query_set = Actual_value.objects.distinct('measurement_name')
+    result = []
+
+    for idx, item in enumerate(query_set):
+        result.append(item.measurement_name)
+
+    return result
 
 
 def get_sensor_fields(request):
@@ -66,34 +79,32 @@ def get_sensor_fields(request):
     #print(str(result))
     return JsonResponse(result, safe=False)
 
-def get_actuals_at_timestamp(request, timestamp_idx):
+def get_actuals_at_timestamp(request, timestamp_idx, measurement):
     timestamps = get_timestamp_list()
+    data = []
+    measurement = measurement.strip()
+
     try:
         sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
     except:
         sensor_params = []
-
-    data = []
-
 
     try:
         timestamp_d = timestamps[timestamp_idx]
     except:
         return JsonResponse(data, safe=False)
 
-    query_set = Actual_data.objects.filter(timestamp=timestamp_d)
+    query_set = Actual_value.objects.filter(actual_data__timestamp=timestamp_d, measurement_name=measurement)
 
-
-
-    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
-    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
+    min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
+    max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     for row in query_set.iterator():
-        #print('row value', row.value)
         if row.value:
             percentage_score = (row.value - min_val) / (max_val - min_val)
         else:
             percentage_score = None
+
         new_row = dict(row.join_sensor)
 
         new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
@@ -102,6 +113,7 @@ def get_actuals_at_timestamp(request, timestamp_idx):
         data.append(new_row)
 
     return JsonResponse(data, safe=False)
+
 
 def select_sensor(sensor, params):
     # [{"name": {"omit_sensors": ["Inverness"]}}]
@@ -147,7 +159,10 @@ def filter_sensors(sensors, params):
     return sensors
 
 
-def get_estimates_at_timestamp(request, method_name, timestamp_idx):
+def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
+    data = []
+    measurement = measurement.strip()
+    timestamps = get_timestamp_list()
 
     try:
         sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
@@ -155,11 +170,10 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
         sensor_params = []
     # print(json.dumps(sensor_params))
 
-    data = []
-    min_val = Actual_data.objects.aggregate(Min('value'))['value__min']
-    max_val = Actual_data.objects.aggregate(Max('value'))['value__max']
 
-    timestamps = get_timestamp_list()
+    min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
+    max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
+
     try:
         timestamp_d = timestamps[timestamp_idx]
     except:
@@ -169,7 +183,10 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx):
     if method_name == 'file':
         query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
         for row in query_set.iterator():
-            percentage_score = (row.value - min_val) / (max_val - min_val)
+            if row.value:
+                percentage_score = (row.value - min_val) / (max_val - min_val)
+            else:
+                percentage_score = None
             new_row = dict(row.join_region)
             new_row['percent_score'] = percentage_score
             data.append(new_row)
@@ -259,29 +276,57 @@ def handle_uploaded_files(request):
         reader = csv.reader(file)
         field_titles = next(reader, None)  # skip the headers
 
+        value_idxs = []
+        extra_field_idxs = []
+        timestamp_idx = 0
+        long_idx = 1
+        lat_idx = 2
+
+        # Find the fields in the file
+        for idx, title in enumerate(field_titles):
+            title = title.strip()
+            if title.startswith('val_'):
+                value_idxs.append(idx)
+            elif title == 'time_stamp':
+                timestamp_idx = idx
+            elif title == 'long':
+                long_idx = idx
+            elif title == 'lat':
+                lat_idx = idx
+            else:
+                extra_field_idxs.append(idx)
+
+        # Read in the data
         for row in reader:
             try:
                 extra_data = {}
-                for idx, item in enumerate(field_titles[4:]):
-                    extra_data[item] = row[idx + 4]
-                #print(str(extra_data))
-                point_loc = Point(x=float(row[1]),y=float(row[2]))
-                try:
-                    fvalue = float(row[3])
-                except:
-                    fvalue = None
+                for idx in extra_field_idxs:
+                    item = field_titles[idx]
+                    extra_data[item] = row[idx]
+
+                point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
 
                 sensor = Sensor.objects.get(geom=point_loc)
 
                 if sensor:
-                    actual = Actual_data(   timestamp=row[0],
-                                            sensor=sensor,
-                                            value = fvalue,
-                                            extra_data = extra_data
-                                            )
-                actual.save()
+                    actual = Actual_data(   timestamp=row[timestamp_idx],
+                                            sensor=sensor)
+                    actual.save()
+
+                    for idx in value_idxs:
+                        try:
+                            fvalue = float(row[idx])
+                        except:
+                            fvalue = None
+                        name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
+                        actual_value = Actual_value(    measurement_name=name,
+                                                        value = fvalue,
+                                                        extra_data = extra_data,
+                                                        actual_data = actual
+                        )
+                    actual_value.save()
             except Exception as err:
-                #print(err)
+                print(err)
                 continue
 
 

@@ -57,6 +57,10 @@ pre {
     padding: 5px;
 }
 
+#measurement-names{
+    border-style: ridge;
+}
+
 #map-overlays{
     border-style: ridge;
 }
