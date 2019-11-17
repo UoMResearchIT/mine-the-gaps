@@ -12,8 +12,8 @@ class Filenames(models.Model):
 
 
 class Sensor(gismodels.Model):
-    geom = gismodels.PointField(null=False, db_index=True)
-    name = models.CharField(max_length=50, null=True)
+    geom = gismodels.PointField(null=False)
+    name = models.CharField(max_length=50, db_index=True, null=True)
     extra_data = JSONField(null=True)
 
     @property

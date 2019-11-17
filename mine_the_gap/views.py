@@ -100,9 +100,9 @@ def get_actuals_at_timestamp(request, timestamp_idx, measurement):
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     for row in query_set.iterator():
-        if row.value and min_val and max_val:
+        try:
             percentage_score = (row.value - min_val) / (max_val - min_val)
-        else:
+        except:
             percentage_score = None
 
         new_row = dict(row.join_sensor)
@@ -183,10 +183,11 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
     if method_name == 'file':
         query_set = Estimated_value.objects.filter(estimated_data__timestamp=timestamp_d, measurement_name=measurement)
         for row in query_set.iterator():
-            if row.value and min_val and max_val:
+            try:
                 percentage_score = (row.value - min_val) / (max_val - min_val)
-            else:
+            except:
                 percentage_score = None
+                
             new_row = dict(row.join_region)
             new_row['percent_score'] = percentage_score
             data.append(new_row)
@@ -244,7 +245,7 @@ def handle_uploaded_files(request):
         filepath_actual = request.FILES['actual_data_file']
     except Exception as err:
         filepath_sensor, filepath_actual = False,False
-        #print(err)
+        print(err)
     else:
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
@@ -256,19 +257,34 @@ def handle_uploaded_files(request):
 
         #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
 
+        extra_field_idxs = []
+
+        # Find the fields in the file
+        for idx, title in enumerate(field_titles):
+            title = title.strip().lower()
+            if title == 'long':
+                long_idx = idx
+            elif title == 'lat':
+                lat_idx = idx
+            elif title == 'name':
+                name_idx = idx
+            else:
+                extra_field_idxs.append(idx)
+
         for row in reader:
             try:
                 extra_data = {}
-                for idx, item in enumerate(field_titles[3:]):
-                    extra_data[item] = row[idx+3]
-                point_loc = Point(x=float(row[0]),y=float(row[1]))
+                for idx in extra_field_idxs:
+                    item = field_titles[idx]
+                    extra_data[item] = row[idx]
+                point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
-                    name =  row[2],
+                    name =  row[name_idx],
                     extra_data=extra_data)
                 sensor.save()
             except Exception as err:
-                print(err)
+                print('Error loading sensor:', err)
                 continue
 
 
@@ -278,9 +294,10 @@ def handle_uploaded_files(request):
 
         value_idxs = []
         extra_field_idxs = []
-        timestamp_idx = 0
-        long_idx = 1
-        lat_idx = 2
+        timestamp_idx = None
+        long_idx = None
+        lat_idx = None
+        sensor_name_idx = None
 
         # Find the fields in the file
         for idx, title in enumerate(field_titles):
@@ -293,8 +310,11 @@ def handle_uploaded_files(request):
                 long_idx = idx
             elif title == 'lat':
                 lat_idx = idx
+            elif title == 'sensor_name':
+                sensor_name_idx = idx
             else:
                 extra_field_idxs.append(idx)
+
 
         # Read in the data
         for row in reader:
@@ -304,30 +324,35 @@ def handle_uploaded_files(request):
                     item = field_titles[idx]
                     extra_data[item] = row[idx]
 
-                point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
+                #point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
+                sensor_name = row[sensor_name_idx]
 
-                sensor = Sensor.objects.get(geom=point_loc)
+                try:
+                    sensor = Sensor.objects.get(name=sensor_name)
+                except Exception as err:
+                    print('Sensor', sensor_name, 'not found for this actual datapoint:', err)
+                else:
+                    if sensor:
+                        actual = Actual_data(   timestamp=row[timestamp_idx],
+                                                sensor=sensor)
+                        actual.save()
 
-                if sensor:
-                    actual = Actual_data(   timestamp=row[timestamp_idx],
-                                            sensor=sensor)
-                    actual.save()
-
-                    for idx in value_idxs:
-                        try:
-                            fvalue = float(row[idx])
-                        except:
-                            fvalue = None
-                        name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
-                        actual_value = Actual_value(    measurement_name=name,
-                                                        value = fvalue,
-                                                        actual_data = actual,
-                                                        extra_data = extra_data
-                        )
-                        actual_value.save()
+                        for idx in value_idxs:
+                            try:
+                                fvalue = float(row[idx])
+                            except:
+                                pass
+                            else:
+                                name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
+                                actual_value = Actual_value(    measurement_name=name,
+                                                                value = fvalue,
+                                                                actual_data = actual,
+                                                                extra_data = extra_data
+                                )
+                                actual_value.save()
 
             except Exception as err:
-                print(err)
+                print('Error loading actuals:', err)
                 continue
 
 
