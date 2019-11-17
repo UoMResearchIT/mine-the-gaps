@@ -73,8 +73,11 @@ $(document).ready(function(){
 
     $("#estimation-method>input").change(function() {
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        //update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
-        initialise_slider(value=document.getElementById("timestamp-range").value);
+        update_timeseries_map()
+    });
+
+    $("#measurement-names>input").change(function() {
+        update_timeseries_map();
     });
 
 

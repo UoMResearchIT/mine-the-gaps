@@ -12,7 +12,7 @@ import csv
 import json
 
 from mine_the_gap.forms import FileUploadForm
-from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames
+from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value
 from django.db.models import Max, Min
 from mine_the_gap.region_estimators.region_estimator_factory import Region_estimator_factory
 
@@ -100,7 +100,7 @@ def get_actuals_at_timestamp(request, timestamp_idx, measurement):
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     for row in query_set.iterator():
-        if row.value:
+        if row.value and min_val and max_val:
             percentage_score = (row.value - min_val) / (max_val - min_val)
         else:
             percentage_score = None
@@ -181,9 +181,9 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
 
 
     if method_name == 'file':
-        query_set = Estimated_data.objects.filter(timestamp=timestamp_d)
+        query_set = Estimated_value.objects.filter(estimated_data__timestamp=timestamp_d, measurement_name=measurement)
         for row in query_set.iterator():
-            if row.value:
+            if row.value and min_val and max_val:
                 percentage_score = (row.value - min_val) / (max_val - min_val)
             else:
                 percentage_score = None
@@ -197,10 +197,10 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
         except Exception as err:
             print(err)
         else:
-            result = estimator.get_all_region_estimations(timestamp_d)
+            result = estimator.get_all_region_estimations(timestamp_d, measurement)
             for row in result:
                 #print('Row:', row['value'])
-                if row['value']:
+                if row['value'] and min_val and max_val:
                     percentage_score = (row['value'] - min_val) / (max_val - min_val)
                 else:
                     percentage_score = None
@@ -268,7 +268,7 @@ def handle_uploaded_files(request):
                     extra_data=extra_data)
                 sensor.save()
             except Exception as err:
-                #print(err)
+                print(err)
                 continue
 
 
@@ -284,7 +284,7 @@ def handle_uploaded_files(request):
 
         # Find the fields in the file
         for idx, title in enumerate(field_titles):
-            title = title.strip()
+            title = title.strip().lower()
             if title.startswith('val_'):
                 value_idxs.append(idx)
             elif title == 'time_stamp':
@@ -321,10 +321,11 @@ def handle_uploaded_files(request):
                         name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
                         actual_value = Actual_value(    measurement_name=name,
                                                         value = fvalue,
-                                                        extra_data = extra_data,
-                                                        actual_data = actual
+                                                        actual_data = actual,
+                                                        extra_data = extra_data
                         )
-                    actual_value.save()
+                        actual_value.save()
+
             except Exception as err:
                 print(err)
                 continue
@@ -337,6 +338,9 @@ def handle_uploaded_files(request):
     except Exception:
         filepath_estimated, filepath_region = False, False
     else:
+        #Get all sensor measurement names (only accept estimations of values that we have sensors for)
+        sensor_measurements = get_measurement_names()
+
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
 
@@ -394,24 +398,77 @@ def handle_uploaded_files(request):
         field_titles = next(reader, None)  # skip the headers
         #print('field titles:', field_titles)
 
+
+        value_idxs = []
+        extra_field_idxs = []
+        timestamp_idx = 0
+        region_idx = ''
+
+        # Find the fields in the file
+        for idx, title in enumerate(field_titles):
+            title = title.strip().lower()
+            if title.startswith('val_'):
+                value_idxs.append(idx)
+            elif title == 'time_stamp':
+                timestamp_idx = idx
+            elif title == 'region':
+                region_idx = idx
+            elif title.startswith('extra_'):
+                extra_field_idxs.append(idx)
+
+        extra_data_idxs = {}
+        for extra_idx in extra_field_idxs:
+            # 'extra_rings_Platanus_max'
+            field_name = field_titles[extra_idx].replace('extra_', '', 1)
+            # 'rings_Platanus_max'
+            extra_data_field = field_name.split('_')[0]  # 'rings'
+            measurement_name = slugify(field_name.replace(extra_data_field + '_', '', 1), to_lower=True, separator='_')
+            # 'Platanus_max'
+            if measurement_name not in extra_data_idxs:
+                extra_data_idxs[measurement_name] = {}
+            extra_data_idxs[measurement_name][extra_data_field] = extra_idx
+        print('extra data fields:', json.dumps(extra_data_idxs))
+
+
+
         for row in reader:
             try:
-                extra_data = {}
-                for idx, item in enumerate(field_titles[3:]):
-                    extra_data[item] = row[idx + 3]
-
-                region = Region.objects.get(region_id=str(row[1]))
+                region = Region.objects.get(region_id=str(row[region_idx]))
 
                 if region:
-                    estimated = Estimated_data( timestamp=row[0],
-                                                region=region,
-                                                value = float(row[2]),
-                                                extra_data = extra_data
+                    estimated = Estimated_data( timestamp=row[timestamp_idx],
+                                                region=region
                                                 )
-                estimated.save()
+                    estimated.save()
+
+
+                    for idx in value_idxs:
+                        name = slugify(field_titles[idx].replace('val_', '', 1), to_lower=True, separator='_')
+
+                        # Get extra data fields
+                        extra_idxs = extra_data_idxs[name]
+                        extra_data = {}
+                        for extra_data_name, extra_data_idx in extra_idxs.items():
+                            extra_data[extra_data_name] = row[extra_data_idx]
+
+                        # Check that the name has a matching sensor measurement
+                        #  and add to model if it has.
+                        if name in sensor_measurements:
+                            try:
+                                fvalue = float(row[idx])
+                            except:
+                                fvalue = None
+
+                            actual_value = Estimated_value( measurement_name=name,
+                                                            value = fvalue,
+                                                            estimated_data = estimated,
+                                                            extra_data=extra_data,
+                            )
+                            actual_value.save()
+
+
             except Exception as err:
-                #print(row)
-                #print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
+                print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
                 continue
 
 
