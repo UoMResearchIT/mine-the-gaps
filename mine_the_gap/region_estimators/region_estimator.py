@@ -8,7 +8,7 @@ class Region_estimator(object):
         self.sensors = sensors
 
     @abstractmethod
-    def get_all_region_estimations(self, timestamp):
+    def get_all_region_estimations(self, timestamp, measurement):
         pass
 
 

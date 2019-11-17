@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models as gismodels
-from django.contrib.gis.geos import Point
-import json
 
 
 class Filenames(models.Model):
@@ -13,10 +11,9 @@ class Filenames(models.Model):
 
 
 
-
 class Sensor(gismodels.Model):
-    geom = gismodels.PointField(null=False, db_index=True)
-    name = models.CharField(max_length=50, null=True)
+    geom = gismodels.PointField(null=False)
+    name = models.CharField(max_length=50, db_index=True, null=True)
     extra_data = JSONField(null=True)
 
     @property
@@ -29,8 +26,21 @@ class Sensor(gismodels.Model):
 
 class Actual_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
-    value = models.FloatField(null=True)
     sensor = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
+
+    @property
+    def join_sensor(self):
+        return {'timestamp': self.timestamp,
+                'name': self.sensor.name,
+                'sensor_id': self.sensor_id,
+                'geom': self.sensor.geom.coords}
+
+
+
+class Actual_value(gismodels.Model):
+    actual_data = models.ForeignKey(Actual_data, null=True, on_delete=models.CASCADE)
+    measurement_name = models.CharField(max_length=30, null=False, db_index=True)
+    value = models.FloatField(null=True)
     extra_data = JSONField(null=True)
 
     @property
@@ -39,12 +49,12 @@ class Actual_data(gismodels.Model):
             fvalue = float(self.value)
         except:
             fvalue = None
-        return {'timestamp': self.timestamp,
-                'name': self.sensor.name,
-                'value': fvalue,
-                'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords,
-                'extra_data': self.sensor.extra_data}
+        result = self.actual_data.join_sensor
+        result.update({'measurement_name': self.measurement_name,
+                       'value': fvalue,
+                       'actual_data_id': self.actual_data_id,
+                       'extra_data': self.extra_data})
+        return result
 
 
 
@@ -70,19 +80,31 @@ class Region(gismodels.Model):
 
 class Estimated_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
-    value = models.FloatField(null=True)
-    extra_data = JSONField(null=True)
     region = models.ForeignKey(Region, null=True, on_delete=models.CASCADE)
 
     @property
     def join_region(self):
         return {'timestamp': self.timestamp,
-                'value': self.value,
                 'region_id': self.region_id,
                 'geom': self.region.geom.coords,
-                'extra_data': self.extra_data,
                 'region_extra_data': self.region.extra_data}
 
 
+class Estimated_value(gismodels.Model):
+    estimated_data = models.ForeignKey(Estimated_data, null=True, on_delete=models.CASCADE)
+    measurement_name = models.CharField(max_length=30, null=False, db_index=True)
+    value = models.FloatField(null=True)
+    extra_data = JSONField(null=True)
 
-
+    @property
+    def join_region(self):
+        try:
+            fvalue = float(self.value)
+        except:
+            fvalue = None
+        result = self.estimated_data.join_region
+        result.update({'measurement_name': self.measurement_name,
+                       'value': fvalue,
+                       'estimated_data_id': self.estimated_data_id,
+                       'extra_data': self.extra_data})
+        return result

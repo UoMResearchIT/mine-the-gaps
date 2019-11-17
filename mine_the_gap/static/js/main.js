@@ -73,8 +73,11 @@ $(document).ready(function(){
 
     $("#estimation-method>input").change(function() {
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        //update_map(mapType=$("#map-overlays>input[name=map-type]:checked").val(), zoomLevel=map.getZoom(), mapCenter=map.getCenter());
-        initialise_slider(value=document.getElementById("timestamp-range").value);
+        update_timeseries_map()
+    });
+
+    $("#measurement-names>input").change(function() {
+        update_timeseries_map();
     });
 
 
@@ -222,9 +225,10 @@ $(document).ready(function(){
     }
 
 
-    function update_timeseries_map(timeseries_idx){
-        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/';
-        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/';
+    function update_timeseries_map(timeseries_idx=document.getElementById("timestamp-range").value,
+                                   measurement=$("input[name='measurement']:checked").val()){
+        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
+        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
 
