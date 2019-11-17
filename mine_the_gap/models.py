@@ -33,8 +33,7 @@ class Actual_data(gismodels.Model):
         return {'timestamp': self.timestamp,
                 'name': self.sensor.name,
                 'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords,
-                'extra_data': self.sensor.extra_data}
+                'geom': self.sensor.geom.coords}
 
 
 
@@ -52,9 +51,9 @@ class Actual_value(gismodels.Model):
             fvalue = None
         result = self.actual_data.join_sensor
         result.update({'measurement_name': self.measurement_name,
-             'value': fvalue,
-             'actual_value_id': self.actual_data_id,
-             'value_extra_data': self.extra_data})
+                       'value': fvalue,
+                       'actual_data_id': self.actual_data_id,
+                       'extra_data': self.extra_data})
         return result
 
 
@@ -81,19 +80,31 @@ class Region(gismodels.Model):
 
 class Estimated_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
-    value = models.FloatField(null=True)
-    extra_data = JSONField(null=True)
     region = models.ForeignKey(Region, null=True, on_delete=models.CASCADE)
 
     @property
     def join_region(self):
         return {'timestamp': self.timestamp,
-                'value': self.value,
                 'region_id': self.region_id,
                 'geom': self.region.geom.coords,
-                'extra_data': self.extra_data,
                 'region_extra_data': self.region.extra_data}
 
 
+class Estimated_value(gismodels.Model):
+    estimated_data = models.ForeignKey(Estimated_data, null=True, on_delete=models.CASCADE)
+    measurement_name = models.CharField(max_length=30, null=False, db_index=True)
+    value = models.FloatField(null=True)
+    extra_data = JSONField(null=True)
 
-
+    @property
+    def join_region(self):
+        try:
+            fvalue = float(self.value)
+        except:
+            fvalue = None
+        result = self.estimated_data.join_region
+        result.update({'measurement_name': self.measurement_name,
+                       'value': fvalue,
+                       'estimated_data_id': self.estimated_data_id,
+                       'extra_data': self.extra_data})
+        return result
