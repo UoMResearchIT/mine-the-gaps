@@ -187,7 +187,7 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
                 percentage_score = (row.value - min_val) / (max_val - min_val)
             except:
                 percentage_score = None
-                
+
             new_row = dict(row.join_region)
             new_row['percent_score'] = percentage_score
             data.append(new_row)
