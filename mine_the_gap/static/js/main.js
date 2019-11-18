@@ -71,13 +71,31 @@ $(document).ready(function(){
     var curEstimatedDataUrl = estimatedDataUrl + '/file/';
     var curActualDataUrl = actualDataUrl + '/';
 
-    $("#estimation-method>input").change(function() {
+    $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
+    $("#estimation-method input").change(function() {
+        $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
         curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
         update_timeseries_map()
     });
 
-    $("#measurement-names>input").change(function() {
+    $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
+    $("#measurement-names input").change(function() {
+        $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
         update_timeseries_map();
+    });
+
+    $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
+    $("#map-overlays input").change(function() {
+        $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
+        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        initialise_slider(value=document.getElementById("timestamp-range").value);
+    });
+
+    $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
+    $("#estimation-regions input").change(function() {
+        $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
+        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
 
@@ -104,12 +122,6 @@ $(document).ready(function(){
     initialise_sensor_fields();
 
 
-
-    $("#map-overlays>input").change(function() {
-        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
-        initialise_slider(value=document.getElementById("timestamp-range").value);
-    });
-
     function initialise_sensor_fields(){
         /*
                 Add Sensor fields (to UI sensor selection/filtering mechanism)
@@ -128,8 +140,8 @@ $(document).ready(function(){
 
                 // Add sensor field data to the table
                 var row = '<tr class="select-button-row">' +
-                    '<td><input type="checkbox" class="field-selector-input">' + fieldName + '</input></td>' +
-                    '<td></td></tr>';
+                    '<td class="field-name">' + fieldName + '</td>' +
+                    '<td id="'+ fieldName + '-used' +'" class="field-used"></td></tr>';
                 sensor_fields += row;
                 // Add user input fields for selecting sensors
                 var rows =
@@ -142,10 +154,10 @@ $(document).ready(function(){
                     '       </em></div>' +
                     '   </td>' +
                     '</tr>' +
-                    '<tr class="selector-field info">' +
+                    '<tr id="' + fieldName + '-select' + '" class="selector-field info">' +
                         '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
                     '</tr>' +
-                    '<tr class="omittor-field info">' +
+                    '<tr id="' + fieldName + '-omit' + '" class="omittor-field info">' +
                     '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
                     '</tr>';
                 sensor_fields += rows;
@@ -157,19 +169,36 @@ $(document).ready(function(){
 
             // Toggle the field selector / omittor fields (and instructions div) until required
             $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
-            $("table input.field-selector-input").on('change', function(){
-                if(this.checked) {
-                    $(this).closest("tr").nextUntil("tr.select-button-row").show('slow');
-                }else{
-                    $(this).closest("tr").nextUntil("tr.select-button-row").hide('slow');
-                }
+
+            $("table .select-button-row").on('click', function(){
+                $(this).nextUntil("tr.select-button-row").toggle('slow');
             });
 
             // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
             $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
-                if(e.keyCode == 13){ // Enter key
-                    if(check_sensor_select_params() == true) {
-                        //alert(JSON.stringify(get_sensor_select_url_params()));
+                if(e.keyCode === 13){ // Enter key
+                    var prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').val();
+
+                    var fieldNameId = this.closest('tr').id;
+                    var fieldName2 = fieldNameId.substr(0, fieldNameId.indexOf('-'));
+                    var selectOrOmit = fieldNameId.substr(fieldNameId.indexOf('-')+1);
+
+                    var selectText = $('tr#' + fieldName2 + '-select input').val();
+                    var omitText = $('tr#' + fieldName2 + '-omit input').val();
+
+                    if( selectText.trim() !== '' && check_sensor_select_params(selectText) === true) {
+                        var newVal = '<em>Select: [' + selectText+ ']</em>';
+                        $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                    }else{
+                        if( omitText.trim() !== '' && check_sensor_select_params(omitText) === true) {
+                            var newVal = '<em>Omit: [' + omitText + ']</em>';
+                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                        }else{
+                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html('');
+                        }
+                    }
+
+                    if(newVal !== prevVal){
                         update_timeseries_map(document.getElementById("timestamp-range").value);
                     }
                 }
@@ -179,9 +208,9 @@ $(document).ready(function(){
 
     function get_sensor_select_url_params(){
         var result = {'selectors':[]};
-        $('#sensor-field-data table button.field-selector-button').each(function(index){
+        $('#sensor-field-data table td.field-name').each(function(index){
             var fieldDict = {};
-            var fieldName = $(this).text();
+            var fieldName = $(this).html();
             var dictFieldName = {};
 
             var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
@@ -204,7 +233,8 @@ $(document).ready(function(){
         return result;
     }
 
-    function check_sensor_select_params(){
+    function check_sensor_select_params(paramString){
+        // Must return true for empty string
         return true;
     }
 
