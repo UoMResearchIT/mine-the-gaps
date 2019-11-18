@@ -57,26 +57,11 @@ pre {
     padding: 5px;
 }
 
-#measurement-names{
-    border-style: ridge;
-}
-
-#map-overlays{
-    border-style: ridge;
-}
-
-#estimation-method{
-    border-style: ridge;
-
-}
 
 #region-data{
     border-style: ridge;
 }
 
-#sensor-field-data{
-    border-style: ridge;
-}
 
 #sensor-field-data input[type=text]{
     width: 100%;
