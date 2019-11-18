@@ -82,32 +82,98 @@
 
             </div>
             <div id="map-options" class="col-sm-4">
-                <div id="measurement-names">
-                    <span>Select measurement:</span><br>
-                    {% for measurement in measurement_names %}
-                        <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
-                    {% endfor %}
-                </div>
-                <div id="map-overlays">
-                    <span>Select map:</span><br>
-                      <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
-                      <input type="radio" name="map-type" value="topology"> Topology <br>
-                </div>
-                <div id="estimation-method">
-                    <span>Select estimation method:</span><br>
-                      <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
-                      <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
-                      <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
-                    <br>
-                    <span>Select estimation regions:</span><br>
-                      <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
-                      <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
-                      <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
-                      <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
 
+                <div id="download-options" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseDownload" aria-expanded="false" aria-controls="collapseDownload">
+                            <h4 class="panel-title">
+                                Download data
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="collapseDownload" class="panel-collapse collapse">
+                        <input type="checkbox" name="download" value="csv">CSV file<br>
+                        <input type="checkbox" name="download" value="GeoJSON">GeoJSON<br>
+                    </div>
                 </div>
 
-                <div id="sensor-field-data"></div>
+                <div id="measurement-names" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMeasurement" aria-expanded="false" aria-controls="collapseMeasurement">
+                            <h4 class="panel-title">
+                                Select measurement
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="collapseMeasurement" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            {% for measurement in measurement_names %}
+                                <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="map-overlays" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMapType" aria-expanded="false" aria-controls="collapseMapType">
+                            <h4 class="panel-title">
+                                Select map
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="collapseMapType" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
+                            <input type="radio" name="map-type" value="topology"> Topology <br>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="estimation-method" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
+                            <h4 class="panel-title">
+                                Select estimation method
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationMethod" class="panel-collapse collapse">
+                        <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
+                        <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
+                        <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
+                    </div>
+                </div>
+
+                <div id="estimation-regions" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationRegion" aria-expanded="false" aria-controls="collapseEstimationRegion">
+                            <h4 class="panel-title">
+                                Select estimation regions
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationRegion" class="panel-collapse collapse">
+                        <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
+                        <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
+                        <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
+                        <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
+                    </div>
+                </div>
+
+
+                <div id="sensor-field-data" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
+                            <h4 class="panel-title">
+                                Filter sensors
+                            </h4>
+                        </div>
+                    </div>
+                    <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
+                </div>
+
+
                 <div id="region-data"></div>
             </div>
         </div>

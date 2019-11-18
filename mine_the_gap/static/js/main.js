@@ -128,7 +128,7 @@ $(document).ready(function(){
 
                 // Add sensor field data to the table
                 var row = '<tr class="select-button-row">' +
-                    '<td><button class="field-selector-button">' + fieldName + '</button></td>' +
+                    '<td><input type="checkbox" class="field-selector-input">' + fieldName + '</input></td>' +
                     '<td></td></tr>';
                 sensor_fields += row;
                 // Add user input fields for selecting sensors
@@ -153,14 +153,16 @@ $(document).ready(function(){
             sensor_fields += '</table>';
 
             // Add the table and instructions to the html div
-            $('#sensor-field-data').html(
-                '<b>Select sensors using fields:</b>'+ sensor_fields
-            );
+            $('#collapseFilterSensors').html(sensor_fields);
 
             // Toggle the field selector / omittor fields (and instructions div) until required
             $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
-            $("table button.field-selector-button").click(function(){
-                $(this).closest( "tr" ).nextUntil("tr.select-button-row").toggle('slow');
+            $("table input.field-selector-input").on('change', function(){
+                if(this.checked) {
+                    $(this).closest("tr").nextUntil("tr.select-button-row").show('slow');
+                }else{
+                    $(this).closest("tr").nextUntil("tr.select-button-row").hide('slow');
+                }
             });
 
             // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
