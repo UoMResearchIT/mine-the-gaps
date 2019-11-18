@@ -6,6 +6,20 @@ pre {
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
+.chosen-option{
+    color: #78008f;
+    float:right;
+}
+
+.panel-group {
+    margin-bottom: 0px;
+
+}
+
+.field-used{
+    text-wrap: normal;
+}
+
 .current-filename{
     color: darkgreen;
 }
