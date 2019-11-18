@@ -36,12 +36,12 @@ class Distance_simple_estimator(Region_estimator):
             measurement_name=measurement,
             value__isnull=False)
 
-        actual = actuals.filter(timestamp=timestamp).annotate(
-            distance=Distance('sensor__geom', region.geom)).order_by('distance').first()
+        actual = actuals.filter(actual_data__timestamp=timestamp).annotate(
+            distance=Distance('actual_data__sensor__geom', region.geom)).order_by('distance').first()
 
         # Get the value for that sensor on that timestamp
         if actual:
             # If readings found for the sensors, take the average
-            result = actual.value, {'closest_sensor_location': str(actual.sensor.name)}
+            result = actual.value, {'closest_sensor_id': str(actual.actual_data.sensor.name)}
 
         return result
