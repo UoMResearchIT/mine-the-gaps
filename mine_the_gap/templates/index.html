@@ -7,14 +7,14 @@
 {% block content %}
 
 
-    <div class="container load-files">
+    <div id="load-files" class="container">
         <div class="row">
             <div class="col-sm-2">
                 <button id="btn-select-files">Select data files</button>
             </div>
         </div>
         <div class="row" id="select-files">
-            {% for row in filepaths %}
+            {% with filepaths|first as filepath %}
                 <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
                     <div id="upload-fields" class='col-sm-12'>
                         {% csrf_token %}
@@ -26,31 +26,29 @@
                             </tr>
                             <tr>
                                 <th scope="row">Actual data</th>
-                                <td><span class="current-filename">Sensor data file: (current: {{ row.actual_data_file|safe }})</span>
+                                <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_file|safe }})</span>
                                     <br>{{ form.actual_data_file }}</td>
-                                <td><span class="current-filename">Sensor metadata file: (current: {{ row.sensor_data_file|safe }})</span>
+                                <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_data_file|safe }})</span>
                                     <br>{{ form.sensor_data_file }}</td>
                             </tr>
                             <tr>
                                 <th scope="row">Estimated data</th>
-                                <td><span class="current-filename">Estimated data file: (current: {{ row.estimated_data_file|safe }})</span>
+                                <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_file|safe }})</span>
                                     <br>{{ form.estimated_data_file }}</td>
-                                <td><span class="current-filename">Estimation metadata file: (current: {{ row.region_data_file|safe }})</span>
+                                <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_data_file|safe }})</span>
                                     <br>{{ form.region_data_file }}</td>
                             </tr>
                         </table>
-                        <button type="submit" class="btn btn-primary"
-                                id='upload-btn'
-                                onclick="return confirm('Do you really want to replace these files?');">Upload</button>
+                        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
                     </div>
 
                 </form>
-            {% endfor %}
+            {% endwith %}
         </div>
     </div>
 
     <div id="map-main-info" class="container">
-        <div class="row">
+        <div class="row" id="main">
             <div id="map" class="col-sm-8">
                 <div id="loader-outer"></div>
 
@@ -60,45 +58,112 @@
                 <div id="map-slider">
                     <div class="slidecontainer">
                       <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
-                      <div id="slider-value"><p>Value: <span id="current-timestamp"></span></p></div>
+
+                        <div id="map-sliderheader">
+                            <div id="slider-value">Value: <span id="current-timestamp"></span></div>
+
+                        </div>
 
                     </div>
                 </div>
 
                 <script type="text/javascript">
                     var timestampRange = "{{timestamp_range|escapejs }}";
+                    var centerLatLng = "{{center|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').split(',');
                     var actualDataUrl = '{{ request.path }}' + 'actual_data';
                     var estimatedDataUrl = '{{ request.path }}' + 'estimated_data';
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensor" %}';
                     var regionDataUrl = '{% url "region" %}';
+                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
 
                 </script>
 
             </div>
             <div id="map-options" class="col-sm-4">
-                <div id="map-overlays">
-                    <span>Select map:</span><br>
-                      <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
-                      <input type="radio" name="map-type" value="topology"> Topology <br>
-                </div>
-                <div id="estimation-method">
-                    <span>Select estimation method:</span><br>
-                      <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
-                      <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
-                      <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
-                    <br>
-                    <span>Select estimation regions:</span><br>
-                      <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
-                      <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
-                      <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
-                      <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
 
+                <div id="download-options" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseDownload" aria-expanded="false" aria-controls="collapseDownload">
+                            <div class="panel-title">Download data</div>
+                        </div>
+                    </div>
+                    <div id="collapseDownload" class="panel-collapse collapse">
+                        <input type="checkbox" name="download" value="csv">CSV file<br>
+                        <input type="checkbox" name="download" value="GeoJSON">GeoJSON<br>
+                    </div>
                 </div>
-                <div id="region-data">
-                    <div id="region-label"></div>
-                    <div id="extra-data"></div>
+
+                <div id="measurement-names" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMeasurement" aria-expanded="false" aria-controls="collapseMeasurement">
+                            <div class="panel-title">Select measurement <span class="chosen-option" id="measurement-names-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseMeasurement" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            {% for measurement in measurement_names %}
+                                <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="map-overlays" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMapType" aria-expanded="false" aria-controls="collapseMapType">
+                            <div class="panel-title">Select map  <span class="chosen-option" id="map-overlays-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseMapType" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
+                            <input type="radio" name="map-type" value="topology"> Topology <br>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="estimation-method" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
+                            <div class="panel-title">Select estimation method <span class="chosen-option" id="estimation-method-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationMethod" class="panel-collapse collapse">
+                        <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
+                        <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
+                        <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
+                    </div>
+                </div>
+
+                <div id="estimation-regions" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationRegion" aria-expanded="false" aria-controls="collapseEstimationRegion">
+                            <div class="panel-title">Select estimation regions <span class="chosen-option" id="estimation-regions-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationRegion" class="panel-collapse collapse">
+                        <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
+                        <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
+                        <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
+                        <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
+                    </div>
+                </div>
+
+
+                <div id="sensor-field-data" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
+                            <div class="panel-title"> Filter sensors by... <span class="chosen-option" id="sensor-field-label"></span> </div>
+                        </div>
+                    </div>
+                    <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
+                </div>
+
+
+                <div id="region-data" class="panel-group">
+
                 </div>
             </div>
         </div>
