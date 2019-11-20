@@ -79,7 +79,25 @@ def get_sensor_fields(request):
     #print(str(result))
     return JsonResponse(result, safe=False)
 
+
+def get_all_data_at_timestamp(request, method_name, timestamp_idx, measurement):
+    data = {
+                'actual_data': actuals_at_timestamp(request, timestamp_idx, measurement),
+                'estimated_data': estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
+    }
+    return JsonResponse(data, safe=False)
+
 def get_actuals_at_timestamp(request, timestamp_idx, measurement):
+    data = actuals_at_timestamp(request, timestamp_idx, measurement)
+    return JsonResponse(data, safe=False)
+
+def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
+    data = estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
+    return JsonResponse(data, safe=False)
+
+
+
+def actuals_at_timestamp(request, timestamp_idx, measurement):
     timestamps = get_timestamp_list()
     data = []
     measurement = measurement.strip()
@@ -112,7 +130,7 @@ def get_actuals_at_timestamp(request, timestamp_idx, measurement):
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
-    return JsonResponse(data, safe=False)
+    return data
 
 
 def select_sensor(sensor, params):
@@ -159,7 +177,7 @@ def filter_sensors(sensors, params):
     return sensors
 
 
-def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
+def estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
     data = []
     measurement = measurement.strip()
     timestamps = get_timestamp_list()
@@ -208,7 +226,7 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
                 row['percent_score'] = percentage_score
                 data.append(row)
 
-    return JsonResponse(data, safe=False)
+    return data
 
 
 

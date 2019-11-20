@@ -71,8 +71,7 @@
                     var timestampRange = "{{timestamp_range|escapejs }}";
                     var centerLatLng = "{{center|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').split(',');
-                    var actualDataUrl = '{{ request.path }}' + 'actual_data';
-                    var estimatedDataUrl = '{{ request.path }}' + 'estimated_data';
+                    var dataUrl = '{{ request.path }}' + 'all_data';
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensor" %}';
                     var regionDataUrl = '{% url "region" %}';

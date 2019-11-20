@@ -68,13 +68,12 @@ $(document).ready(function(){
         $("div#select-files").toggle('slow');
     });
 
-    var curEstimatedDataUrl = estimatedDataUrl + '/file/';
-    var curActualDataUrl = actualDataUrl + '/';
+    var curDataUrl = dataUrl + '/file/';
 
     $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
+        curDataUrl = dataUrl + '/' + this.value + '/';
         update_timeseries_map()
     });
 
@@ -259,8 +258,7 @@ $(document).ready(function(){
 
     function update_timeseries_map(timeseries_idx=document.getElementById("timestamp-range").value,
                                    measurement=$("input[name='measurement']:checked").val()){
-        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
-        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
+        var dataUrl = curDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
 
@@ -285,13 +283,15 @@ $(document).ready(function(){
 
 
         $.ajax({
-            url: actualDataUrl,
+            url: dataUrl,
             data:JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
             timeout: 20000,
             success: function (data) {
+                var actualData = data['actual_data'];
+                var estimatedData = data['estimated_data'];
 
                 /*[
                     {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
@@ -306,8 +306,8 @@ $(document).ready(function(){
                   ]
                 */
 
-                for (var i=0; i<data.length; i++){
-                    var loc = data[i];
+                for (var i=0; i<actualData.length; i++){
+                    var loc = actualData[i];
                     /*if(i==0) {
                         alert(JSON.stringify(loc, null, 1));
                     };*/
@@ -354,30 +354,7 @@ $(document).ready(function(){
                     sensorsLayer.addLayer(marker);
                 };
                 sensorsLayer.addTo(map);
-            },
-            error: function (request, state, errors) {
-                    alert("There was an problem fetching the sensor data: " + errors.toString());
-            },
-            complete: function (request, status) {
-                    // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                }
-            }
-        });
 
-        // Set up loader display
-        drawLoader(loaderDiv, '<p>Collecting estimation data...</p>');
-
-
-        $.ajax({
-            url: estimatedDataUrl,
-            data: JSON.stringify(jsonParams),
-            headers: {"X-CSRFToken": csrftoken},
-            dataType: 'json',
-            method: 'POST',
-            timeout: 20000,
-            success: function (data) {
 
                 /*[
                     {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
@@ -402,8 +379,8 @@ $(document).ready(function(){
                 */
 
                 // Update regions to show values
-                for (var i=0; i<data.length; i++){
-                    var region = data[i];
+                for (var i=0; i<estimatedData.length; i++){
+                    var region = estimatedData[i];
                     //if (i==0){
                     //    alert(JSON.stringify(region));
                     //}
@@ -442,7 +419,7 @@ $(document).ready(function(){
                 }
             },
             error: function (request, state, errors) {
-                    alert("There was an problem fetching the estimation data: " + errors.toString());
+                    alert("There was an problem fetching the data: " + errors.toString());
             },
             complete: function (request, status) {
                     // Clear Loader
@@ -451,8 +428,6 @@ $(document).ready(function(){
                 }
             }
         });
-
-
 
     }
 
