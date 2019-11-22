@@ -61,7 +61,8 @@ class Actual_data(gismodels.Model):
         return {'timestamp': self.timestamp,
                 'name': self.sensor.name,
                 'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords}
+                'geom': self.sensor.geom.coords,
+                'sensor_extra_data': self.sensor.extra_data}
 
 
 
