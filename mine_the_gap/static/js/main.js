@@ -272,9 +272,9 @@ $(document).ready(function(){
 
                 for (var i=0; i<actualData.length; i++){
                     var loc = actualData[i];
-                    /*if(i==0) {
+                    if(i==0) {
                         alert(JSON.stringify(loc, null, 1));
-                    };*/
+                    };
 
                     var latlng = [loc.geom[1], loc.geom[0]];
                     var valColor = 'grey';
@@ -309,7 +309,14 @@ $(document).ready(function(){
                     extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
                     extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
                     for (var key in loc['extra_data']){
-                        extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                        if(loc['extra_data'][key] != null) {
+                            extraData += '<tr><th>' + key + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                        }
+                    };
+                    for (var key in loc['sensor_extra_data']){
+                        if(loc['sensor_extra_data'][key] != null && loc['sensor_extra_data'][key] != '') {
+                            extraData += '<tr><th>' + key + '</th><td>' + loc['sensor_extra_data'][key] + '</td></tr>';
+                        }
                     };
                     extraData += '</table>';
 
@@ -345,14 +352,15 @@ $(document).ready(function(){
                 // Update regions to show values
                 for (var i=0; i<estimatedData.length; i++){
                     var region = estimatedData[i];
-                    //if (i==0){
-                    //    alert(JSON.stringify(region));
-                    //}
+                    if (i==0){
+                        alert(JSON.stringify(region));
+                    }
 
                     var layer = regions[region.region_id];
                     if (layer == null){
-                        alert(region.region_id);
-                        alert(JSON.stringify(region));
+                        //alert(region.region_id);
+                        //alert(JSON.stringify(region));
+                        continue;
                     }
 
                     if (region.value == null){
