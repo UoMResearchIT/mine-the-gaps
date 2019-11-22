@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models as gismodels
+from collections import OrderedDict
 
 
 class Filenames(models.Model):
@@ -17,10 +18,37 @@ class Sensor(gismodels.Model):
     extra_data = JSONField(null=True)
 
     @property
-    def popupContent(self):
+    def popup_content(self):
         return {'sensor_id': self.id,
                 'name': self.name,
                 'extra_data': self.extra_data}
+
+    @property
+    def csv_line_headers(self):
+        extra_data_headers = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            extra_data_headers += '"' + str(key) + '",'
+        extra_data_headers = extra_data_headers.strip(',')
+
+        return 'name,long,lat,' + extra_data_headers
+
+    @property
+    def csv_line(self):
+        extra_data_csv = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            try:
+                extra_data_csv += int(self.extra_data[key]) + ','
+            except:
+                try:
+                    extra_data_csv += float(self.extra_data[key]) + ','
+                except:
+                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
+
+        extra_data_csv = extra_data_csv.strip(',')
+
+        return '"' + self.name + '"' + ',' + str(self.geom[0]) + ',' + str(self.geom[1]) + ',' + extra_data_csv
 
 
 
@@ -68,7 +96,7 @@ class Region(gismodels.Model):
         return self.region_label
 
     @property
-    def popupContent(self):
+    def popup_content(self):
         return {'region_id': self.region_id, 'extra_data': self.extra_data}
 
     @property

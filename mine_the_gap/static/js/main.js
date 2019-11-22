@@ -6,44 +6,6 @@ $(document).ready(function(){
     var regionsLayer = new L.LayerGroup();
     var regions = {};
 
-    // ******************************************************************
-    // ****************** CSRF-TOKEN SET-UP *****************************
-    // ******************************************************************
-
-   // using jQuery
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-    // ******************************************************************
-    // ****************** CSRF-TOKEN END *****************************
-    // ******************************************************************
-
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
 
@@ -60,7 +22,6 @@ $(document).ready(function(){
             return false;
         }
     });
-
 
     $("div#select-files").hide();
     // Upload files toggle button
@@ -96,6 +57,9 @@ $(document).ready(function(){
         update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
+
+
+    // Downlaod data functions
 
 
 
@@ -504,14 +468,14 @@ $(document).ready(function(){
                 var geoLayer = L.geoJson(
                     data,
                     {   onEachFeature: function (feature, layer) {
-                            regions[feature.properties.popupContent.region_id] = layer;
+                            regions[feature.properties.popup_content.region_id] = layer;
                             layer.setStyle({
                                 'fillColor': 'transparent',
                                 'weight': '1'
                               });
                             var extraData = '<table class="table table-striped">';
-                            for (var key in feature.properties.popupContent.extra_data){
-                                extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
+                            for (var key in feature.properties.popup_content.extra_data){
+                                extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popup_content.extra_data[key] + '</td></tr>';
                             };
                             extraData += '</table>';
                             layer.on('mouseover', function () {
@@ -520,7 +484,7 @@ $(document).ready(function(){
                                       'weight': '5'
                                   });
                                   $('#region-data').html(
-                                      '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
+                                      '<p><b>Region: </b>' + feature.properties.popup_content.region_id + '</p>' +
                                       extraData
                                   );
                             });
@@ -535,17 +499,68 @@ $(document).ready(function(){
                 );
                 regionsLayer.addLayer(geoLayer);
                 regionsLayer.addTo(map);
+            },
+            error: function (request, state, errors) {
+                    alert("There was an problem fetching the region meta-data: " + errors.toString());
+            },
+            complete: function (request, status) {
+                    // Clear Loader
+                while (loaderOuterDiv.firstChild) {
+                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                }
             }
         });
-        //$.getJSON(regionDataUrl, function (data) {
-        //});
-
-        while (loaderOuterDiv.firstChild) {
-            loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-        }
-    }
+    };
 
 });
+
+// File downloads
+
+/*function get_csv(url, filename='data.csv', jsonParams={}){
+    // Show save dialogue
+
+
+
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading data...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        data: JSON.stringify(jsonParams),
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 40000,
+        async: false,
+        success: function (data) {
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+
+            link = document.createElement('a');
+            link.setAttribute('href', data);
+            link.setAttribute('download', filename);
+            link.click();
+
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};*/
+
 
 function getGreenToRed(percent){
     g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
@@ -628,13 +643,40 @@ function dragElement(elmnt) {
 }
 
 
+// ******************************************************************
+    // ****************** CSRF-TOKEN SET-UP *****************************
+    // ******************************************************************
 
+   // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
 
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
 
-
-
-
-
-
-
-
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    // ******************************************************************
+    // ********************* CSRF-TOKEN END *****************************
+    // ******************************************************************
