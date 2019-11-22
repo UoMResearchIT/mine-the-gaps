@@ -28,14 +28,20 @@ from mine_the_gap.models import Sensor, Region, Actual_data, Estimated_data
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
-    url(r'^sensor.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popupContent']), name='sensor'),
+    url(r'^sensor.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sensor'),
     #url(r'^actual_data.geojson$', GeoJSONLayerView.as_view(model=Actual_data, properties=['popupContent']), name='actual_data'),
-    url(r'^region.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popupContent']), name='region'),
+    url(r'^region.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='region'),
     #url(r'^estimated_data.geojson$', GeoJSONLayerView.as_view(model=Estimated_data, properties=['popupContent']), name='estimated_data'),
     path('actual_data/<int:timestamp_idx>/<slug:measurement>/', views.get_actuals_at_timestamp),
     path('estimated_data/<slug:method_name>/<int:timestamp_idx>/<slug:measurement>/', views.get_estimates_at_timestamp),
     path('all_data/<slug:method_name>/<int:timestamp_idx>/<slug:measurement>/', views.get_all_data_at_timestamp),
     path('sensor_fields', views.get_sensor_fields),
+
+
+    path('csv/sensors/', views.get_sensors_csv),
+    path('csv/regions/', views.get_regions_csv),
+    path('csv/actuals/', views.get_actuals_csv),
+    path('csv/estimates/', views.get_estimates_csv),
 
     path('', views.home_page),
 ]
