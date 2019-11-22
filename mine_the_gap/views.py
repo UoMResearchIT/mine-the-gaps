@@ -92,7 +92,6 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
 
 def get_sensors_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
-
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="sensors.csv"'
 
@@ -111,13 +110,11 @@ def get_regions_csv(request):
     response['Content-Disposition'] = 'attachment; filename="regions.csv"'
 
     writer = csv.writer(response)
-    fields = Region._meta.fields
 
-    for obj in Region.objects.all():
-        row = ""
-        for field in fields:
-            row += str(getattr(obj, field.name)) + ","
-        writer.writerow(row)
+    writer.writerow([Region.objects.all()[0].csv_line_headers])
+
+    for region in Region.objects.all():
+        writer.writerow([region.csv_line])
 
     return response
 
@@ -128,16 +125,11 @@ def get_actuals_csv(request):
     response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
 
     writer = csv.writer(response)
-    fields_actual_value = Actual_value._meta.fields
-    fields_actual_data = Actual_data._meta.fields
+
+    writer.writerow([Actual_value.objects.all()[0].csv_line_headers])
 
     for actual in Actual_value.objects.all():
-        row = ""
-        for field_val in fields_actual_value:
-            row += str(getattr(actual, field_val.name)) + ","
-        for field_data in fields_actual_data:
-            row += str(getattr(actual.actual_data[field_data])) + ','
-        writer.writerow(row)
+        writer.writerow([actual.csv_line])
 
     return response
 
@@ -147,16 +139,11 @@ def get_estimates_csv(request):
     response['Content-Disposition'] = 'attachment; filename="region_estimates.csv"'
 
     writer = csv.writer(response)
-    fields_estimate_value = Estimated_value._meta.fields
-    fields_estimate_data = Estimated_data._meta.fields
+
+    writer.writerow([Estimated_value.objects.all()[0].csv_line_headers])
 
     for estimate in Estimated_value.objects.all():
-        row = ""
-        for field_val in fields_estimate_value:
-            row += str(getattr(estimate, field_val.name)) + ","
-        for field_data in fields_estimate_value:
-            row += str(getattr(estimate.actual_data[field_data])) + ','
-        writer.writerow(row)
+        writer.writerow([estimate.csv_line])
 
     return response
 
