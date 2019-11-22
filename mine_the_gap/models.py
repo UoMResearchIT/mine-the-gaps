@@ -25,30 +25,33 @@ class Sensor(gismodels.Model):
 
     @property
     def csv_line_headers(self):
-        extra_data_headers = ''
+        extra_data_headers = []
+
         sorted_extra = sorted(self.extra_data)
         for key in sorted_extra:
-            extra_data_headers += '"' + str(key) + '",'
-        extra_data_headers = extra_data_headers.strip(',')
+            extra_data_headers.append(str(key))
 
-        return 'name,long,lat,' + extra_data_headers
+        result = ['name','long','lat']
+        result.extend(extra_data_headers)
+        return result
 
     @property
     def csv_line(self):
-        extra_data_csv = ''
+        extra_data_csv = []
+
         sorted_extra = sorted(self.extra_data)
         for key in sorted_extra:
             try:
-                extra_data_csv += int(self.extra_data[key]) + ','
+                extra_data_csv.append(int(self.extra_data[key]))
             except:
                 try:
-                    extra_data_csv += float(self.extra_data[key]) + ','
+                    extra_data_csv.append(float(self.extra_data[key]))
                 except:
-                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
+                    extra_data_csv.append(str(self.extra_data[key]))
 
-        extra_data_csv = extra_data_csv.strip(',')
-
-        return '"' + self.name + '"' + ',' + str(self.geom[0]) + ',' + str(self.geom[1]) + ',' + extra_data_csv
+        result = [self.name, str(self.geom[0]), str(self.geom[1])]
+        result.extend(extra_data_csv)
+        return result
 
 
 
@@ -85,6 +88,34 @@ class Actual_value(gismodels.Model):
                        'extra_data': self.extra_data})
         return result
 
+    @property
+    def csv_line_headers(self):
+        extra_data_headers = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            extra_data_headers += '"' + str(key) + '",'
+        extra_data_headers = extra_data_headers.strip(',')
+
+        return 'timestamp,sensor_id,measurement,value,' + extra_data_headers
+
+    @property
+    def csv_line(self):
+        extra_data_csv = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            try:
+                extra_data_csv += int(self.extra_data[key]) + ','
+            except:
+                try:
+                    extra_data_csv += float(self.extra_data[key]) + ','
+                except:
+                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
+
+        extra_data_csv = extra_data_csv.strip(',')
+
+        return self.actual_data.timestamp + ',' + str(self.actual_data.sensor_id) + ',' \
+               + self.measurement_name + ',' + str(self.value) + ',' + extra_data_csv
+
 
 
 
@@ -103,6 +134,33 @@ class Region(gismodels.Model):
     @property
     def adjacent_regions(self):
         return Region.objects.filter(geom__touches=self.geom)
+
+    @property
+    def csv_line_headers(self):
+        extra_data_headers = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            extra_data_headers += '"' + str(key) + '",'
+        extra_data_headers = extra_data_headers.strip(',')
+
+        return 'region_id,geom,' + extra_data_headers
+
+    @property
+    def csv_line(self):
+        extra_data_csv = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            try:
+                extra_data_csv += int(self.extra_data[key]) + ','
+            except:
+                try:
+                    extra_data_csv += float(self.extra_data[key]) + ','
+                except:
+                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
+
+        extra_data_csv = extra_data_csv.strip(',')
+
+        return str(self.region_id) + ',"' + str(self.geom) + '",' + extra_data_csv
 
 
 
@@ -137,3 +195,31 @@ class Estimated_value(gismodels.Model):
                        'estimated_data_id': self.estimated_data_id,
                        'extra_data': self.extra_data})
         return result
+
+    @property
+    def csv_line_headers(self):
+        extra_data_headers = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            extra_data_headers += '"' + str(key) + '",'
+        extra_data_headers = extra_data_headers.strip(',')
+
+        return 'timestamp,region_id,measurement,value,' + extra_data_headers
+
+    @property
+    def csv_line(self):
+        extra_data_csv = ''
+        sorted_extra = sorted(self.extra_data)
+        for key in sorted_extra:
+            try:
+                extra_data_csv += int(self.extra_data[key]) + ','
+            except:
+                try:
+                    extra_data_csv += float(self.extra_data[key]) + ','
+                except:
+                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
+
+        extra_data_csv = extra_data_csv.strip(',')
+
+        return self.estimated_data.timestamp + ',' + str(self.estimated_data.region_id) + ',' \
+               + self.measurement_name + ',' + str(self.value) + ',' + extra_data_csv

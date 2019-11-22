@@ -258,7 +258,7 @@ $(document).ready(function(){
                 var estimatedData = data['estimated_data'];
 
                 /*[
-                    {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
+                    {   "extra_data":"{"region":"AB"}",
                         "value":66,
                         "timestamp":"2017-01-01 00:00:00+00",
                         "percent_score":0.436241610738255,
@@ -272,9 +272,9 @@ $(document).ready(function(){
 
                 for (var i=0; i<actualData.length; i++){
                     var loc = actualData[i];
-                    if(i==0) {
+                    /*if(i==0) {
                         alert(JSON.stringify(loc, null, 1));
-                    };
+                    };*/
 
                     var latlng = [loc.geom[1], loc.geom[0]];
                     var valColor = 'grey';
@@ -342,7 +342,7 @@ $(document).ready(function(){
                             [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
                             [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
                             [-0.2533,51.7197],[-0.25616,51.71952]]]],
-                         "extra_data":"['1']",
+                         "extra_data":"{'rings':'1'}",
                          "timestamp":"2017-08-22 00:00:00+00",
                          "percent_score": 0.33557046979865773
                      }
@@ -352,9 +352,9 @@ $(document).ready(function(){
                 // Update regions to show values
                 for (var i=0; i<estimatedData.length; i++){
                     var region = estimatedData[i];
-                    if (i==0){
+                    /*if (i==0){
                         alert(JSON.stringify(region));
-                    }
+                    }*/
 
                     var layer = regions[region.region_id];
                     if (layer == null){
