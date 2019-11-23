@@ -93,11 +93,12 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
 def get_sensors_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="sensors.csv"'
+    response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
 
     writer = csv.writer(response)
 
-    writer.writerow(Sensor.objects.all()[0].csv_line_headers)
+    if len(Sensor.objects.all()) > 0:
+        writer.writerow(Sensor.objects.all()[0].csv_line_headers)
 
     for sensor in Sensor.objects.all():
         writer.writerow(sensor.csv_line)
@@ -107,14 +108,15 @@ def get_sensors_csv(request):
 def get_regions_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="regions.csv"'
+    response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
 
     writer = csv.writer(response)
 
-    writer.writerow([Region.objects.all()[0].csv_line_headers])
+    if len(Region.objects.all()) > 0:
+        writer.writerow(Region.objects.all()[0].csv_line_headers)
 
     for region in Region.objects.all():
-        writer.writerow([region.csv_line])
+        writer.writerow(region.csv_line)
 
     return response
 
@@ -122,14 +124,15 @@ def get_regions_csv(request):
 def get_actuals_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
+    response['Content-Disposition'] = 'attachment; filename="sensor_values.csv"'
 
     writer = csv.writer(response)
 
-    writer.writerow([Actual_value.objects.all()[0].csv_line_headers])
+    if len(Actual_value.objects.all()) > 0:
+        writer.writerow(Actual_value.objects.all()[0].csv_line_headers)
 
     for actual in Actual_value.objects.all():
-        writer.writerow([actual.csv_line])
+        writer.writerow(actual.csv_line)
 
     return response
 
@@ -140,10 +143,11 @@ def get_estimates_csv(request):
 
     writer = csv.writer(response)
 
-    writer.writerow([Estimated_value.objects.all()[0].csv_line_headers])
+    if len(Estimated_value.objects.all()) > 0:
+        writer.writerow(Estimated_value.objects.all()[0].csv_line_headers)
 
     for estimate in Estimated_value.objects.all():
-        writer.writerow([estimate.csv_line])
+        writer.writerow(estimate.csv_line)
 
     return response
 
