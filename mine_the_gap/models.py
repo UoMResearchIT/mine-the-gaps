@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models as gismodels
-from collections import OrderedDict
+import json
 
 
 class Filenames(models.Model):
@@ -121,7 +121,7 @@ class Actual_value(gismodels.Model):
 
 class Region(gismodels.Model):
     region_id = models.CharField(max_length=30, primary_key=True)
-    geom = gismodels.MultiPolygonField(max_length=2000, null=False)
+    geom = gismodels.MultiPolygonField(null=False)
     extra_data = JSONField(null=True)
 
     def __unicode__(self):
@@ -135,32 +135,36 @@ class Region(gismodels.Model):
     def adjacent_regions(self):
         return Region.objects.filter(geom__touches=self.geom)
 
+
     @property
     def csv_line_headers(self):
-        extra_data_headers = ''
+        extra_data_headers = []
+
         sorted_extra = sorted(self.extra_data)
         for key in sorted_extra:
-            extra_data_headers += '"' + str(key) + '",'
-        extra_data_headers = extra_data_headers.strip(',')
+            extra_data_headers.append(str(key))
 
-        return 'region_id,geom,' + extra_data_headers
+        result = ['region_id', 'geom']
+        result.extend(extra_data_headers)
+        return result
 
     @property
     def csv_line(self):
-        extra_data_csv = ''
+        extra_data_csv = []
         sorted_extra = sorted(self.extra_data)
+
         for key in sorted_extra:
             try:
-                extra_data_csv += int(self.extra_data[key]) + ','
+                extra_data_csv.append(int(self.extra_data[key]))
             except:
                 try:
-                    extra_data_csv += float(self.extra_data[key]) + ','
+                    extra_data_csv.append(float(self.extra_data[key]))
                 except:
-                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
+                    extra_data_csv.append(str(self.extra_data[key]))
 
-        extra_data_csv = extra_data_csv.strip(',')
-
-        return str(self.region_id) + ',"' + str(self.geom) + '",' + extra_data_csv
+        result = [self.region_id, json.loads(self.geom.json)['coordinates']]
+        result.extend(extra_data_csv)
+        return result
 
 
 
