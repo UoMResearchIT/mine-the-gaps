@@ -519,40 +519,41 @@ $(document).ready(function(){
             }
         });
     };
-
 });
 
 // File downloads
 
-function get_csv(url, filename='data.csv', jsonParams={}){
-    // Show save dialogue
 
 
-
+function download_file(url, filename){
     // Set up loader display
     var loaderOuterDiv = document.getElementById('loader-outer');
     var loaderDiv = document.createElement('div');
     loaderDiv.id = 'loader';
     loaderOuterDiv.appendChild(loaderDiv);
-    drawLoader(loaderDiv, '<p>Downloading data...</p>');
+    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
 
 
 
     $.ajax({
         url: url,
-        data: JSON.stringify(jsonParams),
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'text',
         method: 'POST',
-        timeout: 40000,
-        async: false,
+        timeout: 60000,
+        async: true,
         success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
             if (!data.match(/^data:text\/csv/i)) {
                 data = 'data:text/csv;charset=utf-8,' + data;
             }
-
             link = document.createElement('a');
-            link.setAttribute('href', data);
+            link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.click();
 

@@ -38,10 +38,10 @@ urlpatterns = [
     path('sensor_fields', views.get_sensor_fields),
 
 
-    path('csv/sensors/', views.get_sensors_csv),
-    path('csv/regions/', views.get_regions_csv),
-    path('csv/sensor_data/', views.get_actuals_csv),
-    path('csv/region_estimates/', views.get_estimates_csv),
+    path('sensors/csv/', views.get_sensors_csv),
+    path('regions/csv/', views.get_regions_csv),
+    path('sensor_data/csv/', views.get_actuals_csv),
+    path('region_estimates/csv/', views.get_estimates_csv),
 
     path('', views.home_page),
 ]

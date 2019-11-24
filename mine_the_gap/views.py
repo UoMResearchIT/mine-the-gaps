@@ -94,14 +94,15 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
 def get_sensors_csv(request):
     try:
         #  Reading file from storage
-        file = default_storage.open(Filenames.objects.first().sensor_data_filename)
+        file = default_storage.open(Filenames.objects.first().sensor_data_filename)# 'x') #force error for testing
         #file_url = default_storage.url(Filenames.objects.first().sensor_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(file, content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
-    except Exception as err:
-        response =  HttpResponseServerError('Unable to open sensor metadata file: ' + err)
 
+    except Exception as err:
+        response =  HttpResponseServerError('Unable to open sensor metadata file: ' + str(err))
+
+    response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
     return response
 
 def get_regions_csv(request):
@@ -110,10 +111,10 @@ def get_regions_csv(request):
         file = default_storage.open(Filenames.objects.first().region_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(file, content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region metadata file: ' + err)
 
+    response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
     return response
 
 
@@ -123,10 +124,10 @@ def get_actuals_csv(request):
         file = default_storage.open(Filenames.objects.first().actual_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(file, content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open sensor data file: ' + err)
 
+    response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
     return response
 
 
@@ -136,10 +137,10 @@ def get_estimates_csv(request):
         file = default_storage.open(Filenames.objects.first().estimated_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(file, content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
 
+    response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
     return response
 
 
