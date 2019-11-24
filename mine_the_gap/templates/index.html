@@ -70,7 +70,7 @@
                 <script type="text/javascript">
                     var timestampRange = "{{timestamp_range|escapejs }}";
                     var centerLatLng = "{{center|escapejs }}";
-                    var timestampList = timestampRange.replace('[','').replace(']','').split(',');
+                    var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
                     var dataUrl = '{{ request.path }}' + 'all_data';
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensors" %}';
