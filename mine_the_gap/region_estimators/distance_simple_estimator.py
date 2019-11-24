@@ -25,6 +25,20 @@ class Distance_simple_estimator(Region_estimator):
 
         return result
 
+    def get_region_estimation(self, timestamp, measurement, region_id):
+        result = []
+
+        region = Region.objects.get(region_id = region_id)
+
+        region_result = {'timestamp': timestamp, 'measurement': measurement, 'region_id': region.region_id,
+                         'geom': region.geom.coords, 'region_extra_data': region.extra_data}
+
+        region_result['value'], region_result['extra_data'] = self.get_diffusion_estimate(timestamp, measurement,
+                                                                                          region)
+        result.append(region_result)
+
+        return result
+
 
 
     def get_distance_estimate(self, timestamp, measurement, region):
