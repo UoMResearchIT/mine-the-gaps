@@ -11,6 +11,10 @@ class Region_estimator(object):
     def get_all_region_estimations(self, timestamp, measurement):
         pass
 
+    @abstractmethod
+    def get_region_estimation(self, timestamp, measurement, region_id):
+        pass
+
 
     def get_adjacent_regions(self, regions, ignore_regions):
         # Create an empty queryset for adjacent regions

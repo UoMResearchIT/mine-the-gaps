@@ -420,6 +420,7 @@ $(document).ready(function(){
 
                     var extraData = '<table class="table table-striped">';
                     extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
+                    extraData += '<tr><th>ID</th><td>' + loc.sensor_id + '</td></tr>';
                     extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
                     extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
                     extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
