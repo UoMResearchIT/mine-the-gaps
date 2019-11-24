@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db import models as gismodels
-import json
 
 
 class Filenames(models.Model):

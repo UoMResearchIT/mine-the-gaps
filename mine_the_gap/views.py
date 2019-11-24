@@ -4,18 +4,20 @@ from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
+
 from django.core.files import temp as tempfile
 
-from django.core.files.storage import default_storage
 from django.conf import settings
 
-from slugify import slugify
-from io import TextIOWrapper
+from django.core.files.storage import default_storage
 
+from slugify import slugify
 import csv
 import json
 import pandas as pd
 import os
+from io import TextIOWrapper
+
 
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value
@@ -95,6 +97,7 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
     return JsonResponse(data, safe=False)
 
 
+
 def get_sensors_file(request, file_type):
     try:
         # Create the HttpResponse object with the appropriate CSV header.
@@ -120,6 +123,7 @@ def get_sensors_file(request, file_type):
 
     return response
 
+
 def get_regions_file(request, file_type):
     try:
         # Create the HttpResponse object with the appropriate CSV header.
@@ -139,7 +143,7 @@ def get_regions_file(request, file_type):
             os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
             response['Content-Disposition'] = 'attachment; filename="region_metadata.json"'
     except Exception as err:
-        response = HttpResponseServerError('Unable to open region metadata file: ' + err)
+        response = HttpResponseServerError('Unable to open region metadata file: ' + str(err))
 
     return response
 
@@ -163,10 +167,9 @@ def get_actuals_file(request, file_type):
             os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
             response['Content-Disposition'] = 'attachment; filename="sensor_data.json"'
     except Exception as err:
-        response = HttpResponseServerError('Unable to open sensor data file: ' + err)
+        response = HttpResponseServerError('Unable to open sensor data file: ' + str(err))
 
     return response
-
 
 def get_estimates_file(request, file_type):
     try:
@@ -188,7 +191,6 @@ def get_estimates_file(request, file_type):
             response['Content-Disposition'] = 'attachment; filename="region_estimated_data.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
-
 
     return response
 
@@ -282,7 +284,6 @@ def filter_sensors(sensors, params):
                     sensors = sensors.exclude(extra_data__contains={item_key: value})
 
     return sensors
-
 
 def estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
     data = []
@@ -381,6 +382,7 @@ def handle_uploaded_files(request):
         field_titles = next(reader, None)  # skip the headers
 
         #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
+
 
         extra_field_idxs = []
 

@@ -84,6 +84,121 @@ $(document).ready(function(){
 
     initialise_sensor_fields();
 
+    function initialise_sensor_fields(){
+        /*
+                Add Sensor fields (to UI sensor selection/filtering mechanism)
+
+         */
+
+        $.getJSON(sensorFieldsUrl, function (data) {
+            // Add GeoJSON layer
+            //alert(JSON.stringify(data));
+
+            // Create the table for sensor fields
+            var sensor_fields = '<table class="table table-striped">';
+
+            for (var i=0; i<data.length; i++){
+                var fieldName = data[i];
+
+                // Add sensor field data to the table
+                var row = '<tr class="select-button-row">' +
+                    '<td class="field-name">' + fieldName + '</td>' +
+                    '<td id="'+ fieldName + '-used' +'" class="field-used"></td></tr>';
+                sensor_fields += row;
+                // Add user input fields for selecting sensors
+                var rows =
+                    '<tr class="select-field-instructions info">' +
+                        '<td></td>' +
+                        '<td><div id="sensor-select-instructions">' +
+                            '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
+                                '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
+                                '(\'Omit values\' ignored if both used)' +
+                    '       </em></div>' +
+                    '   </td>' +
+                    '</tr>' +
+                    '<tr id="' + fieldName + '-select' + '" class="selector-field info">' +
+                        '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>' +
+                    '<tr id="' + fieldName + '-omit' + '" class="omittor-field info">' +
+                    '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>';
+                sensor_fields += rows;
+            }
+            sensor_fields += '</table>';
+
+            // Add the table and instructions to the html div
+            $('#collapseFilterSensors').html(sensor_fields);
+
+            // Toggle the field selector / omittor fields (and instructions div) until required
+            $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
+
+            $("table .select-button-row").on('click', function(){
+                $(this).nextUntil("tr.select-button-row").toggle('slow');
+            });
+
+            // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
+            $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
+                if(e.keyCode === 13){ // Enter key
+                    var prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').val();
+
+                    var fieldNameId = this.closest('tr').id;
+                    var fieldName2 = fieldNameId.substr(0, fieldNameId.indexOf('-'));
+                    var selectOrOmit = fieldNameId.substr(fieldNameId.indexOf('-')+1);
+
+                    var selectText = $('tr#' + fieldName2 + '-select input').val();
+                    var omitText = $('tr#' + fieldName2 + '-omit input').val();
+
+                    if( selectText.trim() !== '' && check_sensor_select_params(selectText) === true) {
+                        var newVal = '<em>Select: [' + selectText+ ']</em>';
+                        $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                    }else{
+                        if( omitText.trim() !== '' && check_sensor_select_params(omitText) === true) {
+                            var newVal = '<em>Omit: [' + omitText + ']</em>';
+                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                        }else{
+                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html('');
+                        }
+                    }
+
+                    if(newVal !== prevVal){
+                        update_timeseries_map(document.getElementById("timestamp-range").value);
+                    }
+                }
+            });
+        });
+    }
+
+    function get_sensor_select_url_params(){
+        var result = {'selectors':[]};
+        $('#sensor-field-data table td.field-name').each(function(index){
+            var fieldDict = {};
+            var fieldName = $(this).html();
+            var dictFieldName = {};
+
+            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
+            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field') .first().find('input').val().trim();
+            var fieldSelectorsJson = fieldSelectors.split(',').filter(Boolean);
+            var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
+
+            if (fieldSelectorsJson.length > 0){
+                dictFieldName['select_sensors'] = fieldSelectorsJson;
+            }else{
+                if (fieldOmittorsJson.length > 0) {
+                    dictFieldName['omit_sensors'] = fieldOmittorsJson;
+                }
+            }
+            if(Object.keys(dictFieldName).length > 0){
+                fieldDict[fieldName] = dictFieldName;
+                result['selectors'].push(fieldDict);
+            }
+        });
+        return result;
+    }
+
+    function check_sensor_select_params(paramString){
+        // Must return true for empty string
+        return true;
+    }
 
     function initialise_sensor_fields(){
         /*
@@ -649,6 +764,53 @@ function download_json(url, filename){
     })
 };
 
+
+// File downloads
+
+function get_csv(url, filename='data.csv', jsonParams={}){
+    // Show save dialogue
+
+
+
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading data...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        data: JSON.stringify(jsonParams),
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 40000,
+        async: false,
+        success: function (data) {
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+
+            link = document.createElement('a');
+            link.setAttribute('href', data);
+            link.setAttribute('download', filename);
+            link.click();
+
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
 
 
 function getGreenToRed(percent){
