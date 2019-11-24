@@ -81,19 +81,19 @@ def get_sensor_fields(request):
     return JsonResponse(result, safe=False)
 
 
-def get_all_data_at_timestamp(request, method_name, timestamp_idx, measurement):
+def get_all_data_at_timestamp(request, method_name, timestamp_val, measurement):
     data = {
-                'actual_data': actuals_at_timestamp(request, timestamp_idx, measurement),
-                'estimated_data': estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
+                'actual_data': actuals_at_timestamp(request, timestamp_val, measurement),
+                'estimated_data': estimates_at_timestamp(request, method_name, timestamp_val, measurement)
     }
     return JsonResponse(data, safe=False)
 
-def get_actuals_at_timestamp(request, timestamp_idx, measurement):
-    data = actuals_at_timestamp(request, timestamp_idx, measurement)
+def get_actuals_at_timestamp(request, timestamp_val, measurement):
+    data = actuals_at_timestamp(request, timestamp_val, measurement)
     return JsonResponse(data, safe=False)
 
-def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
-    data = estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
+def get_estimates_at_timestamp(request, method_name, timestamp_val, measurement):
+    data = estimates_at_timestamp(request, method_name, timestamp_val, measurement)
     return JsonResponse(data, safe=False)
 
 
@@ -206,8 +206,7 @@ def get_measurement_names():
     return result
 
 
-def actuals_at_timestamp(request, timestamp_idx, measurement):
-    timestamps = get_timestamp_list()
+def actuals_at_timestamp(request, timestamp_val, measurement):
     data = []
     measurement = measurement.strip()
 
@@ -216,12 +215,8 @@ def actuals_at_timestamp(request, timestamp_idx, measurement):
     except:
         sensor_params = []
 
-    try:
-        timestamp_d = timestamps[timestamp_idx]
-    except:
-        return JsonResponse(data, safe=False)
 
-    query_set = Actual_value.objects.filter(actual_data__timestamp=timestamp_d, measurement_name=measurement)
+    query_set = Actual_value.objects.filter(actual_data__timestamp=str(timestamp_val), measurement_name=measurement)
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
@@ -285,10 +280,9 @@ def filter_sensors(sensors, params):
 
     return sensors
 
-def estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
+def estimates_at_timestamp(request, method_name, timestamp_val, measurement):
     data = []
     measurement = measurement.strip()
-    timestamps = get_timestamp_list()
 
     try:
         sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
@@ -300,14 +294,8 @@ def estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
-    try:
-        timestamp_d = timestamps[timestamp_idx]
-    except:
-        return JsonResponse(data, safe=False)
-
-
     if method_name == 'file':
-        query_set = Estimated_value.objects.filter(estimated_data__timestamp=timestamp_d, measurement_name=measurement)
+        query_set = Estimated_value.objects.filter(estimated_data__timestamp=str(timestamp_val), measurement_name=measurement)
         for row in query_set.iterator():
             try:
                 percentage_score = (row.value - min_val) / (max_val - min_val)
@@ -324,7 +312,7 @@ def estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
         except Exception as err:
             print(err)
         else:
-            result = estimator.get_all_region_estimations(timestamp_d, measurement)
+            result = estimator.get_all_region_estimations(timestamp_val, measurement)
             for row in result:
                 #print('Row:', row['value'])
                 if row['value'] and min_val and max_val:
@@ -445,7 +433,7 @@ def handle_uploaded_files(request):
                     print('Sensor', sensor_name, 'not found for this actual datapoint:', err)
                 else:
                     if sensor:
-                        actual = Actual_data(   timestamp=row[timestamp_idx],
+                        actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
                                                 sensor=sensor)
                         actual.save()
 
@@ -573,7 +561,7 @@ def handle_uploaded_files(request):
                 region = Region.objects.get(region_id=str(row[region_idx]))
 
                 if region:
-                    estimated = Estimated_data( timestamp=row[timestamp_idx],
+                    estimated = Estimated_data( timestamp=slugify(row[timestamp_idx]),
                                                 region=region
                                                 )
                     estimated.save()

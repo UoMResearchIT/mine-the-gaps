@@ -337,7 +337,8 @@ $(document).ready(function(){
 
     function update_timeseries_map(timeseries_idx=document.getElementById("timestamp-range").value,
                                    measurement=$("input[name='measurement']:checked").val()){
-        var dataUrl = curDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
+        var timeseries_val = timestampList[timeseries_idx].trim();
+        var dataUrl = curDataUrl + measurement + '/' + timeseries_val + '/';
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
 
@@ -895,39 +896,39 @@ function dragElement(elmnt) {
 
 
 // ******************************************************************
-    // ****************** CSRF-TOKEN SET-UP *****************************
-    // ******************************************************************
+// ****************** CSRF-TOKEN SET-UP *****************************
+// ******************************************************************
 
-   // using jQuery
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
-    var csrftoken = getCookie('csrftoken');
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
 
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
 
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
-    });
-    // ******************************************************************
-    // ********************* CSRF-TOKEN END *****************************
-    // ******************************************************************
+    }
+});
+// ******************************************************************
+// ********************* CSRF-TOKEN END *****************************
+// ******************************************************************
