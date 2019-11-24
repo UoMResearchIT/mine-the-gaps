@@ -5,10 +5,10 @@ import json
 
 
 class Filenames(models.Model):
-    actual_data_file = models.CharField(max_length=50, null=True)
-    sensor_data_file = models.CharField(max_length=50, null=True)
-    estimated_data_file = models.CharField(max_length=50, null=True)
-    region_data_file = models.CharField(max_length=50, null=True)
+    actual_data_filename = models.CharField(max_length=50, null=True)
+    sensor_data_filename = models.CharField(max_length=50, null=True)
+    estimated_data_filename = models.CharField(max_length=50, null=True)
+    region_data_filename = models.CharField(max_length=50, null=True)
 
 
 
@@ -23,35 +23,6 @@ class Sensor(gismodels.Model):
                 'name': self.name,
                 'extra_data': self.extra_data}
 
-    @property
-    def csv_line_headers(self):
-        extra_data_headers = []
-
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            extra_data_headers.append(str(key))
-
-        result = ['name','long','lat']
-        result.extend(extra_data_headers)
-        return result
-
-    @property
-    def csv_line(self):
-        extra_data_csv = []
-
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            try:
-                extra_data_csv.append(int(self.extra_data[key]))
-            except:
-                try:
-                    extra_data_csv.append(float(self.extra_data[key]))
-                except:
-                    extra_data_csv.append(str(self.extra_data[key]))
-
-        result = [self.name, str(self.geom[0]), str(self.geom[1])]
-        result.extend(extra_data_csv)
-        return result
 
 
 
@@ -68,12 +39,10 @@ class Actual_data(gismodels.Model):
                 'sensor_extra_data': self.sensor.extra_data}
 
 
-
 class Actual_value(gismodels.Model):
     actual_data = models.ForeignKey(Actual_data, null=True, on_delete=models.CASCADE)
     measurement_name = models.CharField(max_length=30, null=False, db_index=True)
     value = models.FloatField(null=True)
-    extra_data = JSONField(null=True)
 
     @property
     def join_sensor(self):
@@ -84,37 +53,8 @@ class Actual_value(gismodels.Model):
         result = self.actual_data.join_sensor
         result.update({'measurement_name': self.measurement_name,
                        'value': fvalue,
-                       'actual_data_id': self.actual_data_id,
-                       'extra_data': self.extra_data})
+                       'actual_data_id': self.actual_data_id})
         return result
-
-    @property
-    def csv_line_headers(self):
-        extra_data_headers = ''
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            extra_data_headers += '"' + str(key) + '",'
-        extra_data_headers = extra_data_headers.strip(',')
-
-        return 'timestamp,sensor_id,measurement,value,' + extra_data_headers
-
-    @property
-    def csv_line(self):
-        extra_data_csv = ''
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            try:
-                extra_data_csv += int(self.extra_data[key]) + ','
-            except:
-                try:
-                    extra_data_csv += float(self.extra_data[key]) + ','
-                except:
-                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
-
-        extra_data_csv = extra_data_csv.strip(',')
-
-        return self.actual_data.timestamp + ',' + str(self.actual_data.sensor_id) + ',' \
-               + self.measurement_name + ',' + str(self.value) + ',' + extra_data_csv
 
 
 
@@ -134,37 +74,6 @@ class Region(gismodels.Model):
     @property
     def adjacent_regions(self):
         return Region.objects.filter(geom__touches=self.geom)
-
-
-    @property
-    def csv_line_headers(self):
-        extra_data_headers = []
-
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            extra_data_headers.append(str(key))
-
-        result = ['region_id', 'geom']
-        result.extend(extra_data_headers)
-        return result
-
-    @property
-    def csv_line(self):
-        extra_data_csv = []
-        sorted_extra = sorted(self.extra_data)
-
-        for key in sorted_extra:
-            try:
-                extra_data_csv.append(int(self.extra_data[key]))
-            except:
-                try:
-                    extra_data_csv.append(float(self.extra_data[key]))
-                except:
-                    extra_data_csv.append(str(self.extra_data[key]))
-
-        result = [self.region_id, json.loads(self.geom.json)['coordinates']]
-        result.extend(extra_data_csv)
-        return result
 
 
 
@@ -199,31 +108,3 @@ class Estimated_value(gismodels.Model):
                        'estimated_data_id': self.estimated_data_id,
                        'extra_data': self.extra_data})
         return result
-
-    @property
-    def csv_line_headers(self):
-        extra_data_headers = ''
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            extra_data_headers += '"' + str(key) + '",'
-        extra_data_headers = extra_data_headers.strip(',')
-
-        return 'timestamp,region_id,measurement,value,' + extra_data_headers
-
-    @property
-    def csv_line(self):
-        extra_data_csv = ''
-        sorted_extra = sorted(self.extra_data)
-        for key in sorted_extra:
-            try:
-                extra_data_csv += int(self.extra_data[key]) + ','
-            except:
-                try:
-                    extra_data_csv += float(self.extra_data[key]) + ','
-                except:
-                    extra_data_csv += '"' + str(self.extra_data[key]) + '",'
-
-        extra_data_csv = extra_data_csv.strip(',')
-
-        return self.estimated_data.timestamp + ',' + str(self.estimated_data.region_id) + ',' \
-               + self.measurement_name + ',' + str(self.value) + ',' + extra_data_csv

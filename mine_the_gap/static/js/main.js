@@ -524,7 +524,7 @@ $(document).ready(function(){
 
 // File downloads
 
-/*function get_csv(url, filename='data.csv', jsonParams={}){
+function get_csv(url, filename='data.csv', jsonParams={}){
     // Show save dialogue
 
 
@@ -567,7 +567,7 @@ $(document).ready(function(){
             }
         }
     })
-};*/
+};
 
 
 function getGreenToRed(percent){
