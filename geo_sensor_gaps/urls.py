@@ -36,8 +36,15 @@ urlpatterns = [
     url(r'^sensors.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sensors'),
     url(r'^regions.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='regions'),
 
+
+    path('actual_data/<slug:measurement>/<slug:timestamp_val>/<slug:region_id>/', views.get_actuals_at_timestamp_region),
+    path('estimated_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/<slug:region_id>/', views.get_estimates_at_timestamp_region),
+
     path('actual_data/<slug:measurement>/<slug:timestamp_val>/', views.get_actuals_at_timestamp),
     path('estimated_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_estimates_at_timestamp),
+
+    path('actual_data/<slug:measurement>/', views.get_actuals),
+    path('estimated_data/<slug:method_name>/<slug:measurement>/', views.get_estimates),
 
 
     path('sensors_file/<slug:file_type>/', views.get_sensors_file),

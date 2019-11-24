@@ -88,6 +88,18 @@ def get_all_data_at_timestamp(request, method_name, timestamp_val, measurement):
     }
     return JsonResponse(data, safe=False)
 
+
+
+
+
+def get_actuals_at_timestamp_region(request, measurement, timestamp_val, region_id):
+    data = actuals_at_timestamp_region(request, timestamp_val, measurement, region_id)
+    return JsonResponse(data, safe=False)
+
+def get_estimates_at_timestamp_region(request, method_name, measurement, timestamp_val, region_id):
+    data = estimates_at_timestamp_region(request, method_name, timestamp_val, measurement, region_id)
+    return JsonResponse(data, safe=False)
+
 def get_actuals_at_timestamp(request, timestamp_val, measurement):
     data = actuals_at_timestamp(request, timestamp_val, measurement)
     return JsonResponse(data, safe=False)
@@ -95,6 +107,16 @@ def get_actuals_at_timestamp(request, timestamp_val, measurement):
 def get_estimates_at_timestamp(request, method_name, timestamp_val, measurement):
     data = estimates_at_timestamp(request, method_name, timestamp_val, measurement)
     return JsonResponse(data, safe=False)
+
+
+def get_actuals_at_timestamp(request, measurement):
+    data = actuals_all_timestamps(request, measurement)
+    return JsonResponse(data, safe=False)
+
+def get_estimates_at_timestamp(request, method_name, measurement):
+    data = estimates_all_timestamps(request, method_name, measurement)
+    return JsonResponse(data, safe=False)
+
 
 
 
@@ -236,50 +258,6 @@ def actuals_at_timestamp(request, timestamp_val, measurement):
 
     return data
 
-
-def select_sensor(sensor, params):
-    # [{"name": {"omit_sensors": ["Inverness"]}}]
-    # [{"name": {"select_sensors": ["Inverness"]}}]
-    for item in params:
-        item_key = next(iter(item))
-        if item_key == 'name':
-            sensor_field = sensor['name']
-        else:
-            sensor_field = sensor['extra_data'][item_key]
-
-        dict_item = item[item_key]
-        if dict_item and 'select_sensors' in dict_item and sensor_field not in dict_item['select_sensors']:
-            return False
-        if dict_item and 'omit_sensors' in dict_item and sensor_field in dict_item['omit_sensors']:
-            return False
-
-    return True
-
-def filter_sensors(sensors, params):
-    # [{"name": {"omit_sensors": ["Inverness"]}}]
-    # [{"pc": {"select_sensors": ["kdljdflja"]}}]
-
-    for item in params:
-        item_key = next(iter(item))
-        dict_selector = item[item_key]
-        omit_or_select = next(iter(dict_selector))
-        include = True if omit_or_select == 'select_sensors' else False
-        values = item[item_key][omit_or_select]
-
-        if item_key == 'name':
-            if include:
-                sensors = sensors.filter(name__in=values)
-            else:
-                sensors = sensors.exclude(name__in=values)
-        else:
-            for value in values:
-                if include:
-                    sensors = sensors.filter(extra_data__contains={item_key: value})
-                else:
-                    sensors = sensors.exclude(extra_data__contains={item_key: value})
-
-    return sensors
-
 def estimates_at_timestamp(request, method_name, timestamp_val, measurement):
     data = []
     measurement = measurement.strip()
@@ -323,6 +301,63 @@ def estimates_at_timestamp(request, method_name, timestamp_val, measurement):
                 data.append(row)
 
     return data
+
+
+def actuals_at_timestamp_region(request, timestamp_val, measurement, region_id):
+    pass
+
+def estimates_at_timestamp_region(request, timestamp_val, measurement, region_id):
+    pass
+
+def actuals_all_timestamps(request, measurement):
+    pass
+
+def estimates_all_timestamps(request, measurement):
+    pass
+
+
+def select_sensor(sensor, params):
+    # [{"name": {"omit_sensors": ["Inverness"]}}]
+    # [{"name": {"select_sensors": ["Inverness"]}}]
+    for item in params:
+        item_key = next(iter(item))
+        if item_key == 'name':
+            sensor_field = sensor['name']
+        else:
+            sensor_field = sensor['extra_data'][item_key]
+
+        dict_item = item[item_key]
+        if dict_item and 'select_sensors' in dict_item and sensor_field not in dict_item['select_sensors']:
+            return False
+        if dict_item and 'omit_sensors' in dict_item and sensor_field in dict_item['omit_sensors']:
+            return False
+
+    return True
+
+def filter_sensors(sensors, params):
+    # [{"name": {"omit_sensors": ["Inverness"]}}]
+    # [{"pc": {"select_sensors": ["kdljdflja"]}}]
+
+    for item in params:
+        item_key = next(iter(item))
+        dict_selector = item[item_key]
+        omit_or_select = next(iter(dict_selector))
+        include = True if omit_or_select == 'select_sensors' else False
+        values = item[item_key][omit_or_select]
+
+        if item_key == 'name':
+            if include:
+                sensors = sensors.filter(name__in=values)
+            else:
+                sensors = sensors.exclude(name__in=values)
+        else:
+            for value in values:
+                if include:
+                    sensors = sensors.filter(extra_data__contains={item_key: value})
+                else:
+                    sensors = sensors.exclude(extra_data__contains={item_key: value})
+
+    return sensors
 
 
 
