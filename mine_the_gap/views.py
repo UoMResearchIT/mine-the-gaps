@@ -6,12 +6,15 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.core.files.storage import default_storage
+from django.conf import settings
 
 from slugify import slugify
 from io import TextIOWrapper
 
 import csv
 import json
+import pandas as pd
+import os
 
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value
@@ -91,56 +94,97 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
     return JsonResponse(data, safe=False)
 
 
-def get_sensors_csv(request):
+def get_sensors_file(request, file_type):
     try:
-        #  Reading file from storage
-        file = default_storage.open(Filenames.objects.first().sensor_data_filename)# 'x') #force error for testing
-        #file_url = default_storage.url(Filenames.objects.first().sensor_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(file, content_type='text/csv')
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(
+                Filenames.objects.first().sensor_data_filename)  # 'x') #force error for testing
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open('temp.json') as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            response['Content-Disposition'] = 'attachment; filename="sensor_metadata.json"'
 
     except Exception as err:
         response =  HttpResponseServerError('Unable to open sensor metadata file: ' + str(err))
 
-    response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
     return response
 
-def get_regions_csv(request):
+def get_regions_file(request, file_type):
     try:
-        #  Reading file from storage
-        file = default_storage.open(Filenames.objects.first().region_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(file, content_type='text/csv')
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(Filenames.objects.first().region_data_filename)
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open('temp.json') as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            response['Content-Disposition'] = 'attachment; filename="region_metadata.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region metadata file: ' + err)
 
-    response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
     return response
 
 
-def get_actuals_csv(request):
+def get_actuals_file(request, file_type):
     try:
-        #  Reading file from storage
-        file = default_storage.open(Filenames.objects.first().actual_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(file, content_type='text/csv')
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(Filenames.objects.first().actual_data_filename)
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().actual_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open('temp.json') as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            response['Content-Disposition'] = 'attachment; filename="sensor_data.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open sensor data file: ' + err)
 
-    response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
     return response
 
 
-def get_estimates_csv(request):
+def get_estimates_file(request, file_type):
     try:
-        #  Reading file from storage
-        file = default_storage.open(Filenames.objects.first().estimated_data_filename)
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(file, content_type='text/csv')
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(Filenames.objects.first().estimated_data_filename)
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().estimated_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open('temp.json') as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            response['Content-Disposition'] = 'attachment; filename="region_estimated_data.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
 
-    response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
+
     return response
 
 

@@ -28,9 +28,9 @@ from mine_the_gap.models import Sensor, Region, Actual_data, Estimated_data
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
-    url(r'^sensor.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sensor'),
+    url(r'^sensors.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sensors'),
     #url(r'^actual_data.geojson$', GeoJSONLayerView.as_view(model=Actual_data, properties=['popupContent']), name='actual_data'),
-    url(r'^region.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='region'),
+    url(r'^regions.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='regions'),
     #url(r'^estimated_data.geojson$', GeoJSONLayerView.as_view(model=Estimated_data, properties=['popupContent']), name='estimated_data'),
     path('actual_data/<int:timestamp_idx>/<slug:measurement>/', views.get_actuals_at_timestamp),
     path('estimated_data/<slug:method_name>/<int:timestamp_idx>/<slug:measurement>/', views.get_estimates_at_timestamp),
@@ -38,10 +38,10 @@ urlpatterns = [
     path('sensor_fields', views.get_sensor_fields),
 
 
-    path('sensors/csv/', views.get_sensors_csv),
-    path('regions/csv/', views.get_regions_csv),
-    path('sensor_data/csv/', views.get_actuals_csv),
-    path('region_estimates/csv/', views.get_estimates_csv),
+    path('sensors_file/<slug:file_type>/', views.get_sensors_file),
+    path('regions_file/<slug:file_type>/', views.get_regions_file),
+    path('sensor_data_file/<slug:file_type>/', views.get_actuals_file),
+    path('region_estimates_file/<slug:file_type>/', views.get_estimates_file),
 
     path('', views.home_page),
 ]

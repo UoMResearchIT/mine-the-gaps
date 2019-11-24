@@ -525,7 +525,7 @@ $(document).ready(function(){
 
 
 
-function download_file(url, filename){
+function download_csv(url, filename){
     // Set up loader display
     var loaderOuterDiv = document.getElementById('loader-outer');
     var loaderDiv = document.createElement('div');
@@ -556,10 +556,9 @@ function download_file(url, filename){
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.click();
-
         },
         error: function (request, state, errors) {
-            alert("There was an problem downloading the data: " + errors.toString());
+            alert("There was an problem downloading the CSV data: " + errors.toString());
         },
         complete: function (request, status) {
             // Clear Loader
@@ -569,6 +568,87 @@ function download_file(url, filename){
         }
     })
 };
+
+function download_geojson(url, filename){
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        async: true,
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the GeoJSON data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
+
+
+function download_json(url, filename){
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 90000,
+        async: true,
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the JSON data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
+
 
 
 function getGreenToRed(percent){
