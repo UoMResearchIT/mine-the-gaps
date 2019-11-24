@@ -40,8 +40,8 @@ urlpatterns = [
 
     path('csv/sensors/', views.get_sensors_csv),
     path('csv/regions/', views.get_regions_csv),
-    path('csv/actuals/', views.get_actuals_csv),
-    path('csv/estimates/', views.get_estimates_csv),
+    path('csv/sensor_data/', views.get_actuals_csv),
+    path('csv/region_estimates/', views.get_estimates_csv),
 
     path('', views.home_page),
 ]

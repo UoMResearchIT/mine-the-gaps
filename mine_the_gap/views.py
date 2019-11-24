@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from django.core.files.storage import default_storage
 
 from slugify import slugify
 from io import TextIOWrapper
@@ -28,13 +29,13 @@ def home_page(request):
                 filenames = Filenames()
 
             if form.cleaned_data.get("sensor_data_file"):
-                filenames.sensor_data_file = form.cleaned_data.get("sensor_data_file")
+                filenames.sensor_data_filename = form.cleaned_data.get("sensor_data_file")
             if form.cleaned_data.get("actual_data_file"):
-                filenames.actual_data_file = form.cleaned_data.get("actual_data_file")
+                filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
             if form.cleaned_data.get("region_data_file"):
-                filenames.region_data_file = form.cleaned_data.get("region_data_file")
+                filenames.region_data_filename = form.cleaned_data.get("region_data_file")
             if form.cleaned_data.get("estimated_data_file"):
-                filenames.estimated_data_file = form.cleaned_data.get("estimated_data_file")
+                filenames.estimated_data_filename = form.cleaned_data.get("estimated_data_file")
             filenames.save()
 
             return HttpResponseRedirect(request.path_info)
@@ -91,65 +92,56 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
 
 
 def get_sensors_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
-
-    writer = csv.writer(response)
-
-    if len(Sensor.objects.all()) > 0:
-        writer.writerow(Sensor.objects.all()[0].csv_line_headers)
-
-    for sensor in Sensor.objects.all():
-        writer.writerow(sensor.csv_line)
+    try:
+        #  Reading file from storage
+        file = default_storage.open(Filenames.objects.first().sensor_data_filename)
+        #file_url = default_storage.url(Filenames.objects.first().sensor_data_filename)
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(file, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
+    except Exception as err:
+        response =  HttpResponseServerError('Unable to open sensor metadata file: ' + err)
 
     return response
 
 def get_regions_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
-
-    writer = csv.writer(response)
-
-    if len(Region.objects.all()) > 0:
-        writer.writerow(Region.objects.all()[0].csv_line_headers)
-
-    for region in Region.objects.all():
-        writer.writerow(region.csv_line)
+    try:
+        #  Reading file from storage
+        file = default_storage.open(Filenames.objects.first().region_data_filename)
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(file, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to open region metadata file: ' + err)
 
     return response
 
 
 def get_actuals_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="sensor_values.csv"'
-
-    writer = csv.writer(response)
-
-    if len(Actual_value.objects.all()) > 0:
-        writer.writerow(Actual_value.objects.all()[0].csv_line_headers)
-
-    for actual in Actual_value.objects.all():
-        writer.writerow(actual.csv_line)
+    try:
+        #  Reading file from storage
+        file = default_storage.open(Filenames.objects.first().actual_data_filename)
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(file, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to open sensor data file: ' + err)
 
     return response
+
 
 def get_estimates_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="region_estimates.csv"'
-
-    writer = csv.writer(response)
-
-    if len(Estimated_value.objects.all()) > 0:
-        writer.writerow(Estimated_value.objects.all()[0].csv_line_headers)
-
-    for estimate in Estimated_value.objects.all():
-        writer.writerow(estimate.csv_line)
+    try:
+        #  Reading file from storage
+        file = default_storage.open(Filenames.objects.first().estimated_data_filename)
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(file, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
 
     return response
+
 
 
 def get_measurement_names():
@@ -330,12 +322,12 @@ def handle_uploaded_files(request):
         filepath_sensor, filepath_actual = False,False
         print(err)
     else:
+        #  Saving POST'ed file to storage
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
 
-
-        file = TextIOWrapper(filepath_sensor.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_sensors = TextIOWrapper(filepath_sensor.file, encoding=request.encoding)
+        reader = csv.reader(file_sensors)
         field_titles = next(reader, None)  # skip the headers
 
         #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
@@ -371,15 +363,12 @@ def handle_uploaded_files(request):
                 continue
 
 
-        file = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
+        reader = csv.reader(file_actual)
         field_titles = next(reader, None)  # skip the headers
 
         value_idxs = []
-        extra_field_idxs = []
         timestamp_idx = None
-        long_idx = None
-        lat_idx = None
         sensor_name_idx = None
 
         # Find the fields in the file
@@ -389,25 +378,13 @@ def handle_uploaded_files(request):
                 value_idxs.append(idx)
             elif title == 'time_stamp':
                 timestamp_idx = idx
-            elif title == 'long':
-                long_idx = idx
-            elif title == 'lat':
-                lat_idx = idx
             elif title == 'sensor_name':
                 sensor_name_idx = idx
-            else:
-                extra_field_idxs.append(idx)
 
 
         # Read in the data
         for row in reader:
             try:
-                extra_data = {}
-                for idx in extra_field_idxs:
-                    item = field_titles[idx]
-                    extra_data[item] = row[idx]
-
-                #point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
                 sensor_name = row[sensor_name_idx]
 
                 try:
@@ -429,8 +406,7 @@ def handle_uploaded_files(request):
                                 name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
                                 actual_value = Actual_value(    measurement_name=name,
                                                                 value = fvalue,
-                                                                actual_data = actual,
-                                                                extra_data = extra_data
+                                                                actual_data = actual
                                 )
                                 actual_value.save()
 
@@ -438,7 +414,8 @@ def handle_uploaded_files(request):
                 print('Error loading actuals:', err)
                 continue
 
-
+        default_storage.save(filepath_sensor.name, filepath_sensor.file)
+        default_storage.save(filepath_actual.name, filepath_actual.file)
 
     try:
         filepath_estimated = request.FILES['estimated_data_file']
@@ -446,14 +423,15 @@ def handle_uploaded_files(request):
     except Exception:
         filepath_estimated, filepath_region = False, False
     else:
+
         #Get all sensor measurement names (only accept estimations of values that we have sensors for)
         sensor_measurements = get_measurement_names()
 
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
 
-        file = TextIOWrapper(filepath_region.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_regions = TextIOWrapper(filepath_region.file, encoding=request.encoding)
+        reader = csv.reader(file_regions)
         field_titles = next(reader, None)  # skip the headers
         #print('field titles:', field_titles)
 
@@ -501,8 +479,8 @@ def handle_uploaded_files(request):
                 #print('Region file error. Row: ', row[0])
                 continue
 
-        file = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
+        reader = csv.reader(file_estimates)
         field_titles = next(reader, None)  # skip the headers
         #print('field titles:', field_titles)
 
@@ -535,7 +513,6 @@ def handle_uploaded_files(request):
             if measurement_name not in extra_data_idxs:
                 extra_data_idxs[measurement_name] = {}
             extra_data_idxs[measurement_name][extra_data_field] = extra_idx
-        print('extra data fields:', json.dumps(extra_data_idxs))
 
 
 
@@ -579,7 +556,8 @@ def handle_uploaded_files(request):
                 print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
                 continue
 
-
+        default_storage.save(filepath_region.name, filepath_region.file)
+        default_storage.save(filepath_estimated.name, filepath_estimated.file)
 
 
 
