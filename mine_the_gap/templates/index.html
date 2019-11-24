@@ -71,13 +71,13 @@
                     var timestampRange = "{{timestamp_range|escapejs }}";
                     var centerLatLng = "{{center|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').split(',');
-                    var actualDataUrl = '{{ request.path }}' + 'actual_data';
-                    var estimatedDataUrl = '{{ request.path }}' + 'estimated_data';
+                    var dataUrl = '{{ request.path }}' + 'all_data';
                     var mapIconPath = "{% static 'image/leaflet' %}";
-                    var sensorDataUrl = '{% url "sensor" %}';
-                    var regionDataUrl = '{% url "region" %}';
+                    var sensorDataUrl = '{% url "sensors" %}';
+                    var regionDataUrl = '{% url "regions" %}';
                     var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
-
+                    var csvUrl = '{{ request.path }}' + 'csv';
+                    var jsonUrl = '{{ request.path }}' + 'json';
                 </script>
 
             </div>
@@ -90,8 +90,62 @@
                         </div>
                     </div>
                     <div id="collapseDownload" class="panel-collapse collapse">
-                        <input type="checkbox" name="download" value="csv">CSV file<br>
-                        <input type="checkbox" name="download" value="GeoJSON">GeoJSON<br>
+                        <table class="table table-condensed">
+                            <tr id="sensors-download" class="download-file">
+                                <td>
+                                    <label>Sensor metadata</label>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_csv('sensors_file/csv/','sensor_metatdata.csv');">CSV</button>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_json('sensors_file/json/','sensor_metadata.json');">JSON</button>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_geojson(sensorDataUrl,'sensor_metadata_geojson.json');">GeoJSON</button>
+
+                                </td>
+                            </tr>
+                            <tr id="actuals-download" class="download-file">
+                                <td>
+                                    <label>Sensor data</label>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_csv('sensor_data_file/csv/','sensor_data.csv');">CSV</button>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_json('sensor_data_file/json/','sensor_data.json');">JSON</button>
+                                </td>
+                                <td></td>
+
+                            </tr>
+                            <tr id="regions-download" class="download-file">
+                                <td>
+                                    <label>Region metadata</label>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_csv('regions_file/csv/','region_metadata.csv');">CSV</button>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_json('regions_file/json/','regions_metadata.json');">JSON</button>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_geojson(regionDataUrl,'region_metadata_geojson.json');">GeoJSON</button>
+                                </td>
+                            </tr>
+                            <tr id="estimates-download" class="download-file">
+                                <td>
+                                    <label>Region estimates</label>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_csv('region_estimates_file/csv/','region_estimates.csv');">CSV</button>
+                                </td>
+                                <td>
+                                    <button type="button" onclick="download_json('region_estimates_file/json/','region_estimates.json');">JSON</button>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 

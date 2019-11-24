@@ -2,8 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3e183ce1-f930-4a30-a501-03459a828594" name="Default Changelist" comment="">
+<<<<<<< HEAD
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mine_the_gap/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp.json" beforeDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/geo_sensor_gaps/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/geo_sensor_gaps/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/mine_the_gap/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mine_the_gap/static/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/mine_the_gap/static/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/mine_the_gap/static/js/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/leaflet-svgicon-master/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/leaflet-svgicon-master/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/leaflet-svgicon-master/subclasses/rhombus-icon.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/leaflet-svgicon-master/subclasses/washington-monument-icon.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/static/leaflet-svgicon-master/svg-icon.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/mine_the_gap/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/mine_the_gap/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mine_the_gap/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mine_the_gap/views.py" afterDir="false" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -38,14 +53,15 @@
     <session id="-1794816113">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="4" />
+          <entry key="project.closed" value="6" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.10" value="1" />
-          <entry key="project.open.time.11" value="1" />
+          <entry key="project.open.time.11" value="2" />
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.13" value="1" />
+          <entry key="project.open.time.2" value="1" />
           <entry key="project.open.time.9" value="2" />
-          <entry key="project.opened" value="7" />
+          <entry key="project.opened" value="9" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -56,7 +72,11 @@
           <entry key="ico" value="1" />
           <entry key="js" value="23" />
           <entry key="png" value="5" />
-          <entry key="py" value="212" />
+<<<<<<< HEAD
+          <entry key="py" value="221" />
+=======
+          <entry key="py" value="220" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
           <entry key="template" value="2" />
           <entry key="txt" value="1" />
         </counts>
@@ -68,29 +88,50 @@
           <entry key="Image" value="6" />
           <entry key="JavaScript" value="23" />
           <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="214" />
+<<<<<<< HEAD
+          <entry key="Python" value="223" />
+=======
+          <entry key="Python" value="222" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="Django Console" value="26" />
-          <entry key="css" value="1521" />
+          <entry key="Django Console" value="102" />
+<<<<<<< HEAD
+          <entry key="css" value="1542" />
           <entry key="dummy" value="17" />
           <entry key="gitignore" value="40" />
-          <entry key="html" value="8294" />
-          <entry key="js" value="20572" />
-          <entry key="py" value="26990" />
+          <entry key="html" value="9944" />
+          <entry key="js" value="22130" />
+          <entry key="py" value="34748" />
+=======
+          <entry key="css" value="1525" />
+          <entry key="dummy" value="17" />
+          <entry key="gitignore" value="40" />
+          <entry key="html" value="9509" />
+          <entry key="js" value="21417" />
+          <entry key="py" value="33562" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
           <entry key="template" value="7" />
           <entry key="txt" value="80" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="CSS" value="1521" />
-          <entry key="HTML" value="8306" />
-          <entry key="JavaScript" value="20560" />
+<<<<<<< HEAD
+          <entry key="CSS" value="1542" />
+          <entry key="HTML" value="9956" />
+          <entry key="JavaScript" value="22118" />
           <entry key="PLAIN_TEXT" value="137" />
-          <entry key="Python" value="27021" />
+          <entry key="Python" value="34855" />
+=======
+          <entry key="CSS" value="1525" />
+          <entry key="HTML" value="9521" />
+          <entry key="JavaScript" value="21405" />
+          <entry key="PLAIN_TEXT" value="137" />
+          <entry key="Python" value="33669" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
           <entry key="SQL" value="2" />
         </counts>
       </usages-collector>
@@ -102,10 +143,99 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
+<<<<<<< HEAD
+        <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/base.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="700">
+              <caret line="124" column="10" selection-start-line="124" selection-end-line="124" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="645">
+              <caret line="43" column="30" selection-start-line="43" selection-start-column="30" selection-end-line="43" selection-end-column="30" />
+=======
+        <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="645">
+              <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
+              <folding>
+                <element signature="e#639#671#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mine_the_gap/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+            <state relative-caret-position="383">
+              <caret line="30" column="75" selection-start-line="30" selection-start-column="75" selection-end-line="30" selection-end-column="75" />
+              <folding>
+                <element signature="e#0#28#0" expanded="true" />
+                <marker date="1574596893625" expanded="true" signature="180:467" ph="..." />
+                <marker date="1574596893625" expanded="true" signature="648:654" ph="..." />
+                <marker date="1574596893625" expanded="true" signature="988:994" ph="..." />
+=======
+            <state relative-caret-position="105">
+              <caret line="7" column="35" lean-forward="true" selection-start-line="7" selection-start-column="35" selection-end-line="7" selection-end-column="35" />
+              <folding>
+                <element signature="e#0#28#0" expanded="true" />
+                <marker date="1574581812328" expanded="true" signature="180:467" ph="..." />
+                <marker date="1574581812328" expanded="true" signature="648:654" ph="..." />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+<<<<<<< HEAD
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/mine_the_gap/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1625">
+              <caret line="186" column="70" selection-start-line="186" selection-start-column="70" selection-end-line="186" selection-end-column="70" />
+              <folding>
+                <element signature="e#0#35#0" expanded="true" />
+                <marker date="1574606085914" expanded="true" signature="3307:3420" ph="..." />
+                <marker date="1574606085914" expanded="true" signature="9330:9551" ph="..." />
+                <marker date="1574606085914" expanded="true" signature="12225:12228" ph="..." />
+                <marker date="1574606085914" expanded="true" signature="12305:12310" ph="..." />
+                <marker date="1574606085914" expanded="true" signature="14876:14878" ph="..." />
+=======
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mine_the_gap/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="564">
+              <caret line="134" column="8" selection-start-line="134" selection-start-column="8" selection-end-line="134" selection-end-column="8" />
+              <folding>
+                <element signature="e#0#35#0" expanded="true" />
+                <marker date="1574583586209" expanded="true" signature="3197:3310" ph="..." />
+                <marker date="1574583586209" expanded="true" signature="5722:5943" ph="..." />
+                <marker date="1574583586209" expanded="true" signature="8617:8620" ph="..." />
+                <marker date="1574583586209" expanded="true" signature="8697:8702" ph="..." />
+                <marker date="1574583586209" expanded="true" signature="11268:11270" ph="..." />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mine_the_gap/static/js/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="602">
-              <caret line="95" column="30" selection-start-line="95" selection-start-column="30" selection-end-line="95" selection-end-column="30" />
+<<<<<<< HEAD
+            <state relative-caret-position="343">
+              <caret line="625" column="18" selection-start-line="625" selection-start-column="18" selection-end-line="625" selection-end-column="18" />
+=======
+            <state relative-caret-position="703">
+              <caret line="569" column="2" selection-start-line="569" selection-start-column="2" selection-end-line="569" selection-end-column="2" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
               <folding>
                 <element signature="e#9#15#0" expanded="true" />
                 <element signature="e#9#15#0" expanded="true" />
@@ -119,17 +249,27 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mine_the_gap/templates/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="9" column="23" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="23" />
+<<<<<<< HEAD
+            <state relative-caret-position="398">
+              <caret line="112" column="101" selection-start-line="112" selection-start-column="98" selection-end-line="112" selection-end-column="101" />
+=======
+            <state relative-caret-position="375">
+              <caret line="116" column="36" lean-forward="true" selection-start-line="116" selection-start-column="36" selection-end-line="116" selection-end-column="36" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mine_the_gap/static/css/main.css">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+            <state relative-caret-position="315">
+              <caret line="21" column="18" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
+=======
             <state relative-caret-position="15">
-              <caret line="1" column="18" selection-start-line="1" selection-start-column="18" selection-end-line="1" selection-end-column="18" />
+              <caret line="1" column="22" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
             </state>
           </provider>
         </entry>
@@ -148,18 +288,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>json.dumps</find>
-      <find>json.loads</find>
-      <find>Sensor</find>
-      <find>self.sensor</find>
-      <find>initialise_slider</find>
-      <find>loader</find>
-      <find>fixed</find>
-      <find>oute</find>
-      <find>filepaths</find>
-      <find>join</find>
+<<<<<<< HEAD
+=======
       <find>po</find>
       <find>setView</find>
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
       <find>regions</find>
       <find>sensors</find>
       <find>alert</find>
@@ -178,6 +311,21 @@
       <find>value</find>
       <find>estimation-method-label</find>
       <find>field-selector-button</find>
+      <find>data</find>
+      <find>estimatedDataUrl</find>
+      <find>class=&quot;table</find>
+      <find>extra</find>
+      <find>popupCo</find>
+      <find>timestampList</find>
+      <find>writerow</find>
+      <find>distinct</find>
+      <find>file</find>
+      <find>_file</find>
+<<<<<<< HEAD
+      <find>geojson</find>
+      <find>.geojson</find>
+=======
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -215,15 +363,24 @@
         <option value="$PROJECT_DIR$/mine_the_gap/region_estimator_factory.py" />
         <option value="$PROJECT_DIR$/mine_the_gap/region_estimators/region_estimator_factory.py" />
         <option value="$PROJECT_DIR$/geo_sensor_gaps/settings/base.py" />
-        <option value="$PROJECT_DIR$/geo_sensor_gaps/urls.py" />
         <option value="$PROJECT_DIR$/mine_the_gap/region_estimators/region_estimator.py" />
         <option value="$PROJECT_DIR$/mine_the_gap/region_estimators/diffusion_estimator.py" />
-        <option value="$PROJECT_DIR$/mine_the_gap/models.py" />
-        <option value="$PROJECT_DIR$/mine_the_gap/views.py" />
         <option value="$PROJECT_DIR$/mine_the_gap/region_estimators/distance_simple_estimator.py" />
-        <option value="$PROJECT_DIR$/mine_the_gap/static/js/main.js" />
-        <option value="$PROJECT_DIR$/mine_the_gap/templates/index.html" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/mine_the_gap/static/css/main.css" />
+        <option value="$PROJECT_DIR$/mine_the_gap/models.py" />
+        <option value="$PROJECT_DIR$/geo_sensor_gaps/urls.py" />
+        <option value="$PROJECT_DIR$/mine_the_gap/templates/index.html" />
+        <option value="$PROJECT_DIR$/mine_the_gap/static/js/main.js" />
+        <option value="$PROJECT_DIR$/mine_the_gap/views.py" />
+=======
+        <option value="$PROJECT_DIR$/mine_the_gap/static/js/main.js" />
+        <option value="$PROJECT_DIR$/mine_the_gap/static/css/main.css" />
+        <option value="$PROJECT_DIR$/mine_the_gap/views.py" />
+        <option value="$PROJECT_DIR$/mine_the_gap/models.py" />
+        <option value="$PROJECT_DIR$/mine_the_gap/templates/index.html" />
+        <option value="$PROJECT_DIR$/geo_sensor_gaps/urls.py" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
       </list>
     </option>
   </component>
@@ -234,10 +391,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="220" />
-    <option name="y" value="113" />
-    <option name="width" value="1717" />
-    <option name="height" value="910" />
+    <option name="y" value="-28" />
+    <option name="width" value="1920" />
+    <option name="height" value="1108" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -261,13 +417,13 @@
             <path>
               <item name="geo_sensor_gaps" type="b2602c69:ProjectViewProjectNode" />
               <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
-              <item name="mine_the_gap" type="462c0819:PsiDirectoryNode" />
+              <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
+              <item name="settings" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="geo_sensor_gaps" type="b2602c69:ProjectViewProjectNode" />
               <item name="geo_sensor_gaps" type="462c0819:PsiDirectoryNode" />
               <item name="mine_the_gap" type="462c0819:PsiDirectoryNode" />
-              <item name="region_estimators" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -408,7 +564,7 @@
     <frame x="0" y="28" width="1920" height="1018" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49941108" visible="true" weight="0.19284189" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49941108" visible="true" weight="0.19711539" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50058895" side_tool="true" weight="0.16025642" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -674,13 +830,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/production.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="8" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/local.template">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="491">
@@ -700,27 +849,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mine_the_gap/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/local.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="731">
-          <caret line="76" column="1" selection-start-line="76" selection-start-column="1" selection-end-line="76" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
-          <caret line="53" column="61" selection-start-line="53" selection-start-column="61" selection-end-line="53" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/dev.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mine_the_gap/urls.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -743,52 +871,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
           <caret line="10" column="63" selection-start-line="10" selection-start-column="63" selection-end-line="10" selection-end-column="63" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="35" column="108" lean-forward="true" selection-start-line="35" selection-start-column="108" selection-end-line="35" selection-end-column="108" />
-          <folding>
-            <element signature="e#639#671#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mine_the_gap/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="675">
-          <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-            <marker date="1573989181965" expanded="true" signature="168:439" ph="..." />
-            <marker date="1573989181965" expanded="true" signature="620:626" ph="..." />
-            <marker date="1573989181965" expanded="true" signature="960:964" ph="..." />
-            <marker date="1573989181965" expanded="true" signature="1389:1900" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mine_the_gap/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="581">
-          <caret line="189" column="16" selection-start-line="189" selection-start-column="16" selection-end-line="189" selection-end-column="16" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-            <marker date="1574016084871" expanded="true" signature="2004:2197" ph="..." />
-            <marker date="1574016084871" expanded="true" signature="8292:8294" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mine_the_gap/region_estimators/diffusion_estimator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="641">
-          <caret line="68" column="84" selection-start-line="68" selection-start-column="75" selection-end-line="68" selection-end-column="84" />
         </state>
       </provider>
     </entry>
@@ -796,16 +878,89 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
           <caret line="44" column="54" selection-start-line="44" selection-start-column="54" selection-end-line="44" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/region_estimators/diffusion_estimator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="700">
+          <caret line="70" column="53" lean-forward="true" selection-start-line="70" selection-start-column="53" selection-end-line="70" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/dev.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/local.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1140">
+          <caret line="76" column="1" selection-start-line="76" selection-start-column="1" selection-end-line="76" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/production.py">
+      <provider selected="true" editor-type-id="text-editor">
+=======
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-365">
+          <caret line="53" column="61" selection-start-line="53" selection-start-column="61" selection-end-line="53" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/dev.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/local.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1140">
+          <caret line="76" column="1" selection-start-line="76" selection-start-column="1" selection-end-line="76" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/production.py">
+      <provider selected="true" editor-type-id="text-editor">
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
+        <state>
+          <caret lean-forward="true" />
           <folding>
-            <element signature="e#0#73#0" expanded="true" />
+            <element signature="e#0#56#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/static/css/main.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="18" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/settings/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="700">
+          <caret line="124" column="10" selection-start-line="124" selection-end-line="124" selection-end-column="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mine_the_gap/static/js/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="602">
-          <caret line="95" column="30" selection-start-line="95" selection-start-column="30" selection-end-line="95" selection-end-column="30" />
+<<<<<<< HEAD
+        <state relative-caret-position="343">
+          <caret line="625" column="18" selection-start-line="625" selection-start-column="18" selection-end-line="625" selection-end-column="18" />
+=======
+        <state relative-caret-position="703">
+          <caret line="569" column="2" selection-start-line="569" selection-start-column="2" selection-end-line="569" selection-end-column="2" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
           <folding>
             <element signature="e#9#15#0" expanded="true" />
             <element signature="e#9#15#0" expanded="true" />
@@ -815,17 +970,95 @@
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/mine_the_gap/templates/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="9" column="23" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="23" />
+        <state relative-caret-position="398">
+          <caret line="112" column="101" selection-start-line="112" selection-start-column="98" selection-end-line="112" selection-end-column="101" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="43" column="30" selection-start-line="43" selection-start-column="30" selection-end-line="43" selection-end-column="30" />
+          <folding>
+            <element signature="e#639#671#0" expanded="true" />
+=======
     <entry file="file://$PROJECT_DIR$/mine_the_gap/static/css/main.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
-          <caret line="1" column="18" selection-start-line="1" selection-start-column="18" selection-end-line="1" selection-end-column="18" />
+          <caret line="1" column="22" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="35" lean-forward="true" selection-start-line="7" selection-start-column="35" selection-end-line="7" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <marker date="1574581812328" expanded="true" signature="180:467" ph="..." />
+            <marker date="1574581812328" expanded="true" signature="648:654" ph="..." />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
+          </folding>
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="383">
+          <caret line="30" column="75" selection-start-line="30" selection-start-column="75" selection-end-line="30" selection-end-column="75" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <marker date="1574596893625" expanded="true" signature="180:467" ph="..." />
+            <marker date="1574596893625" expanded="true" signature="648:654" ph="..." />
+            <marker date="1574596893625" expanded="true" signature="988:994" ph="..." />
+=======
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="564">
+          <caret line="134" column="8" selection-start-line="134" selection-start-column="8" selection-end-line="134" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+            <marker date="1574583586209" expanded="true" signature="3197:3310" ph="..." />
+            <marker date="1574583586209" expanded="true" signature="5722:5943" ph="..." />
+            <marker date="1574583586209" expanded="true" signature="8617:8620" ph="..." />
+            <marker date="1574583586209" expanded="true" signature="8697:8702" ph="..." />
+            <marker date="1574583586209" expanded="true" signature="11268:11270" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/geo_sensor_gaps/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+          <folding>
+            <element signature="e#639#671#0" expanded="true" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mine_the_gap/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="1625">
+          <caret line="186" column="70" selection-start-line="186" selection-start-column="70" selection-end-line="186" selection-end-column="70" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+            <marker date="1574606085914" expanded="true" signature="3307:3420" ph="..." />
+            <marker date="1574606085914" expanded="true" signature="9330:9551" ph="..." />
+            <marker date="1574606085914" expanded="true" signature="12225:12228" ph="..." />
+            <marker date="1574606085914" expanded="true" signature="12305:12310" ph="..." />
+            <marker date="1574606085914" expanded="true" signature="14876:14878" ph="..." />
+          </folding>
+=======
+        <state relative-caret-position="375">
+          <caret line="116" column="36" lean-forward="true" selection-start-line="116" selection-start-column="36" selection-end-line="116" selection-end-column="36" />
+>>>>>>> 9332ab30c0efb670807ef9c441d34710bdcc38a9
         </state>
       </provider>
     </entry>

@@ -2,14 +2,22 @@ from django.shortcuts import render
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from slugify import slugify
-from io import TextIOWrapper
+from django.core.files import temp as tempfile
 
+from django.conf import settings
+
+from django.core.files.storage import default_storage
+
+from slugify import slugify
 import csv
 import json
+import pandas as pd
+import os
+from io import TextIOWrapper
+
 
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value
@@ -27,13 +35,13 @@ def home_page(request):
                 filenames = Filenames()
 
             if form.cleaned_data.get("sensor_data_file"):
-                filenames.sensor_data_file = form.cleaned_data.get("sensor_data_file")
+                filenames.sensor_data_filename = form.cleaned_data.get("sensor_data_file")
             if form.cleaned_data.get("actual_data_file"):
-                filenames.actual_data_file = form.cleaned_data.get("actual_data_file")
+                filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
             if form.cleaned_data.get("region_data_file"):
-                filenames.region_data_file = form.cleaned_data.get("region_data_file")
+                filenames.region_data_filename = form.cleaned_data.get("region_data_file")
             if form.cleaned_data.get("estimated_data_file"):
-                filenames.estimated_data_file = form.cleaned_data.get("estimated_data_file")
+                filenames.estimated_data_filename = form.cleaned_data.get("estimated_data_file")
             filenames.save()
 
             return HttpResponseRedirect(request.path_info)
@@ -47,14 +55,7 @@ def home_page(request):
     return render(request, 'index.html', context)
 
 
-def get_measurement_names():
-    query_set = Actual_value.objects.distinct('measurement_name')
-    result = []
 
-    for idx, item in enumerate(query_set):
-        result.append(item.measurement_name)
-
-    return result
 
 
 def get_sensor_fields(request):
@@ -79,7 +80,133 @@ def get_sensor_fields(request):
     #print(str(result))
     return JsonResponse(result, safe=False)
 
+
+def get_all_data_at_timestamp(request, method_name, timestamp_idx, measurement):
+    data = {
+                'actual_data': actuals_at_timestamp(request, timestamp_idx, measurement),
+                'estimated_data': estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
+    }
+    return JsonResponse(data, safe=False)
+
 def get_actuals_at_timestamp(request, timestamp_idx, measurement):
+    data = actuals_at_timestamp(request, timestamp_idx, measurement)
+    return JsonResponse(data, safe=False)
+
+def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
+    data = estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
+    return JsonResponse(data, safe=False)
+
+
+
+def get_sensors_file(request, file_type):
+    try:
+        # Create the HttpResponse object with the appropriate CSV header.
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(
+                Filenames.objects.first().sensor_data_filename)  # 'x') #force error for testing
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
+            response['Content-Disposition'] = 'attachment; filename="sensor_metadata.json"'
+
+    except Exception as err:
+        response =  HttpResponseServerError('Unable to open sensor metadata file: ' + str(err))
+
+    return response
+
+
+def get_regions_file(request, file_type):
+    try:
+        # Create the HttpResponse object with the appropriate CSV header.
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(Filenames.objects.first().region_data_filename)
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
+            response['Content-Disposition'] = 'attachment; filename="region_metadata.json"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to open region metadata file: ' + str(err))
+
+    return response
+
+
+def get_actuals_file(request, file_type):
+    try:
+        # Create the HttpResponse object with the appropriate CSV header.
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(Filenames.objects.first().actual_data_filename)
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().actual_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
+            response['Content-Disposition'] = 'attachment; filename="sensor_data.json"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to open sensor data file: ' + str(err))
+
+    return response
+
+def get_estimates_file(request, file_type):
+    try:
+        # Create the HttpResponse object with the appropriate CSV header.
+        if file_type.lower() == 'csv':
+            #  Reading file from storage
+            csv_file = default_storage.open(Filenames.objects.first().estimated_data_filename)
+            response = HttpResponse(csv_file, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
+        elif file_type.lower() == 'json':
+            csv_file = pd.DataFrame(
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().estimated_data_filename), sep=",",
+                            header=0, index_col=False))
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
+                             force_ascii=True, date_unit="ms", default_handler=None)
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
+                response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
+            response['Content-Disposition'] = 'attachment; filename="region_estimated_data.json"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
+
+    return response
+
+
+
+def get_measurement_names():
+    query_set = Actual_value.objects.distinct('measurement_name')
+    result = []
+
+    for idx, item in enumerate(query_set):
+        result.append(item.measurement_name)
+
+    return result
+
+
+def actuals_at_timestamp(request, timestamp_idx, measurement):
     timestamps = get_timestamp_list()
     data = []
     measurement = measurement.strip()
@@ -112,7 +239,7 @@ def get_actuals_at_timestamp(request, timestamp_idx, measurement):
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
-    return JsonResponse(data, safe=False)
+    return data
 
 
 def select_sensor(sensor, params):
@@ -158,8 +285,7 @@ def filter_sensors(sensors, params):
 
     return sensors
 
-
-def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
+def estimates_at_timestamp(request, method_name, timestamp_idx, measurement):
     data = []
     measurement = measurement.strip()
     timestamps = get_timestamp_list()
@@ -208,7 +334,7 @@ def get_estimates_at_timestamp(request, method_name, timestamp_idx, measurement)
                 row['percent_score'] = percentage_score
                 data.append(row)
 
-    return JsonResponse(data, safe=False)
+    return data
 
 
 
@@ -247,15 +373,16 @@ def handle_uploaded_files(request):
         filepath_sensor, filepath_actual = False,False
         print(err)
     else:
+        #  Saving POST'ed file to storage
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
 
-
-        file = TextIOWrapper(filepath_sensor.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_sensors = TextIOWrapper(filepath_sensor.file, encoding=request.encoding)
+        reader = csv.reader(file_sensors)
         field_titles = next(reader, None)  # skip the headers
 
         #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
+
 
         extra_field_idxs = []
 
@@ -288,15 +415,12 @@ def handle_uploaded_files(request):
                 continue
 
 
-        file = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
+        reader = csv.reader(file_actual)
         field_titles = next(reader, None)  # skip the headers
 
         value_idxs = []
-        extra_field_idxs = []
         timestamp_idx = None
-        long_idx = None
-        lat_idx = None
         sensor_name_idx = None
 
         # Find the fields in the file
@@ -306,25 +430,13 @@ def handle_uploaded_files(request):
                 value_idxs.append(idx)
             elif title == 'time_stamp':
                 timestamp_idx = idx
-            elif title == 'long':
-                long_idx = idx
-            elif title == 'lat':
-                lat_idx = idx
             elif title == 'sensor_name':
                 sensor_name_idx = idx
-            else:
-                extra_field_idxs.append(idx)
 
 
         # Read in the data
         for row in reader:
             try:
-                extra_data = {}
-                for idx in extra_field_idxs:
-                    item = field_titles[idx]
-                    extra_data[item] = row[idx]
-
-                #point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
                 sensor_name = row[sensor_name_idx]
 
                 try:
@@ -346,8 +458,7 @@ def handle_uploaded_files(request):
                                 name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
                                 actual_value = Actual_value(    measurement_name=name,
                                                                 value = fvalue,
-                                                                actual_data = actual,
-                                                                extra_data = extra_data
+                                                                actual_data = actual
                                 )
                                 actual_value.save()
 
@@ -355,7 +466,8 @@ def handle_uploaded_files(request):
                 print('Error loading actuals:', err)
                 continue
 
-
+        default_storage.save(filepath_sensor.name, filepath_sensor.file)
+        default_storage.save(filepath_actual.name, filepath_actual.file)
 
     try:
         filepath_estimated = request.FILES['estimated_data_file']
@@ -363,14 +475,15 @@ def handle_uploaded_files(request):
     except Exception:
         filepath_estimated, filepath_region = False, False
     else:
+
         #Get all sensor measurement names (only accept estimations of values that we have sensors for)
         sensor_measurements = get_measurement_names()
 
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
 
-        file = TextIOWrapper(filepath_region.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_regions = TextIOWrapper(filepath_region.file, encoding=request.encoding)
+        reader = csv.reader(file_regions)
         field_titles = next(reader, None)  # skip the headers
         #print('field titles:', field_titles)
 
@@ -418,8 +531,8 @@ def handle_uploaded_files(request):
                 #print('Region file error. Row: ', row[0])
                 continue
 
-        file = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
-        reader = csv.reader(file)
+        file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
+        reader = csv.reader(file_estimates)
         field_titles = next(reader, None)  # skip the headers
         #print('field titles:', field_titles)
 
@@ -452,7 +565,6 @@ def handle_uploaded_files(request):
             if measurement_name not in extra_data_idxs:
                 extra_data_idxs[measurement_name] = {}
             extra_data_idxs[measurement_name][extra_data_field] = extra_idx
-        print('extra data fields:', json.dumps(extra_data_idxs))
 
 
 
@@ -496,7 +608,8 @@ def handle_uploaded_files(request):
                 print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
                 continue
 
-
+        default_storage.save(filepath_region.name, filepath_region.file)
+        default_storage.save(filepath_estimated.name, filepath_estimated.file)
 
 
 

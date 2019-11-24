@@ -6,44 +6,6 @@ $(document).ready(function(){
     var regionsLayer = new L.LayerGroup();
     var regions = {};
 
-    // ******************************************************************
-    // ****************** CSRF-TOKEN SET-UP *****************************
-    // ******************************************************************
-
-   // using jQuery
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-    // ******************************************************************
-    // ****************** CSRF-TOKEN END *****************************
-    // ******************************************************************
-
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
 
@@ -61,20 +23,18 @@ $(document).ready(function(){
         }
     });
 
-
     $("div#select-files").hide();
     // Upload files toggle button
     $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');
     });
 
-    var curEstimatedDataUrl = estimatedDataUrl + '/file/';
-    var curActualDataUrl = actualDataUrl + '/';
+    var curDataUrl = dataUrl + '/file/';
 
     $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
+        curDataUrl = dataUrl + '/' + this.value + '/';
         update_timeseries_map()
     });
 
@@ -99,6 +59,9 @@ $(document).ready(function(){
     });
 
 
+    // Downlaod data functions
+
+
 
 
     //Create map
@@ -121,6 +84,121 @@ $(document).ready(function(){
 
     initialise_sensor_fields();
 
+    function initialise_sensor_fields(){
+        /*
+                Add Sensor fields (to UI sensor selection/filtering mechanism)
+
+         */
+
+        $.getJSON(sensorFieldsUrl, function (data) {
+            // Add GeoJSON layer
+            //alert(JSON.stringify(data));
+
+            // Create the table for sensor fields
+            var sensor_fields = '<table class="table table-striped">';
+
+            for (var i=0; i<data.length; i++){
+                var fieldName = data[i];
+
+                // Add sensor field data to the table
+                var row = '<tr class="select-button-row">' +
+                    '<td class="field-name">' + fieldName + '</td>' +
+                    '<td id="'+ fieldName + '-used' +'" class="field-used"></td></tr>';
+                sensor_fields += row;
+                // Add user input fields for selecting sensors
+                var rows =
+                    '<tr class="select-field-instructions info">' +
+                        '<td></td>' +
+                        '<td><div id="sensor-select-instructions">' +
+                            '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
+                                '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
+                                '(\'Omit values\' ignored if both used)' +
+                    '       </em></div>' +
+                    '   </td>' +
+                    '</tr>' +
+                    '<tr id="' + fieldName + '-select' + '" class="selector-field info">' +
+                        '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>' +
+                    '<tr id="' + fieldName + '-omit' + '" class="omittor-field info">' +
+                    '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                    '</tr>';
+                sensor_fields += rows;
+            }
+            sensor_fields += '</table>';
+
+            // Add the table and instructions to the html div
+            $('#collapseFilterSensors').html(sensor_fields);
+
+            // Toggle the field selector / omittor fields (and instructions div) until required
+            $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
+
+            $("table .select-button-row").on('click', function(){
+                $(this).nextUntil("tr.select-button-row").toggle('slow');
+            });
+
+            // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
+            $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
+                if(e.keyCode === 13){ // Enter key
+                    var prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').val();
+
+                    var fieldNameId = this.closest('tr').id;
+                    var fieldName2 = fieldNameId.substr(0, fieldNameId.indexOf('-'));
+                    var selectOrOmit = fieldNameId.substr(fieldNameId.indexOf('-')+1);
+
+                    var selectText = $('tr#' + fieldName2 + '-select input').val();
+                    var omitText = $('tr#' + fieldName2 + '-omit input').val();
+
+                    if( selectText.trim() !== '' && check_sensor_select_params(selectText) === true) {
+                        var newVal = '<em>Select: [' + selectText+ ']</em>';
+                        $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                    }else{
+                        if( omitText.trim() !== '' && check_sensor_select_params(omitText) === true) {
+                            var newVal = '<em>Omit: [' + omitText + ']</em>';
+                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                        }else{
+                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html('');
+                        }
+                    }
+
+                    if(newVal !== prevVal){
+                        update_timeseries_map(document.getElementById("timestamp-range").value);
+                    }
+                }
+            });
+        });
+    }
+
+    function get_sensor_select_url_params(){
+        var result = {'selectors':[]};
+        $('#sensor-field-data table td.field-name').each(function(index){
+            var fieldDict = {};
+            var fieldName = $(this).html();
+            var dictFieldName = {};
+
+            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
+            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field') .first().find('input').val().trim();
+            var fieldSelectorsJson = fieldSelectors.split(',').filter(Boolean);
+            var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
+
+            if (fieldSelectorsJson.length > 0){
+                dictFieldName['select_sensors'] = fieldSelectorsJson;
+            }else{
+                if (fieldOmittorsJson.length > 0) {
+                    dictFieldName['omit_sensors'] = fieldOmittorsJson;
+                }
+            }
+            if(Object.keys(dictFieldName).length > 0){
+                fieldDict[fieldName] = dictFieldName;
+                result['selectors'].push(fieldDict);
+            }
+        });
+        return result;
+    }
+
+    function check_sensor_select_params(paramString){
+        // Must return true for empty string
+        return true;
+    }
 
     function initialise_sensor_fields(){
         /*
@@ -259,8 +337,7 @@ $(document).ready(function(){
 
     function update_timeseries_map(timeseries_idx=document.getElementById("timestamp-range").value,
                                    measurement=$("input[name='measurement']:checked").val()){
-        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
-        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
+        var dataUrl = curDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
 
@@ -285,16 +362,18 @@ $(document).ready(function(){
 
 
         $.ajax({
-            url: actualDataUrl,
+            url: dataUrl,
             data:JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
             timeout: 20000,
             success: function (data) {
+                var actualData = data['actual_data'];
+                var estimatedData = data['estimated_data'];
 
                 /*[
-                    {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
+                    {   "extra_data":"{"region":"AB"}",
                         "value":66,
                         "timestamp":"2017-01-01 00:00:00+00",
                         "percent_score":0.436241610738255,
@@ -306,8 +385,8 @@ $(document).ready(function(){
                   ]
                 */
 
-                for (var i=0; i<data.length; i++){
-                    var loc = data[i];
+                for (var i=0; i<actualData.length; i++){
+                    var loc = actualData[i];
                     /*if(i==0) {
                         alert(JSON.stringify(loc, null, 1));
                     };*/
@@ -345,7 +424,14 @@ $(document).ready(function(){
                     extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
                     extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
                     for (var key in loc['extra_data']){
-                        extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                        if(loc['extra_data'][key] != null) {
+                            extraData += '<tr><th>' + key + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
+                        }
+                    };
+                    for (var key in loc['sensor_extra_data']){
+                        if(loc['sensor_extra_data'][key] != null && loc['sensor_extra_data'][key] != '') {
+                            extraData += '<tr><th>' + key + '</th><td>' + loc['sensor_extra_data'][key] + '</td></tr>';
+                        }
                     };
                     extraData += '</table>';
 
@@ -354,30 +440,7 @@ $(document).ready(function(){
                     sensorsLayer.addLayer(marker);
                 };
                 sensorsLayer.addTo(map);
-            },
-            error: function (request, state, errors) {
-                    alert("There was an problem fetching the sensor data: " + errors.toString());
-            },
-            complete: function (request, status) {
-                    // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                }
-            }
-        });
 
-        // Set up loader display
-        drawLoader(loaderDiv, '<p>Collecting estimation data...</p>');
-
-
-        $.ajax({
-            url: estimatedDataUrl,
-            data: JSON.stringify(jsonParams),
-            headers: {"X-CSRFToken": csrftoken},
-            dataType: 'json',
-            method: 'POST',
-            timeout: 20000,
-            success: function (data) {
 
                 /*[
                     {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
@@ -394,7 +457,7 @@ $(document).ready(function(){
                             [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
                             [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
                             [-0.2533,51.7197],[-0.25616,51.71952]]]],
-                         "extra_data":"['1']",
+                         "extra_data":"{'rings':'1'}",
                          "timestamp":"2017-08-22 00:00:00+00",
                          "percent_score": 0.33557046979865773
                      }
@@ -402,16 +465,17 @@ $(document).ready(function(){
                 */
 
                 // Update regions to show values
-                for (var i=0; i<data.length; i++){
-                    var region = data[i];
-                    //if (i==0){
-                    //    alert(JSON.stringify(region));
-                    //}
+                for (var i=0; i<estimatedData.length; i++){
+                    var region = estimatedData[i];
+                    /*if (i==0){
+                        alert(JSON.stringify(region));
+                    }*/
 
                     var layer = regions[region.region_id];
                     if (layer == null){
-                        alert(region.region_id);
-                        alert(JSON.stringify(region));
+                        //alert(region.region_id);
+                        //alert(JSON.stringify(region));
+                        continue;
                     }
 
                     if (region.value == null){
@@ -442,7 +506,7 @@ $(document).ready(function(){
                 }
             },
             error: function (request, state, errors) {
-                    alert("There was an problem fetching the estimation data: " + errors.toString());
+                    alert("There was an problem fetching the data: " + errors.toString());
             },
             complete: function (request, status) {
                     // Clear Loader
@@ -451,8 +515,6 @@ $(document).ready(function(){
                 }
             }
         });
-
-
 
     }
 
@@ -529,14 +591,14 @@ $(document).ready(function(){
                 var geoLayer = L.geoJson(
                     data,
                     {   onEachFeature: function (feature, layer) {
-                            regions[feature.properties.popupContent.region_id] = layer;
+                            regions[feature.properties.popup_content.region_id] = layer;
                             layer.setStyle({
                                 'fillColor': 'transparent',
                                 'weight': '1'
                               });
                             var extraData = '<table class="table table-striped">';
-                            for (var key in feature.properties.popupContent.extra_data){
-                                extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
+                            for (var key in feature.properties.popup_content.extra_data){
+                                extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popup_content.extra_data[key] + '</td></tr>';
                             };
                             extraData += '</table>';
                             layer.on('mouseover', function () {
@@ -545,7 +607,7 @@ $(document).ready(function(){
                                       'weight': '5'
                                   });
                                   $('#region-data').html(
-                                      '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
+                                      '<p><b>Region: </b>' + feature.properties.popup_content.region_id + '</p>' +
                                       extraData
                                   );
                             });
@@ -560,17 +622,196 @@ $(document).ready(function(){
                 );
                 regionsLayer.addLayer(geoLayer);
                 regionsLayer.addTo(map);
+            },
+            error: function (request, state, errors) {
+                    alert("There was an problem fetching the region meta-data: " + errors.toString());
+            },
+            complete: function (request, status) {
+                    // Clear Loader
+                while (loaderOuterDiv.firstChild) {
+                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                }
             }
         });
-        //$.getJSON(regionDataUrl, function (data) {
-        //});
-
-        while (loaderOuterDiv.firstChild) {
-            loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-        }
-    }
-
+    };
 });
+
+// File downloads
+
+
+
+function download_csv(url, filename){
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 60000,
+        async: true,
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+            link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the CSV data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
+
+function download_geojson(url, filename){
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        async: true,
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the GeoJSON data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
+
+
+function download_json(url, filename){
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 90000,
+        async: true,
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the JSON data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
+
+
+// File downloads
+
+function get_csv(url, filename='data.csv', jsonParams={}){
+    // Show save dialogue
+
+
+
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Downloading data...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        data: JSON.stringify(jsonParams),
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 40000,
+        async: false,
+        success: function (data) {
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+
+            link = document.createElement('a');
+            link.setAttribute('href', data);
+            link.setAttribute('download', filename);
+            link.click();
+
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+};
+
 
 function getGreenToRed(percent){
     g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
@@ -653,13 +894,40 @@ function dragElement(elmnt) {
 }
 
 
+// ******************************************************************
+    // ****************** CSRF-TOKEN SET-UP *****************************
+    // ******************************************************************
 
+   // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
 
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
 
-
-
-
-
-
-
-
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    // ******************************************************************
+    // ********************* CSRF-TOKEN END *****************************
+    // ******************************************************************

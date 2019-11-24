@@ -4,10 +4,10 @@ from django.contrib.gis.db import models as gismodels
 
 
 class Filenames(models.Model):
-    actual_data_file = models.CharField(max_length=50, null=True)
-    sensor_data_file = models.CharField(max_length=50, null=True)
-    estimated_data_file = models.CharField(max_length=50, null=True)
-    region_data_file = models.CharField(max_length=50, null=True)
+    actual_data_filename = models.CharField(max_length=50, null=True)
+    sensor_data_filename = models.CharField(max_length=50, null=True)
+    estimated_data_filename = models.CharField(max_length=50, null=True)
+    region_data_filename = models.CharField(max_length=50, null=True)
 
 
 
@@ -17,10 +17,11 @@ class Sensor(gismodels.Model):
     extra_data = JSONField(null=True)
 
     @property
-    def popupContent(self):
+    def popup_content(self):
         return {'sensor_id': self.id,
                 'name': self.name,
                 'extra_data': self.extra_data}
+
 
 
 
@@ -33,15 +34,14 @@ class Actual_data(gismodels.Model):
         return {'timestamp': self.timestamp,
                 'name': self.sensor.name,
                 'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords}
-
+                'geom': self.sensor.geom.coords,
+                'sensor_extra_data': self.sensor.extra_data}
 
 
 class Actual_value(gismodels.Model):
     actual_data = models.ForeignKey(Actual_data, null=True, on_delete=models.CASCADE)
     measurement_name = models.CharField(max_length=30, null=False, db_index=True)
     value = models.FloatField(null=True)
-    extra_data = JSONField(null=True)
 
     @property
     def join_sensor(self):
@@ -52,8 +52,7 @@ class Actual_value(gismodels.Model):
         result = self.actual_data.join_sensor
         result.update({'measurement_name': self.measurement_name,
                        'value': fvalue,
-                       'actual_data_id': self.actual_data_id,
-                       'extra_data': self.extra_data})
+                       'actual_data_id': self.actual_data_id})
         return result
 
 
@@ -61,14 +60,14 @@ class Actual_value(gismodels.Model):
 
 class Region(gismodels.Model):
     region_id = models.CharField(max_length=30, primary_key=True)
-    geom = gismodels.MultiPolygonField(max_length=2000, null=False)
+    geom = gismodels.MultiPolygonField(null=False)
     extra_data = JSONField(null=True)
 
     def __unicode__(self):
         return self.region_label
 
     @property
-    def popupContent(self):
+    def popup_content(self):
         return {'region_id': self.region_id, 'extra_data': self.extra_data}
 
     @property
