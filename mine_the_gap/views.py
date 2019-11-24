@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.core.files import temp as tempfile
 
 from django.core.files.storage import default_storage
 from django.conf import settings
@@ -107,10 +108,11 @@ def get_sensors_file(request, file_type):
             csv_file = pd.DataFrame(
                 pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_data_filename), sep=",",
                             header=0, index_col=False))
-            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
                              force_ascii=True, date_unit="ms", default_handler=None)
-            with open('temp.json') as json_file:
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
                 response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
             response['Content-Disposition'] = 'attachment; filename="sensor_metadata.json"'
 
     except Exception as err:
@@ -130,10 +132,11 @@ def get_regions_file(request, file_type):
             csv_file = pd.DataFrame(
                 pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_data_filename), sep=",",
                             header=0, index_col=False))
-            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
                              force_ascii=True, date_unit="ms", default_handler=None)
-            with open('temp.json') as json_file:
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
                 response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
             response['Content-Disposition'] = 'attachment; filename="region_metadata.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region metadata file: ' + err)
@@ -153,10 +156,11 @@ def get_actuals_file(request, file_type):
             csv_file = pd.DataFrame(
                 pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().actual_data_filename), sep=",",
                             header=0, index_col=False))
-            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
                              force_ascii=True, date_unit="ms", default_handler=None)
-            with open('temp.json') as json_file:
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
                 response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
             response['Content-Disposition'] = 'attachment; filename="sensor_data.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open sensor data file: ' + err)
@@ -176,10 +180,11 @@ def get_estimates_file(request, file_type):
             csv_file = pd.DataFrame(
                 pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().estimated_data_filename), sep=",",
                             header=0, index_col=False))
-            csv_file.to_json("temp.json", orient="records", date_format="epoch", double_precision=10,
+            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
                              force_ascii=True, date_unit="ms", default_handler=None)
-            with open('temp.json') as json_file:
+            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
                 response = HttpResponse(json_file, content_type='text/json')
+            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
             response['Content-Disposition'] = 'attachment; filename="region_estimated_data.json"'
     except Exception as err:
         response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
