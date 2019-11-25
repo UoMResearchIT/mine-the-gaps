@@ -27,7 +27,7 @@ pre {
     float:right;
 }
 
-.panel-group {
+#map-options .panel-group {
     margin-bottom: 0px;
 
 }

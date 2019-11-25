@@ -42,10 +42,6 @@ urlpatterns = [
     url(r'^sensors_metadata.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sensors_metadata'),
     url(r'^regions_metadata.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='regions_metadata'),
 
-    # Get simple json
-    path('sensors/', views.get_sensors),
-    path('regions/', views.get_regions),
-
     ## Get actual and estimated data points ##
 
     # Get data for particular measurement, timestamp and region / sensor  (and estimation method for estimated_data)
@@ -67,6 +63,14 @@ urlpatterns = [
     re_path(r'regions_metadata_file/(?P<file_type>csv|json)/', views.get_regions_file),
     re_path(r'sensors_data_file/(?P<file_type>csv|json)/', views.get_actuals_file),
     re_path(r'regions_estimates_file/(?P<file_type>csv|json)/', views.get_estimates_file),
+
+
+    #####  As file downloads above, but allow pure json (API) calls #####
+
+    re_path(r'sensors_metadata_file/', views.get_sensors_file),
+    re_path(r'regions_metadata_file/', views.get_regions_file),
+    re_path(r'sensors_data_file/', views.get_actuals_file),
+    re_path(r'regions_estimates_file/', views.get_estimates_file),
 
 
 ]
