@@ -48,7 +48,7 @@ urlpatterns = [
     ## Get actual and estimated data points ##
 
     # Get data for particular measurement, timestamp and region / sensor  (and estimation method for estimated_data)
-    path('actual_data/<slug:measurement>/<slug:timestamp_val>/<int:sensor_id>/', views.get_actuals),
+    path('actual_data/<slug:measurement>/?P<slug:timestamp_val>/?P<int:sensor_id>/', views.get_actuals),
     path('estimated_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/<slug:region_id>/', views.get_estimates),
 
     # Get data for particular measurement and timestamp  (and estimation method for estimated_data)  - ALL REGIONS

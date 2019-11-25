@@ -81,12 +81,12 @@ def get_sensor_fields(request):
     return JsonResponse(result, safe=False)
 
 
-def get_actuals(request, measurement, timestamp_val, sensor_id):
-    data = actuals(request, timestamp_val, measurement, sensor_id)
+def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
+    data = actuals(request, measurement, timestamp_val, sensor_id)
     return JsonResponse(data, safe=False)
 
-def get_estimates(request, method_name, measurement, timestamp_val, region_id):
-    data = estimates(request, method_name, timestamp_val, measurement, region_id)
+def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
+    data = estimates(request, method_name, measurement, timestamp_val, region_id)
     return JsonResponse(data, safe=False)
 
 
@@ -257,13 +257,13 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
                                                        estimated_data__region_id=region_id)
 
         elif timestamp_val:
-            query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                    estimated_data__timestamp=str(timestamp_val))
+            query_set = Estimated_value.objects.filter(measurement_name=measurement,
+                                                       estimated_data__timestamp=str(timestamp_val))
         elif region_id:
-            query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                    actual_data__sensor_id=region_id)
+            query_set = Estimated_value.objects.filter(measurement_name=measurement,
+                                                       actual_data__sensor_id=region_id)
         else:
-            query_set = Actual_value.objects.filter(measurement_name=measurement)
+            query_set = Estimated_value.objects.filter(measurement_name=measurement)
 
 
         for row in query_set.iterator():
