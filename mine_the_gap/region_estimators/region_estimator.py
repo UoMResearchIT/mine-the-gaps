@@ -8,11 +8,11 @@ class Region_estimator(object):
         self.sensors = sensors
 
     @abstractmethod
-    def get_all_region_estimations(self, timestamp, measurement):
+    def get_all_region_estimations(self, measurement, timestamp=None):
         pass
 
     @abstractmethod
-    def get_region_estimation(self, timestamp, measurement, region_id):
+    def get_region_estimation(self, measurement, region_id, timestamp=None):
         pass
 
 

@@ -12,7 +12,7 @@ class Diffusion_estimator(Region_estimator):
     class Factory:
         def create(self, sensors): return Diffusion_estimator(sensors)
 
-    def get_all_region_estimations(self, timestamp, measurement):
+    def get_all_region_estimations(self, measurement, timestamp=None):
         result = []
 
         query_set = Region.objects.all()
@@ -25,7 +25,7 @@ class Diffusion_estimator(Region_estimator):
 
         return result
 
-    def get_region_estimation(self, timestamp, measurement, region_id):
+    def get_region_estimation(self, measurement, region_id, timestamp=None):
         result = []
 
         region = Region.objects.get(region_id = region_id)
