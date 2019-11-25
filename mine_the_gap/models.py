@@ -5,9 +5,9 @@ from django.contrib.gis.db import models as gismodels
 
 class Filenames(models.Model):
     actual_data_filename = models.CharField(max_length=50, null=True)
-    sensor_data_filename = models.CharField(max_length=50, null=True)
+    sensor_metadata_filename = models.CharField(max_length=50, null=True)
     estimated_data_filename = models.CharField(max_length=50, null=True)
-    region_data_filename = models.CharField(max_length=50, null=True)
+    region_metadata_filename = models.CharField(max_length=50, null=True)
 
 
 
@@ -37,6 +37,12 @@ class Actual_data(gismodels.Model):
                 'geom': self.sensor.geom.coords,
                 'sensor_extra_data': self.sensor.extra_data}
 
+    @property
+    def join_sensor_lite(self):
+        return {'timestamp': self.timestamp,
+                'name': self.sensor.name,
+                'sensor_id': self.sensor_id}
+
 
 class Actual_value(gismodels.Model):
     actual_data = models.ForeignKey(Actual_data, null=True, on_delete=models.CASCADE)
@@ -53,6 +59,17 @@ class Actual_value(gismodels.Model):
         result.update({'measurement_name': self.measurement_name,
                        'value': fvalue,
                        'actual_data_id': self.actual_data_id})
+        return result
+
+    @property
+    def join_sensor_lite(self):
+        try:
+            fvalue = float(self.value)
+        except:
+            fvalue = None
+        result = self.actual_data.join_sensor_lite
+        result.update({'measurement_name': self.measurement_name,
+                       'value': fvalue})
         return result
 
 
@@ -88,6 +105,11 @@ class Estimated_data(gismodels.Model):
                 'geom': self.region.geom.coords,
                 'region_extra_data': self.region.extra_data}
 
+    @property
+    def join_region_lite(self):
+        return {'timestamp': self.timestamp,
+                'region_id': self.region_id}
+
 
 class Estimated_value(gismodels.Model):
     estimated_data = models.ForeignKey(Estimated_data, null=True, on_delete=models.CASCADE)
@@ -106,4 +128,15 @@ class Estimated_value(gismodels.Model):
                        'value': fvalue,
                        'estimated_data_id': self.estimated_data_id,
                        'extra_data': self.extra_data})
+        return result
+
+    @property
+    def join_region_lite(self):
+        try:
+            fvalue = float(self.value)
+        except:
+            fvalue = None
+        result = self.estimated_data.join_region_lite
+        result.update({'measurement_name': self.measurement_name,
+                       'value': fvalue})
         return result

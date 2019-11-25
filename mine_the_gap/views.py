@@ -35,11 +35,11 @@ def home_page(request):
                 filenames = Filenames()
 
             if form.cleaned_data.get("sensor_data_file"):
-                filenames.sensor_data_filename = form.cleaned_data.get("sensor_data_file")
+                filenames.sensor_metadata_filename = form.cleaned_data.get("sensor_data_file")
             if form.cleaned_data.get("actual_data_file"):
                 filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
             if form.cleaned_data.get("region_data_file"):
-                filenames.region_data_filename = form.cleaned_data.get("region_data_file")
+                filenames.region_metadata_filename = form.cleaned_data.get("region_data_file")
             if form.cleaned_data.get("estimated_data_file"):
                 filenames.estimated_data_filename = form.cleaned_data.get("estimated_data_file")
             filenames.save()
@@ -82,11 +82,11 @@ def get_sensor_fields(request):
 
 
 def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
-    data = actuals(request, measurement, timestamp_val, sensor_id)
+    data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
     return JsonResponse(data, safe=False)
 
 def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
-    data = estimates(request, method_name, measurement, timestamp_val, region_id)
+    data = estimates(request, method_name, measurement, timestamp_val=timestamp_val, region_id=region_id, return_all_fields=False)
     return JsonResponse(data, safe=False)
 
 
@@ -105,12 +105,12 @@ def get_sensors_file(request, file_type):
         if file_type.lower() == 'csv':
             #  Reading file from storage
             csv_file = default_storage.open(
-                Filenames.objects.first().sensor_data_filename)  # 'x') #force error for testing
+                Filenames.objects.first().sensor_metadata_filename)  # 'x') #force error for testing
             response = HttpResponse(csv_file, content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
         elif file_type.lower() == 'json':
             csv_file = pd.DataFrame(
-                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_data_filename), sep=",",
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_metadata_filename), sep=",",
                             header=0, index_col=False))
             csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
                              force_ascii=True, date_unit="ms", default_handler=None)
@@ -130,12 +130,12 @@ def get_regions_file(request, file_type):
         # Create the HttpResponse object with the appropriate CSV header.
         if file_type.lower() == 'csv':
             #  Reading file from storage
-            csv_file = default_storage.open(Filenames.objects.first().region_data_filename)
+            csv_file = default_storage.open(Filenames.objects.first().region_metadata_filename)
             response = HttpResponse(csv_file, content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
         elif file_type.lower() == 'json':
             csv_file = pd.DataFrame(
-                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_data_filename), sep=",",
+                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_metadata_filename), sep=",",
                             header=0, index_col=False))
             csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
                              force_ascii=True, date_unit="ms", default_handler=None)
@@ -196,7 +196,7 @@ def get_estimates_file(request, file_type):
     return response
 
 
-def actuals(request, measurement, timestamp_val=None, sensor_id=None):
+def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all_fields=False):
     data = []
     measurement = measurement.strip()
 
@@ -227,17 +227,15 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None):
         except:
             percentage_score = None
 
-        new_row = dict(row.join_sensor)
-
+        new_row = dict(row.join_sensor) if return_all_fields else dict(row.join_sensor_lite)
         new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
-
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
     return data
 
 
-def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None):
+def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False):
     data = []
     measurement = measurement.strip()
 
@@ -272,8 +270,9 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
             except:
                 percentage_score = None
 
-            new_row = dict(row.join_region)
+            new_row = dict(row.join_region) if return_all_fields else dict(row.join_region_lite)
             new_row['percent_score'] = percentage_score
+            new_row['method_name'] = method_name
             data.append(new_row)
     else:
         sensors = filter_sensors(Sensor.objects.all(), sensor_params)
@@ -282,7 +281,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
         except Exception as err:
             print(err)
         else:
-            result = estimator.get_region_estimation(measurement, region_id, timestamp_val)
+            result = estimator.get_estimations(measurement, region_id, timestamp_val)
             for row in result:
                 # print('Row:', row['value'])
                 if row['value'] and min_val and max_val:
@@ -290,6 +289,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
                 else:
                     percentage_score = None
                 row['percent_score'] = percentage_score
+                row['method_name'] = method_name
                 data.append(row)
 
     return data
@@ -350,10 +350,10 @@ def get_measurement_names():
     return result
 
 
-def get_all_data_at_timestamp(request, method_name, timestamp_val=None, measurement=None):
+def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None):
     data = {
-                'actual_data': actuals(request, measurement, timestamp_val),
-                'estimated_data': estimates(request, method_name, measurement, timestamp_val)
+                'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
+                'estimated_data': estimates(request, method_name, measurement, timestamp_val=timestamp_val, return_all_fields=True)
     }
     return JsonResponse(data, safe=False)
 
