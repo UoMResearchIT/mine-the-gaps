@@ -89,6 +89,9 @@
                     </div>
                     <div id="collapseDownload" class="panel-collapse collapse">
                         <table class="table table-condensed">
+                            <tr id="file-download-instructions" class="download-instructions">
+                                <td colspan="4"><em><b>Download original files used to initialise the map:</b></em></td>
+                            </tr>
                             <tr id="sensors-download" class="download-file">
                                 <td>
                                     <label>Sensor metadata</label>
@@ -142,6 +145,73 @@
                                     <button type="button" onclick="download_json('regions_estimates_file/json/','regions_estimates.json');">JSON</button>
                                 </td>
                                 <td></td>
+                            </tr>
+                            <tr><td colspan="4"></td> </tr>
+                            <tr id="api-call-instructions" class="download-instructions">
+                                <td colspan="4"><em><b>Obtain data using REST API:</b></em><br>
+                                <em>Prefix all calls with: <br>
+                                    <code>minethegaps.itservices.manchester.ac.uk</code></em></td>
+                            </tr>
+                            <tr class="download-instructions sub-instructions">
+                                <td colspan="4"><em>Get original files as json</em></td>
+                            </tr>
+                            <tr class="sample-api-call">
+                                <td colspan="4">
+                                    <code>
+                                        /sensors_metadata_file/<br>
+                                        /regions_metadata_file/<br>
+                                        /sensors_data_file/<br>
+                                        /regions_estimates_file/
+                                    </code>
+                                </td>
+                            </tr>
+                            <tr><td colspan="4"></td> </tr>
+                            <tr class="download-instructions sub-instructions">
+                                <td colspan="4"><em>Get geoJson of sensors or regions metadata:</em></td>
+                            </tr>
+                            <tr class="sample-api-call">
+                                <td colspan="4">
+                                    <code>
+                                    /sensors_metadata.geojson<br>
+                                    /regions_metadata.geojson
+                                    </code>
+                                </td>
+                            </tr>
+                            <tr><td colspan="4"></td> </tr>
+                            <tr class="download-instructions sub-instructions">
+                                <td colspan="4"><em>Get data for particular measurement, timestamp and region/sensor</em></td>
+                            </tr>
+                            <tr class="sample-api-call">
+                                <td colspan="4">
+                                    <code>
+                                        /sensor_data/[str:measurement]/[str:timestamp_val]/[int:sensor_id]/<br>
+                                        /estimated_data/[str:method_name]/[str:measurement]/[str:timestamp_val]/[int:sensor_id]/
+                                    </code>
+                                </td>
+                            </tr>
+                            <tr><td colspan="4"></td> </tr>
+                            <tr class="download-instructions sub-instructions">
+                                <td colspan="4"><em>Get data for particular measurement and timestamp</em></td>
+                            </tr>
+                            <tr class="sample-api-call">
+                                <td colspan="4">
+                                    <code>
+                                        /sensor_data/[str:measurement]/[str:timestamp_val]/<br>
+                                        /estimated_data/[str:method_name]/[str:measurement]/[str:timestamp_val]/
+                                    </code>
+                                </td>
+                            </tr>
+                            <tr><td colspan="4"></td> </tr>
+                            <tr class="download-instructions sub-instructions">
+                                <td colspan="4"><em>Get timeseries data for particular measurement and region/sensor_id</em></td>
+                            </tr>
+                            <tr class="sample-api-call">
+                                <td colspan="4">
+                                    <code>
+                                        /sensor_timeseries/[str:measurement]/[int:sensor_id]/<br>
+                                        /estimated_timeseries/[str:method_name]/[str:measurement]/[str:region_id]/
+                                    </code>
+                                </td>
                             </tr>
                         </table>
                     </div>

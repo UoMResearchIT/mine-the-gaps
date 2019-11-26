@@ -136,7 +136,7 @@ def get_csv_response(stored_filename, new_filename):
         response = HttpResponse(csv_file, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="' + new_filename + '"'
     except Exception as err:
-        response = HttpResponseServerError('Unable to retrieve csv from fil: ' + stored_filename + ':' + str(err))
+        response = HttpResponseServerError('Unable to retrieve csv from file: ' + stored_filename + ':' + str(err))
 
     return response
 

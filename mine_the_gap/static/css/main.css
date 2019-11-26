@@ -10,6 +10,20 @@ pre {
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
+.download-instructions{
+    background-color: lightblue;
+    font-size:14px;
+}
+
+.sample-api-call{
+    font-size:10px;
+}
+
+.download-instructions.sub-instructions{
+    background-color: #d9edf7;
+    font-size:12px;
+}
+
 .download-file button{
   background: none!important;
   border: none;
