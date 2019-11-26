@@ -8,13 +8,6 @@ class Region_estimator(object):
     def __init__(self, sensors):
         self.sensors = sensors
 
-    @abstractmethod
-    def get_estimations(self, measurement, region_id=None, timestamp=None):
-        pass
-
-    @abstractmethod
-    def get_region_estimation(self, measurement, region, timestamp=None):
-        pass
 
     @abstractmethod
     def get_estimate(self, timestamp, measurement, region):
@@ -27,7 +20,7 @@ class Region_estimator(object):
             result = [self.get_region_estimation(measurement, region, timestamp)]
         else:
             result = []
-            query_set = Region.objects.all()
+            query_set = Region.objects.all().order_by('region_id')
             for region in query_set.iterator():
                 result.append(self.get_region_estimation(measurement, region, timestamp))
 
@@ -35,21 +28,20 @@ class Region_estimator(object):
 
 
     def get_region_estimation(self, measurement, region, timestamp=None):
-        if timestamp:
-            region_result = {   'timestamp': timestamp,
-                                'measurement': measurement,
-                                'region_id': region.region_id}
-            region_result['value'], region_result['extra_data'] = self.get_estimate(timestamp, measurement, region)
+        region_result = {'region_id': region.region_id, 'estimates':[]}
 
+        if timestamp:
+            region_result['timestamp'] = timestamp
+            region_result_estimate = self.get_estimate(timestamp, measurement, region)
+            region_result['estimates'].append({'value':region_result_estimate[0], 'extra_data': region_result_estimate[1]})
         else:
-            region_result = []
-            timestamps = Estimated_data.objects.distinct(timestamp)
+            timestamps = Estimated_data.objects.distinct('timestamp')
             for timestamp in timestamps.iterator():
-                region_timestamp_result = {'timestamp': timestamp,
-                                 'measurement': measurement,
-                                 'region_id': region.region_id}
-                region_timestamp_result['value'], region_result['extra_data'] = self.get_estimate(timestamp, measurement, region)
-                region_result.append(region_timestamp_result)
+                region_result['timestamp'] = timestamp.timestamp
+                region_result_estimate = self.get_estimate(timestamp.timestamp, measurement, region)
+                region_result['estimates'].append({'value':region_result_estimate[0], 'extra_data': region_result_estimate[1]})
+                #print('measurement:', measurement, 'region:', region.region_id, 'timestamp:', timestamp.timestamp,
+                #      'value', region_result_estimate[0], 'rings', region_result_estimate[1])
 
         return region_result
 

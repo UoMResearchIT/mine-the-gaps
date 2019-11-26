@@ -250,15 +250,20 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
             print(err)
         else:
             result = estimator.get_estimations(measurement, region_id, timestamp_val)
+
             for row in result:
-                # print('Row:', row['value'])
-                if row['value'] and min_val and max_val:
-                    percentage_score = (row['value'] - min_val) / (max_val - min_val)
-                else:
-                    percentage_score = None
-                row['percent_score'] = percentage_score
-                row['method_name'] = method_name
-                data.append(row)
+                #print('Row:', str(row))
+                for estimate_result in row['estimates']:
+                    if estimate_result['value'] and min_val and max_val:
+                        percentage_score = (estimate_result['value'] - min_val) / (max_val - min_val)
+                    else:
+                        percentage_score = None
+                    data.append(    {'region_id': row['region_id'],
+                                     'timestamp':row['timestamp'],
+                                     'value': estimate_result['value'],
+                                     'percent_score': percentage_score,
+                                     'method_name': method_name,
+                                     'extra_data': estimate_result['extra_data']})
 
     return data
 

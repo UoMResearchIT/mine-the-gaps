@@ -15,8 +15,8 @@ class Diffusion_estimator(Region_estimator):
 
     def get_estimate(self, timestamp, measurement, region):
         # Create a queryset with just the single input region
-        regions = Region.objects.none()
-        regions |= region
+        #regions = Region.objects.none()
+        #regions |= region
 
         # Create an empty queryset for storing completed regions
         regions_completed = Region.objects.none()
