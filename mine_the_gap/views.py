@@ -331,6 +331,14 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
     return JsonResponse(data, safe=False)
 
 
+def get_all_timeseries_at_region(request, method_name, measurement, region_id, sensor_id):
+    data = {
+        'actual_data': actuals(request, measurement, sensor_id=sensor_id, return_all_fields=True),
+        'estimated_data': estimates(request, method_name, measurement, region_id=region_id, return_all_fields=True)
+    }
+    return JsonResponse(data, safe=False)
+
+
 
 def get_timestamp_list():
     query_set = Actual_data.objects.order_by('timestamp').values('timestamp').distinct()

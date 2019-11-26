@@ -32,6 +32,8 @@ urlpatterns = [
     url(r'^mine_the_gap/', include('mine_the_gap.urls')),
     path('sensor_fields', views.get_sensor_fields),
     path('all_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_all_data_at_timestamp),
+    path('all_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:sensor_id>/',
+         views.get_all_timeseries_at_region),
 
 
     #####  API type calls returning json #####
@@ -54,8 +56,14 @@ urlpatterns = [
 
     # Get data for particular measurement  (and estimation method for estimated_data)  -  ALL REGIONS AND TIMESTAMPS (slow)
     # Commented out as too slow!
-    path('sensor_data/<slug:measurement>/', views.get_actuals),
+    #path('sensor_data/<slug:measurement>/', views.get_actuals),
     #path('estimated_data/<slug:method_name>/<slug:measurement>/', views.get_estimates),
+
+    ##### Timeseries #####
+
+    # Get data for particular measurement and region  (and estimation method for estimated_data)  - ALL REGIONS
+    path('sensor_timeseries/<slug:measurement>/<int:sensor_id>/', views.get_actuals),
+    path('estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/', views.get_estimates),
 
 
     ##### File downloads #####
