@@ -103,7 +103,7 @@ $(document).ready(function(){
                 // Add sensor field data to the table
                 var row = '<tr class="select-button-row">' +
                     '<td class="field-name">' + fieldName + '</td>' +
-                    '<td id="'+ fieldName + '-used' +'" class="field-used"></td></tr>';
+                    '<td id="'+ slugify(fieldName) + '-used' +'" class="field-used"></td></tr>';
                 sensor_fields += row;
                 // Add user input fields for selecting sensors
                 var rows =
@@ -116,10 +116,10 @@ $(document).ready(function(){
                     '       </em></div>' +
                     '   </td>' +
                     '</tr>' +
-                    '<tr id="' + fieldName + '-select' + '" class="selector-field info">' +
+                    '<tr id="' + slugify(fieldName) + '-select' + '" class="selector-field info">' +
                         '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
                     '</tr>' +
-                    '<tr id="' + fieldName + '-omit' + '" class="omittor-field info">' +
+                    '<tr id="' + slugify(fieldName) + '-omit' + '" class="omittor-field info">' +
                     '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
                     '</tr>';
                 sensor_fields += rows;
@@ -142,7 +142,7 @@ $(document).ready(function(){
 
                     // Get the sensor field name to be filtered
                     var fieldNameId = this.closest('tr').id;
-                    var fieldName2 = fieldNameId.substr(0, fieldNameId.indexOf('-'));
+                    var fieldName2 = fieldNameId.replace('-select', '').replace('-omit','');
 
                     // Find previous selection request value, (if it matches new then no need to update map).
                     prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html();
@@ -715,6 +715,21 @@ function getGreenToRed(percent){
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function slugify(string) {
+  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+  const p = new RegExp(a.split('').join('|'), 'g')
+
+  return string.toString().toLowerCase()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
 }
 
 
