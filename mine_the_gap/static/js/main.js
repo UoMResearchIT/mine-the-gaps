@@ -103,7 +103,7 @@ $(document).ready(function(){
                 // Add sensor field data to the table
                 var row = '<tr class="select-button-row">' +
                     '<td class="field-name">' + fieldName + '</td>' +
-                    '<td id="'+ slugify(fieldName) + '-used' +'" class="field-used"></td></tr>';
+                    '<td id="'+ slugify(fieldName) + '-used' +'" class="field-used chosen-option"></td></tr>';
                 sensor_fields += row;
                 // Add user input fields for selecting sensors
                 var rows =
