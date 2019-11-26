@@ -139,20 +139,24 @@ $(document).ready(function(){
             // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
             $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
                 if(e.keyCode === 13){ // Enter key
-                    var prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').val();
 
+                    // Get the sensor field name to be filtered
                     var fieldNameId = this.closest('tr').id;
                     var fieldName2 = fieldNameId.substr(0, fieldNameId.indexOf('-'));
-                    var selectOrOmit = fieldNameId.substr(fieldNameId.indexOf('-')+1);
 
-                    var selectText = $('tr#' + fieldName2 + '-select input').val();
-                    var omitText = $('tr#' + fieldName2 + '-omit input').val();
+                    // Find previous selection request value, (if it matches new then no need to update map).
+                    prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html();
 
-                    if( selectText.trim() !== '' && check_sensor_select_params(selectText) === true) {
+                    // Get the text from the select/omit edit boxes
+                    var selectText = $('tr#' + fieldName2 + '-select input').val().trim();
+                    var omitText = $('tr#' + fieldName2 + '-omit input').val().trim();
+
+                    // If valid, create a newVal string and update the select/omit display div with this new value.
+                    if( selectText !== '' && check_sensor_select_params(selectText) === true) {
                         var newVal = '<em>Select: [' + selectText+ ']</em>';
                         $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
                     }else{
-                        if( omitText.trim() !== '' && check_sensor_select_params(omitText) === true) {
+                        if( omitText !== '' && check_sensor_select_params(omitText) === true) {
                             var newVal = '<em>Omit: [' + omitText + ']</em>';
                             $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
                         }else{
@@ -160,6 +164,7 @@ $(document).ready(function(){
                         }
                     }
 
+                    // Check if this edit boxes select/omit values have changed. If so update map.
                     if(newVal !== prevVal){
                         update_timeseries_map(document.getElementById("timestamp-range").value);
                     }
@@ -181,10 +186,10 @@ $(document).ready(function(){
             var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
 
             if (fieldSelectorsJson.length > 0){
-                dictFieldName['select_sensors'] = fieldSelectorsJson;
+                dictFieldName['select_sensors'] = fieldSelectorsJson.map(Function.prototype.call, String.prototype.trim);
             }else{
                 if (fieldOmittorsJson.length > 0) {
-                    dictFieldName['omit_sensors'] = fieldOmittorsJson;
+                    dictFieldName['omit_sensors'] = fieldOmittorsJson.map(Function.prototype.call, String.prototype.trim);
                 }
             }
             if(Object.keys(dictFieldName).length > 0){
@@ -196,6 +201,7 @@ $(document).ready(function(){
     }
 
     function check_sensor_select_params(paramString){
+        //todo check params
         // Must return true for empty string
         return true;
     }
