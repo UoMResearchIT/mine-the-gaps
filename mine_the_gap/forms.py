@@ -3,10 +3,10 @@ from django_range_slider.fields import RangeSliderField
 
 class FileUploadForm(forms.Form):
     actual_data_file = forms.FileField(required=False, help_text="Actual data file")
-    sensor_data_file = forms.FileField(required=False, help_text="Sensor metadata file")
+    sensor_metadata_file = forms.FileField(required=False, help_text="Sensor metadata file")
 
     estimated_data_file = forms.FileField(required=False, help_text="Estimated data file")
-    region_data_file = forms.FileField(required=False, help_text="Region metadata file")
+    region_metadata_file = forms.FileField(required=False, help_text="Region metadata file")
 
 
 

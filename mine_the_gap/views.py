@@ -35,11 +35,11 @@ def home_page(request):
                 filenames = Filenames()
 
             if form.cleaned_data.get("sensor_data_file"):
-                filenames.sensor_data_filename = form.cleaned_data.get("sensor_data_file")
+                filenames.sensor_metadata_filename = form.cleaned_data.get("sensor_data_file")
             if form.cleaned_data.get("actual_data_file"):
                 filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
             if form.cleaned_data.get("region_data_file"):
-                filenames.region_data_filename = form.cleaned_data.get("region_data_file")
+                filenames.region_metadata_filename = form.cleaned_data.get("region_data_file")
             if form.cleaned_data.get("estimated_data_file"):
                 filenames.estimated_data_filename = form.cleaned_data.get("estimated_data_file")
             filenames.save()
@@ -81,229 +81,90 @@ def get_sensor_fields(request):
     return JsonResponse(result, safe=False)
 
 
-def get_all_data_at_timestamp(request, method_name, timestamp_val, measurement):
-    data = {
-                'actual_data': actuals_at_timestamp(request, timestamp_val, measurement),
-                'estimated_data': estimates_at_timestamp(request, method_name, timestamp_val, measurement)
-    }
+def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
+    data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
+    return JsonResponse(data, safe=False)
+
+def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
+    data = estimates(request, method_name, measurement, timestamp_val=timestamp_val, region_id=region_id, return_all_fields=False)
     return JsonResponse(data, safe=False)
 
 
-
-
-
-def get_actuals_at_timestamp_sensor(request, measurement, timestamp_val, sensor_id):
-    data = actuals_at_timestamp_sensor(request, timestamp_val, measurement, sensor_id)
-    return JsonResponse(data, safe=False)
-
-def get_estimates_at_timestamp_region(request, method_name, measurement, timestamp_val, region_id):
-    data = estimates_at_timestamp_region(request, method_name, timestamp_val, measurement, region_id)
-    return JsonResponse(data, safe=False)
-
-def get_actuals_at_timestamp(request, timestamp_val, measurement):
-    data = actuals_at_timestamp(request, timestamp_val, measurement)
-    return JsonResponse(data, safe=False)
-
-def get_estimates_at_timestamp(request, method_name, timestamp_val, measurement):
-    data = estimates_at_timestamp(request, method_name, timestamp_val, measurement)
-    return JsonResponse(data, safe=False)
-
-
-def get_actuals(request, measurement):
-    data = actuals_all_timestamps(request, measurement)
-    return JsonResponse(data, safe=False)
-
-def get_estimates(request, method_name, measurement):
-    data = estimates_all_timestamps(request, method_name, measurement)
-    return JsonResponse(data, safe=False)
-
-
-
-
-def get_sensors_file(request, file_type):
-    try:
-        # Create the HttpResponse object with the appropriate CSV header.
-        if file_type.lower() == 'csv':
-            #  Reading file from storage
-            csv_file = default_storage.open(
-                Filenames.objects.first().sensor_data_filename)  # 'x') #force error for testing
-            response = HttpResponse(csv_file, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="sensor_metadata.csv"'
-        elif file_type.lower() == 'json':
-            csv_file = pd.DataFrame(
-                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_data_filename), sep=",",
-                            header=0, index_col=False))
-            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
-                             force_ascii=True, date_unit="ms", default_handler=None)
-            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
-                response = HttpResponse(json_file, content_type='text/json')
-            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
-            response['Content-Disposition'] = 'attachment; filename="sensor_metadata.json"'
-
-    except Exception as err:
-        response =  HttpResponseServerError('Unable to open sensor metadata file: ' + str(err))
-
-    return response
-
-
-def get_regions_file(request, file_type):
-    try:
-        # Create the HttpResponse object with the appropriate CSV header.
-        if file_type.lower() == 'csv':
-            #  Reading file from storage
-            csv_file = default_storage.open(Filenames.objects.first().region_data_filename)
-            response = HttpResponse(csv_file, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="region_metadata.csv"'
-        elif file_type.lower() == 'json':
-            csv_file = pd.DataFrame(
-                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_data_filename), sep=",",
-                            header=0, index_col=False))
-            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
-                             force_ascii=True, date_unit="ms", default_handler=None)
-            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
-                response = HttpResponse(json_file, content_type='text/json')
-            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
-            response['Content-Disposition'] = 'attachment; filename="region_metadata.json"'
-    except Exception as err:
-        response = HttpResponseServerError('Unable to open region metadata file: ' + str(err))
-
-    return response
-
-
-def get_actuals_file(request, file_type):
-    try:
-        # Create the HttpResponse object with the appropriate CSV header.
-        if file_type.lower() == 'csv':
-            #  Reading file from storage
-            csv_file = default_storage.open(Filenames.objects.first().actual_data_filename)
-            response = HttpResponse(csv_file, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="sensor_data.csv"'
-        elif file_type.lower() == 'json':
-            csv_file = pd.DataFrame(
-                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().actual_data_filename), sep=",",
-                            header=0, index_col=False))
-            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
-                             force_ascii=True, date_unit="ms", default_handler=None)
-            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
-                response = HttpResponse(json_file, content_type='text/json')
-            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
-            response['Content-Disposition'] = 'attachment; filename="sensor_data.json"'
-    except Exception as err:
-        response = HttpResponseServerError('Unable to open sensor data file: ' + str(err))
-
-    return response
-
-def get_estimates_file(request, file_type):
-    try:
-        # Create the HttpResponse object with the appropriate CSV header.
-        if file_type.lower() == 'csv':
-            #  Reading file from storage
-            csv_file = default_storage.open(Filenames.objects.first().estimated_data_filename)
-            response = HttpResponse(csv_file, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="region_estimated_data.csv"'
-        elif file_type.lower() == 'json':
-            csv_file = pd.DataFrame(
-                pd.read_csv(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().estimated_data_filename), sep=",",
-                            header=0, index_col=False))
-            csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch", double_precision=10,
-                             force_ascii=True, date_unit="ms", default_handler=None)
-            with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
-                response = HttpResponse(json_file, content_type='text/json')
-            os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
-            response['Content-Disposition'] = 'attachment; filename="region_estimated_data.json"'
-    except Exception as err:
-        response = HttpResponseServerError('Unable to open region estimated data file: ' + err)
-
-    return response
-
-
-
-def get_measurement_names():
-    query_set = Actual_value.objects.distinct('measurement_name')
-    result = []
-
-    for idx, item in enumerate(query_set):
-        result.append(item.measurement_name)
-
-    return result
-
-
-def actuals_at_timestamp(request, timestamp_val, measurement):
-    data = []
-    measurement = measurement.strip()
-
-    try:
-        sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
-    except:
-        sensor_params = []
-
-
-    query_set = Actual_value.objects.filter(actual_data__timestamp=str(timestamp_val), measurement_name=measurement)
-
-    min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
-    max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
-
-    for row in query_set.iterator():
-        try:
-            percentage_score = (row.value - min_val) / (max_val - min_val)
-        except:
-            percentage_score = None
-
-        new_row = dict(row.join_sensor)
-
-        new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
-
-        new_row['percent_score'] = percentage_score
-        data.append(new_row)
-
-    return data
-
-def estimates_at_timestamp(request, method_name, timestamp_val, measurement):
-    data = []
-    measurement = measurement.strip()
-
-    try:
-        sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
-    except:
-        sensor_params = []
-    # print(json.dumps(sensor_params))
-
-
-    min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
-    max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
-
-    if method_name == 'file':
-        query_set = Estimated_value.objects.filter(estimated_data__timestamp=str(timestamp_val), measurement_name=measurement)
-        for row in query_set.iterator():
-            try:
-                percentage_score = (row.value - min_val) / (max_val - min_val)
-            except:
-                percentage_score = None
-
-            new_row = dict(row.join_region)
-            new_row['percent_score'] = percentage_score
-            data.append(new_row)
+def get_sensors_file(request, file_type=None):
+    # Create the HttpResponse object with the appropriate CSV header.
+    if file_type == 'csv':
+        response = get_csv_response(Filenames.objects.first().sensor_metadata_filename, 'sensors_metadata.csv')
     else:
-        sensors = filter_sensors(Sensor.objects.all(), sensor_params)
-        try:
-            estimator = Region_estimator_factory.create_region_estimator(method_name, sensors)
-        except Exception as err:
-            print(err)
-        else:
-            result = estimator.get_all_region_estimations(timestamp_val, measurement)
-            for row in result:
-                #print('Row:', row['value'])
-                if row['value'] and min_val and max_val:
-                    percentage_score = (row['value'] - min_val) / (max_val - min_val)
-                else:
-                    percentage_score = None
-                row['percent_score'] = percentage_score
-                data.append(row)
-
-    return data
+        response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_metadata_filename),
+                                     'sensors_metadata.json',
+                                     file_type)
+    return response
 
 
-def actuals_at_timestamp_sensor(request, timestamp_val, measurement, sensor_id):
+def get_regions_file(request, file_type=None):
+    # Create the HttpResponse object with the appropriate CSV header.
+    if file_type == 'csv':
+        response = get_csv_response(Filenames.objects.first().region_metadata_filename, 'regions_metadata.csv')
+    else:
+        response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().region_metadata_filename),
+                                     'regions_metadata.json',
+                                     file_type)
+    return response
+
+
+def get_actuals_file(request, file_type=None):
+    if file_type == 'csv':
+        response = get_csv_response(Filenames.objects.first().actual_data_filename, 'sensors_data.csv')
+    else:
+        response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().actual_data_filename),
+                                     'sensors_data.json',
+                                     file_type)
+    return response
+
+def get_estimates_file(request, file_type=None):
+    if file_type == 'csv':
+        response = get_csv_response(Filenames.objects.first().estimated_data_filename, 'regions_estimates.csv')
+    else:
+        response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().estimated_data_filename),
+                                     'regions_estimates.json',
+                                     file_type)
+    return response
+
+def get_csv_response(stored_filename, new_filename):
+    try:
+        csv_file = default_storage.open(stored_filename)
+        response = HttpResponse(csv_file, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="' + new_filename + '"'
+    except Exception as err:
+        response = HttpResponseServerError('Unable to retrieve csv from file: ' + stored_filename + ':' + str(err))
+
+    return response
+
+def get_json_response(stored_filename, new_filename, file_type):
+    try:
+        csv_file = pd.DataFrame(pd.read_csv(stored_filename, sep=",",
+                                header=0, index_col=False))
+        csv_file.to_json(os.path.join(tempfile.gettempdir(), 'temp.json'), orient="records", date_format="epoch",
+                         double_precision=10,
+                         force_ascii=True, date_unit="ms", default_handler=None)
+        with open(os.path.join(tempfile.gettempdir(), 'temp.json')) as json_file:
+            if file_type == 'json':
+                response = HttpResponse(json_file, content_type='text/json')
+                response['Content-Disposition'] = 'attachment; filename="' + new_filename + '"'
+            else:
+                response = JsonResponse(json.load(json_file), safe=False)
+        os.remove(os.path.join(tempfile.gettempdir(), 'temp.json'))
+    except Exception as err:
+        response = HttpResponseServerError('Unable to retrieve json from file: ' + stored_filename + ':' + str(err))
+
+    return response
+
+
+
+
+
+
+def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all_fields=True):
     data = []
     measurement = measurement.strip()
 
@@ -312,9 +173,18 @@ def actuals_at_timestamp_sensor(request, timestamp_val, measurement, sensor_id):
     except:
         sensor_params = []
 
-    query_set = Actual_value.objects.filter(actual_data__timestamp=str(timestamp_val),
-                                            measurement_name=measurement,
-                                            actual_data__sensor_id=sensor_id)
+    if timestamp_val and sensor_id:
+        query_set = Actual_value.objects.filter(measurement_name=measurement,
+                                                actual_data__timestamp=str(timestamp_val),
+                                                actual_data__sensor_id=sensor_id)
+    elif timestamp_val:
+        query_set = Actual_value.objects.filter(measurement_name=measurement,
+                                                actual_data__timestamp=str(timestamp_val))
+    elif sensor_id:
+        query_set = Actual_value.objects.filter(measurement_name=measurement,
+                                                actual_data__sensor_id=sensor_id)
+    else:
+        query_set = Actual_value.objects.filter(measurement_name=measurement)
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
@@ -325,16 +195,15 @@ def actuals_at_timestamp_sensor(request, timestamp_val, measurement, sensor_id):
         except:
             percentage_score = None
 
-        new_row = dict(row.join_sensor)
-
+        new_row = dict(row.join_sensor) if return_all_fields else dict(row.join_sensor_lite)
         new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
-
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
     return data
 
-def estimates_at_timestamp_region(request, method_name, timestamp_val, measurement, region_id):
+
+def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False):
     data = []
     measurement = measurement.strip()
 
@@ -348,17 +217,30 @@ def estimates_at_timestamp_region(request, method_name, timestamp_val, measureme
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     if method_name == 'file':
-        query_set = Estimated_value.objects.filter(estimated_data__timestamp=str(timestamp_val),
-                                                   measurement_name=measurement,
-                                                   estimated_data__region_id=region_id)
+        if timestamp_val and region_id:
+            query_set = Estimated_value.objects.filter(measurement_name=measurement,
+                                                       estimated_data__timestamp=str(timestamp_val),
+                                                       estimated_data__region_id=region_id)
+
+        elif timestamp_val:
+            query_set = Estimated_value.objects.filter(measurement_name=measurement,
+                                                       estimated_data__timestamp=str(timestamp_val))
+        elif region_id:
+            query_set = Estimated_value.objects.filter(measurement_name=measurement,
+                                                       actual_data__sensor_id=region_id)
+        else:
+            query_set = Estimated_value.objects.filter(measurement_name=measurement)
+
+
         for row in query_set.iterator():
             try:
                 percentage_score = (row.value - min_val) / (max_val - min_val)
             except:
                 percentage_score = None
 
-            new_row = dict(row.join_region)
+            new_row = dict(row.join_region) if return_all_fields else dict(row.join_region_lite)
             new_row['percent_score'] = percentage_score
+            new_row['method_name'] = method_name
             data.append(new_row)
     else:
         sensors = filter_sensors(Sensor.objects.all(), sensor_params)
@@ -367,23 +249,23 @@ def estimates_at_timestamp_region(request, method_name, timestamp_val, measureme
         except Exception as err:
             print(err)
         else:
-            result = estimator.get_region_estimation(timestamp_val, measurement, region_id)
+            result = estimator.get_estimations(measurement, region_id, timestamp_val)
+
             for row in result:
-                # print('Row:', row['value'])
-                if row['value'] and min_val and max_val:
-                    percentage_score = (row['value'] - min_val) / (max_val - min_val)
-                else:
-                    percentage_score = None
-                row['percent_score'] = percentage_score
-                data.append(row)
+                #print('Row:', str(row))
+                for estimate_result in row['estimates']:
+                    if estimate_result['value'] and min_val and max_val:
+                        percentage_score = (estimate_result['value'] - min_val) / (max_val - min_val)
+                    else:
+                        percentage_score = None
+                    data.append(    {'region_id': row['region_id'],
+                                     'timestamp':row['timestamp'],
+                                     'value': estimate_result['value'],
+                                     'percent_score': percentage_score,
+                                     'method_name': method_name,
+                                     'extra_data': estimate_result['extra_data']})
 
     return data
-
-def actuals_all_timestamps(request, measurement):
-    pass
-
-def estimates_all_timestamps(request, measurement):
-    pass
 
 
 def select_sensor(sensor, params):
@@ -394,7 +276,7 @@ def select_sensor(sensor, params):
         if item_key == 'name':
             sensor_field = sensor['name']
         else:
-            sensor_field = sensor['extra_data'][item_key]
+            sensor_field = sensor['sensor_extra_data'][item_key]
 
         dict_item = item[item_key]
         if dict_item and 'select_sensors' in dict_item and sensor_field not in dict_item['select_sensors']:
@@ -428,6 +310,33 @@ def filter_sensors(sensors, params):
                     sensors = sensors.exclude(extra_data__contains={item_key: value})
 
     return sensors
+
+
+
+def get_measurement_names():
+    query_set = Actual_value.objects.distinct('measurement_name')
+    result = []
+
+    for idx, item in enumerate(query_set):
+        result.append(item.measurement_name)
+
+    return result
+
+
+def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None):
+    data = {
+                'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
+                'estimated_data': estimates(request, method_name, measurement, timestamp_val=timestamp_val, return_all_fields=True)
+    }
+    return JsonResponse(data, safe=False)
+
+
+def get_all_timeseries_at_region(request, method_name, measurement, region_id, sensor_id):
+    data = {
+        'actual_data': actuals(request, measurement, sensor_id=sensor_id, return_all_fields=True),
+        'estimated_data': estimates(request, method_name, measurement, region_id=region_id, return_all_fields=True)
+    }
+    return JsonResponse(data, safe=False)
 
 
 

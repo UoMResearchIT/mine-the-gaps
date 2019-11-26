@@ -1,4 +1,4 @@
-from mine_the_gap.models import Actual_data, Actual_value, Region, Sensor
+from mine_the_gap.models import Actual_value, Region, Sensor
 from django.db.models import Avg
 
 from mine_the_gap.region_estimators.region_estimator import Region_estimator
@@ -12,41 +12,18 @@ class Diffusion_estimator(Region_estimator):
     class Factory:
         def create(self, sensors): return Diffusion_estimator(sensors)
 
-    def get_all_region_estimations(self, timestamp, measurement):
-        result = []
 
-        query_set = Region.objects.all()
-        for region in query_set.iterator():
-            region_result = {'timestamp': timestamp, 'measurement': measurement, 'region_id': region.region_id,
-             'geom': region.geom.coords, 'region_extra_data': region.extra_data}
-
-            region_result['value'], region_result['extra_data'] = self.get_diffusion_estimate(timestamp, measurement, region)
-            result.append(region_result)
-
-        return result
-
-    def get_region_estimation(self, timestamp, measurement, region_id):
-        result = []
-
-        region = Region.objects.get(region_id = region_id)
-
-        region_result = {'timestamp': timestamp, 'measurement': measurement, 'region_id': region.region_id,
-                         'geom': region.geom.coords, 'region_extra_data': region.extra_data}
-
-        region_result['value'], region_result['extra_data'] = self.get_diffusion_estimate(timestamp, measurement,
-                                                                                          region)
-        result.append(region_result)
-
-        return result
-
-
-    def get_diffusion_estimate(self, timestamp, measurement, region):
+    def get_estimate(self, timestamp, measurement, region):
         # Create a queryset with just the single input region
-        regions = Region.objects.none()
-        regions |= region
+        #regions = Region.objects.none()
+        #regions |= region
 
         # Create an empty queryset for storing completed regions
         regions_completed = Region.objects.none()
+
+        # Check there are sensors for this measurement and timestamp
+        if Actual_value.objects.filter(actual_data__timestamp=timestamp, measurement_name=measurement).count() == 0:
+            return None, {'rings': None}
 
         # Recursively find the sensors in each diffusion ring (starting at 0)
         return self.get_diffusion_estimate_recursive(Region.objects.filter(pk=region.pk), timestamp, measurement, 0, regions_completed)
