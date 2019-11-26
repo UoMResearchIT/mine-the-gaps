@@ -41,6 +41,10 @@ pre {
     float:right;
 }
 
+.field-used.chosen-option{
+    float:none;
+}
+
 #map-options .panel-group {
     margin-bottom: 0px;
 
