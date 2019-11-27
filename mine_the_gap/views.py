@@ -34,15 +34,18 @@ def home_page(request):
             if not filenames:
                 filenames = Filenames()
 
-            if form.cleaned_data.get("sensor_data_file"):
-                filenames.sensor_metadata_filename = form.cleaned_data.get("sensor_data_file")
-            if form.cleaned_data.get("actual_data_file"):
-                filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
-            if form.cleaned_data.get("region_data_file"):
-                filenames.region_metadata_filename = form.cleaned_data.get("region_data_file")
-            if form.cleaned_data.get("estimated_data_file"):
-                filenames.estimated_data_filename = form.cleaned_data.get("estimated_data_file")
-            filenames.save()
+            try:
+                if form.cleaned_data.get("sensor_metadata_file"):
+                    filenames.sensor_metadata_filename = form.cleaned_data.get("sensor_metadata_file")
+                if form.cleaned_data.get("actual_data_file"):
+                    filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
+                if form.cleaned_data.get("region_metadata_file"):
+                    filenames.region_metadata_filename = form.cleaned_data.get("region_metadata_file")
+                if form.cleaned_data.get("estimated_data_file"):
+                    filenames.estimated_data_filename = form.cleaned_data.get("estimated_data_file")
+                filenames.save()
+            except Exception as err:
+                print('Error uploading files:', str(err))
 
             return HttpResponseRedirect(request.path_info)
 
@@ -191,7 +194,7 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all
 
     for row in query_set.iterator():
         try:
-            percentage_score = (row.value - min_val) / (max_val - min_val)
+            percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
         except:
             percentage_score = None
 
@@ -201,6 +204,9 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all
         data.append(new_row)
 
     return data
+
+def calcuate_percentage_score(value, min, max):
+    return (value - min) / (max - min)
 
 
 def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False):
@@ -234,7 +240,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
 
         for row in query_set.iterator():
             try:
-                percentage_score = (row.value - min_val) / (max_val - min_val)
+                percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
             except:
                 percentage_score = None
 
@@ -255,7 +261,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
                 #print('Row:', str(row))
                 for estimate_result in row['estimates']:
                     if estimate_result['value'] and min_val and max_val:
-                        percentage_score = (estimate_result['value'] - min_val) / (max_val - min_val)
+                        percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
                     else:
                         percentage_score = None
                     data.append(    {'region_id': row['region_id'],
@@ -369,7 +375,7 @@ def get_center_latlng():
 def handle_uploaded_files(request):
 
     try:
-        filepath_sensor = request.FILES['sensor_data_file']
+        filepath_sensor = request.FILES['sensor_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
     except Exception as err:
         filepath_sensor, filepath_actual = False,False
@@ -387,6 +393,11 @@ def handle_uploaded_files(request):
 
 
         extra_field_idxs = []
+        sensor_name_idx = None
+        lat_idx = None
+        long_idx = None
+
+        #print(str(field_titles))
 
         # Find the fields in the file
         for idx, title in enumerate(field_titles):
@@ -395,8 +406,8 @@ def handle_uploaded_files(request):
                 long_idx = idx
             elif title == 'lat':
                 lat_idx = idx
-            elif title == 'name':
-                name_idx = idx
+            elif title == 'sensor_name':
+                sensor_name_idx = idx
             else:
                 extra_field_idxs.append(idx)
 
@@ -409,7 +420,7 @@ def handle_uploaded_files(request):
                 point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
-                    name =  row[name_idx],
+                    name =  row[sensor_name_idx],
                     extra_data=extra_data)
                 sensor.save()
             except Exception as err:
@@ -444,7 +455,7 @@ def handle_uploaded_files(request):
                 try:
                     sensor = Sensor.objects.get(name=sensor_name)
                 except Exception as err:
-                    print('Sensor', sensor_name, 'not found for this actual datapoint:', err)
+                    print('Sensor', sensor_name, 'not returned for this actual datapoint, due to:', err)
                 else:
                     if sensor:
                         actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
@@ -471,9 +482,10 @@ def handle_uploaded_files(request):
         default_storage.save(filepath_sensor.name, filepath_sensor.file)
         default_storage.save(filepath_actual.name, filepath_actual.file)
 
+
     try:
         filepath_estimated = request.FILES['estimated_data_file']
-        filepath_region = request.FILES['region_data_file']
+        filepath_region = request.FILES['region_metadata_file']
     except Exception:
         filepath_estimated, filepath_region = False, False
     else:
