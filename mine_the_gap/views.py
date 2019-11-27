@@ -261,7 +261,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
                 #print('Row:', str(row))
                 for estimate_result in row['estimates']:
                     if estimate_result['value'] and min_val and max_val:
-                        percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
+                        percentage_score = calcuate_percentage_score(row['value'], min_val, max_val)
                     else:
                         percentage_score = None
                     data.append(    {'region_id': row['region_id'],
