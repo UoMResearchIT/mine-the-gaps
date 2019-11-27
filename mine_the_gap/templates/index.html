@@ -25,18 +25,23 @@
                                 <th scope="col">Metadata</th>
                             </tr>
                             <tr>
+
+
+                                {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
+
+
                                 <th scope="row">Actual data</th>
                                 <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
-                                    <br>{{ form.actual_data_file }}</td>
+                                    {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
                                 <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
-                                    <br>{{ form.sensor_data_file }}</td>
+                                    {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
                             </tr>
                             <tr>
                                 <th scope="row">Estimated data</th>
                                 <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
-                                    <br>{{ form.estimated_data_file }}</td>
+                                    {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
                                 <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
-                                    <br>{{ form.region_data_file }}</td>
+                                    {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
                             </tr>
                         </table>
                         <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
