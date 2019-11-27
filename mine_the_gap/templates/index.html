@@ -6,51 +6,52 @@
 
 {% block content %}
 
+    {% if form %}
+        <div id="load-files" class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <button id="btn-select-files">Select data files</button>
+                </div>
+            </div>
+            <div class="row" id="select-files">
+                {% with filepaths|first as filepath %}
+                    <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                        <div id="upload-fields" class='col-sm-12'>
+                            {% csrf_token %}
+                            <table class="table table-striped">
+                                <tr>
+                                  <th scope="col"></th>
+                                    <th scope="col">Timestamped data</th>
+                                    <th scope="col">Metadata</th>
+                                </tr>
+                                <tr>
 
-    <div id="load-files" class="container">
-        <div class="row">
-            <div class="col-sm-2">
-                <button id="btn-select-files">Select data files</button>
+
+                                    {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
+
+
+                                    <th scope="row">Actual data</th>
+                                    <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
+                                        {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
+                                    <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
+                                        {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Estimated data</th>
+                                    <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
+                                        {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
+                                    <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
+                                        {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
+                                </tr>
+                            </table>
+                            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                        </div>
+
+                    </form>
+                {% endwith %}
             </div>
         </div>
-        <div class="row" id="select-files">
-            {% with filepaths|first as filepath %}
-                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                    <div id="upload-fields" class='col-sm-12'>
-                        {% csrf_token %}
-                        <table class="table table-striped">
-                            <tr>
-                              <th scope="col"></th>
-                                <th scope="col">Timestamped data</th>
-                                <th scope="col">Metadata</th>
-                            </tr>
-                            <tr>
-
-
-                                {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
-
-
-                                <th scope="row">Actual data</th>
-                                <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
-                                    {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
-                                <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
-                                    {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Estimated data</th>
-                                <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
-                                    {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
-                                <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
-                                    {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
-                            </tr>
-                        </table>
-                        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-                    </div>
-
-                </form>
-            {% endwith %}
-        </div>
-    </div>
+    {% endif %}
 
     <div id="map-main-info" class="container">
         <div class="row" id="main">
