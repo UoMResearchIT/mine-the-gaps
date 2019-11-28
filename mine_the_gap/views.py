@@ -88,8 +88,15 @@ def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
     data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
     return JsonResponse(data, safe=False)
 
-def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
-    data = estimates(request, method_name, measurement, timestamp_val=timestamp_val, region_id=region_id, return_all_fields=False)
+def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None, ignore_sensor_id=None):
+    data = estimates(
+        request,
+        method_name,
+        measurement,
+        timestamp_val=timestamp_val,
+        region_id=region_id,
+        return_all_fields=False,
+        ignore_sensor_id=ignore_sensor_id)
     return JsonResponse(data, safe=False)
 
 
@@ -209,7 +216,8 @@ def calcuate_percentage_score(value, min, max):
     return (value - min) / (max - min)
 
 
-def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False):
+def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False,
+              ignore_sensor_id=None):
     data = []
     measurement = measurement.strip()
 
@@ -249,7 +257,8 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
             new_row['method_name'] = method_name
             data.append(new_row)
     else:
-        sensors = filter_sensors(Sensor.objects.all(), sensor_params)
+        sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
+
         try:
             estimator = Region_estimator_factory.create_region_estimator(method_name, sensors)
         except Exception as err:
