@@ -88,12 +88,26 @@ def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
     data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
     return JsonResponse(data, safe=False)
 
-def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None, ignore_sensor_id=None):
+def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
     data = estimates(
         request,
         method_name,
         measurement,
         timestamp_val=timestamp_val,
+        region_id=region_id,
+        return_all_fields=False)
+    return JsonResponse(data, safe=False)
+
+def get_actuals_timeseries(request, measurement, sensor_id=None):
+    data = actuals(request, measurement, timestamp_val=None, sensor_id=sensor_id, return_all_fields=False)
+    return JsonResponse(data, safe=False)
+
+def get_estimates_timeseries(request, method_name, measurement, region_id=None, ignore_sensor_id=None):
+    data = estimates(
+        request,
+        method_name,
+        measurement,
+        timestamp_val=None,
         region_id=region_id,
         return_all_fields=False,
         ignore_sensor_id=ignore_sensor_id)
@@ -234,16 +248,20 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
         if timestamp_val and region_id:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
                                                        estimated_data__timestamp=str(timestamp_val),
-                                                       estimated_data__region_id=region_id)
+                                                       estimated_data__region_id=region_id)\
+                .order_by('estimated_data__region_id','estimated_data__timestamp')
 
         elif timestamp_val:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
-                                                       estimated_data__timestamp=str(timestamp_val))
+                                                       estimated_data__timestamp=str(timestamp_val))\
+                .order_by('estimated_data__region_id', 'estimated_data__timestamp')
         elif region_id:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
-                                                       actual_data__sensor_id=region_id)
+                                                       estimated_data__region_id=region_id)\
+                .order_by('estimated_data__region_id','estimated_data__timestamp')
         else:
-            query_set = Estimated_value.objects.filter(measurement_name=measurement)
+            query_set = Estimated_value.objects.filter(measurement_name=measurement)\
+                .order_by('estimated_data__region_id','estimated_data__timestamp', 'measurement_name')
 
 
         for row in query_set.iterator():
@@ -274,7 +292,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
                     else:
                         percentage_score = None
                     data.append(    {'region_id': row['region_id'],
-                                     'timestamp':row['timestamp'],
+                                     'timestamp':estimate_result['timestamp'],
                                      'value': estimate_result['value'],
                                      'percent_score': percentage_score,
                                      'method_name': method_name,

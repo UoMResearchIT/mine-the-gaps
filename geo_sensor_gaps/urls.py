@@ -62,8 +62,9 @@ urlpatterns = [
     ##### Timeseries #####
 
     # Get data for particular measurement and region  (and estimation method for estimated_data)  - ALL REGIONS
-    path('sensor_timeseries/<slug:measurement>/<int:sensor_id>/', views.get_actuals),
-    path('estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/', views.get_estimates),
+    path('sensor_timeseries/<slug:measurement>/<int:sensor_id>/', views.get_actuals_timeseries),
+    path('estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/', views.get_estimates_timeseries),
+    path('estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/', views.get_estimates_timeseries),
 
 
     ##### File downloads #####
