@@ -1,4 +1,3 @@
-
 $(document).ready(function(){
 
     // Initialise layer lists for later use
@@ -79,6 +78,7 @@ $(document).ready(function(){
     var bounds = map.getBounds();
 
     $('#region-data').html(get_region_default());
+    $('#sensor-data').html(get_sensor_default());
 
 
     update_map(map);
@@ -308,8 +308,10 @@ $(document).ready(function(){
                                     circleRatio: 0.8,
                                     fontSize:8
                                 }
-                            }
-                        );
+                            },
+                        ).on('click', function(e) {
+                            get_sensor_graph(loc.sensor_id)
+                        });
 
                     // Add marker
 
@@ -666,10 +668,6 @@ function download_json(url, filename){
 // File downloads
 
 function get_csv(url, filename='data.csv', jsonParams={}){
-    // Show save dialogue
-
-
-
     // Set up loader display
     var loaderOuterDiv = document.getElementById('loader-outer');
     var loaderDiv = document.createElement('div');
@@ -709,6 +707,51 @@ function get_csv(url, filename='data.csv', jsonParams={}){
         }
     })
 };
+
+
+function get_sensor_graph(sensor_id) {
+    alert(sensor_id);
+
+    // Set up loader display
+    var loaderOuterDiv = document.getElementById('loader-outer');
+    var loaderDiv = document.createElement('div');
+    loaderDiv.id = 'loader';
+    loaderOuterDiv.appendChild(loaderDiv);
+    drawLoader(loaderDiv, '<p>Getting sensor graph data...</p>');
+
+
+
+    $.ajax({
+        url: url,
+        data: JSON.stringify(jsonParams),
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 40000,
+        async: false,
+        success: function (data) {
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+
+            link = document.createElement('a');
+            link.setAttribute('href', data);
+            link.setAttribute('download', filename);
+            link.click();
+
+        },
+        error: function (request, state, errors) {
+            alert("There was an problem downloading the data: " + errors.toString());
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            while (loaderOuterDiv.firstChild) {
+                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+            }
+        }
+    })
+
+}
 
 
 function getGreenToRed(percent){
@@ -809,7 +852,17 @@ function dragElement(elmnt) {
 function get_region_default(){
     return '<p><b>Region: </b>None</p>' +
     '<table class="table table-striped">' +
-        '<tr><th colspan="2"><p><b>Hover over regions to see region data.</b></p></th></tr></table>';
+        '<tr><td colspan="2"><p>Hover over regions to see region data.</p></td></tr></table>';
+}
+
+function get_sensor_default(){
+    return '<p><b>Sensor: </b>None</p>' +
+    '<table class="table table-striped">' +
+        '<tr><td colspan="2"><p>Click on sensor to see sensor data.</p></td></tr>' +
+        '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p></td></tr>' +
+        '<tr><td colspan="2">(i) use slider to find another timestamp <br>' +
+        '(ii) use \'Select measurement\' option to change measurements.</td></tr>' +
+        '</table>'
 }
 
 
