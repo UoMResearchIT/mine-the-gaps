@@ -31,9 +31,10 @@ class Region_estimator(object):
         region_result = {'region_id': region.region_id, 'estimates':[]}
 
         if timestamp:
-            region_result['timestamp'] = timestamp
             region_result_estimate = self.get_estimate(timestamp, measurement, region)
-            region_result['estimates'].append({'value':region_result_estimate[0], 'extra_data': region_result_estimate[1]})
+            region_result['estimates'].append({'value':region_result_estimate[0],
+                                               'extra_data': region_result_estimate[1],
+                                               'timestamp':timestamp})
         else:
             timestamps = Estimated_data.objects.distinct('timestamp').order_by('timestamp')
             for timestamp in timestamps.iterator():

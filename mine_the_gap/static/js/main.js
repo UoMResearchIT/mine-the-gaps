@@ -78,6 +78,9 @@ $(document).ready(function(){
     // bounds must be set after only the first initialisation of map
     var bounds = map.getBounds();
 
+    $('#region-data').html(get_region_default());
+
+
     update_map(map);
     // bounds must be set after only the first initialisation of map
     initialise_slider();
@@ -510,6 +513,7 @@ $(document).ready(function(){
                                 //'fillColor': 'transparent'
                                 'weight': '1'
                               });
+                              $('#region-data').html(get_region_default())
                             });
                         }
                     },
@@ -800,6 +804,12 @@ function dragElement(elmnt) {
     document.onmouseup = null;
     document.onmousemove = null;
   }
+}
+
+function get_region_default(){
+    return '<p><b>Region: </b>None</p>' +
+    '<table class="table table-striped">' +
+        '<tr><th colspan="2"><p><b>Hover over regions to see region data.</b></p></th></tr></table>';
 }
 
 

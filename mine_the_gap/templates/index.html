@@ -5,87 +5,58 @@
 {% block body-class %}page-head{% endblock %}
 
 {% block content %}
+    {% block load_files %}
 
-    {% if form %}
-        <div id="load-files" class="container">
-            <div class="row">
-                <div class="col-sm-2">
-                    <button id="btn-select-files">Select data files</button>
+        {% if form %}
+            <div id="load-files" class="container">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button id="btn-select-files">Select data files</button>
+                    </div>
+                </div>
+                <div class="row" id="select-files">
+                    {% with filepaths|first as filepath %}
+                        <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                            <div id="upload-fields" class='col-sm-12'>
+                                {% csrf_token %}
+                                <table class="table table-striped">
+                                    <tr>
+                                      <th scope="col"></th>
+                                        <th scope="col">Timestamped data</th>
+                                        <th scope="col">Metadata</th>
+                                    </tr>
+                                    <tr>
+                                        {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
+
+
+                                        <th scope="row">Actual data</th>
+                                        <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
+                                            {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
+                                        <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
+                                            {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Estimated data</th>
+                                        <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
+                                            {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
+                                        <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
+                                            {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
+                                    </tr>
+                                </table>
+                                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                            </div>
+
+                        </form>
+                    {% endwith %}
                 </div>
             </div>
-            <div class="row" id="select-files">
-                {% with filepaths|first as filepath %}
-                    <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                        <div id="upload-fields" class='col-sm-12'>
-                            {% csrf_token %}
-                            <table class="table table-striped">
-                                <tr>
-                                  <th scope="col"></th>
-                                    <th scope="col">Timestamped data</th>
-                                    <th scope="col">Metadata</th>
-                                </tr>
-                                <tr>
-
-
-                                    {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
-
-
-                                    <th scope="row">Actual data</th>
-                                    <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
-                                        {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
-                                    <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
-                                        {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Estimated data</th>
-                                    <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
-                                        {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
-                                    <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
-                                        {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
-                                </tr>
-                            </table>
-                            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-                        </div>
-
-                    </form>
-                {% endwith %}
-            </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    {% endblock %}
 
     <div id="map-main-info" class="container">
         <div class="row" id="main">
-            <div id="map" class="col-sm-8">
-                <div id="loader-outer"></div>
 
-                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
-                <div id="mapid"></div>
-
-                <div id="map-slider">
-                    <div class="slidecontainer">
-                      <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
-
-                        <div id="map-sliderheader">
-                            <div id="slider-value">Value: <span id="current-timestamp"></span></div>
-
-                        </div>
-
-                    </div>
-                </div>
-
-                <script type="text/javascript">
-                    var timestampRange = "{{timestamp_range|escapejs }}";
-                    var centerLatLng = "{{center|escapejs }}";
-                    var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
-                    var dataUrl = '{{ request.path }}' + 'all_data';
-                    var mapIconPath = "{% static 'image/leaflet' %}";
-                    var sensorDataUrl = '{% url "sensors_metadata" %}';
-                    var regionDataUrl = '{% url "regions_metadata" %}';
-                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
-                </script>
-
-            </div>
-            <div id="map-options" class="col-sm-4">
+            <div id="map-options" class="col-sm-3">
 
                 <div id="download-options" class="panel-group">
                     <div class="panel panel-default">
@@ -289,11 +260,39 @@
                     </div>
                     <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
                 </div>
+            </div>
+            <div id="map" class="col-sm-6">
+                <div id="loader-outer"></div>
 
+                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
+                <div id="mapid"></div>
 
-                <div id="region-data" class="panel-group">
+                <div id="map-slider">
+                    <div class="slidecontainer">
+                      <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
 
+                        <div id="map-sliderheader">
+                            <div id="slider-value">Value: <span id="current-timestamp"></span></div>
+
+                        </div>
+
+                    </div>
                 </div>
+
+                <script type="text/javascript">
+                    var timestampRange = "{{timestamp_range|escapejs }}";
+                    var centerLatLng = "{{center|escapejs }}";
+                    var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
+                    var dataUrl = '{{ request.path }}' + 'all_data';
+                    var mapIconPath = "{% static 'image/leaflet' %}";
+                    var sensorDataUrl = '{% url "sensors_metadata" %}';
+                    var regionDataUrl = '{% url "regions_metadata" %}';
+                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
+                </script>
+            </div>
+            <div id="further-data" class="col-sm-3">
+                <div id="region-data" class="panel-default"></div>
+                <div id="sensor-data" class="panel-default"></div>
             </div>
         </div>
     </div>

@@ -97,17 +97,36 @@ pre {
 
 #map-options{
     height: 800px;
-    padding-left:0;
-    padding-right:0;
+    padding-left:5px;
+    padding-right:5px;
 }
 
 #map-options div{
     padding: 5px;
 }
 
+#further-data{
+    padding:5px;
+}
+
 
 #region-data{
-    border-style: ridge;
+    border-style: double;
+    height:250px;
+}
+
+#region-data table{
+    width: 100%;
+    table-layout: fixed;
+}
+
+#region-data table td{
+    overflow-wrap: break-word;
+}
+
+#sensor-data{
+    border-style: double;
+    height:250px;
 }
 
 
