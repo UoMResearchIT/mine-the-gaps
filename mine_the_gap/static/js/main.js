@@ -310,7 +310,7 @@ $(document).ready(function(){
                                 }
                             },
                         ).on('click', function(e) {
-                            get_sensor_graph(loc.sensor_id)
+                           get_sensor_graph(measurement, loc.sensor_id);
                         });
 
                     // Add marker
@@ -709,9 +709,7 @@ function get_csv(url, filename='data.csv', jsonParams={}){
 };
 
 
-function get_sensor_graph(sensor_id) {
-    alert(sensor_id);
-
+function get_sensor_graph(measurement, sensor_id) {
     // Set up loader display
     var loaderOuterDiv = document.getElementById('loader-outer');
     var loaderDiv = document.createElement('div');
@@ -719,29 +717,39 @@ function get_sensor_graph(sensor_id) {
     loaderOuterDiv.appendChild(loaderDiv);
     drawLoader(loaderDiv, '<p>Getting sensor graph data...</p>');
 
-
+    //url: sensor_timeseries/<slug:measurement>/<int:sensor_id>
 
     $.ajax({
-        url: url,
-        data: JSON.stringify(jsonParams),
+        url: sensorTimeseriesUrl + '/' + measurement + '/' + sensor_id + '/',
         headers: {"X-CSRFToken": csrftoken},
-        dataType: 'text',
+        dataType: 'json',
         method: 'POST',
         timeout: 40000,
         async: false,
         success: function (data) {
-            if (!data.match(/^data:text\/csv/i)) {
-                data = 'data:text/csv;charset=utf-8,' + data;
-            }
+            var ctx = document.getElementById('sensor-chart').getContext('2d');
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'line',
 
-            link = document.createElement('a');
-            link.setAttribute('href', data);
-            link.setAttribute('download', filename);
-            link.click();
+                // The data for our dataset
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                    datasets: [{
+                        label: 'My First dataset',
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: [0, 10, 5, 2, 20, 30, 45]
+                    }]
+                },
+
+                // Configuration options go here
+                options: {}
+            });
 
         },
         error: function (request, state, errors) {
-            alert("There was an problem downloading the data: " + errors.toString());
+            alert("There was an problem obtaining the sensor timeseries data: " + errors.toString());
         },
         complete: function (request, status) {
             // Clear Loader
@@ -749,8 +757,7 @@ function get_sensor_graph(sensor_id) {
                 loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
             }
         }
-    })
-
+    });
 }
 
 
@@ -857,12 +864,14 @@ function get_region_default(){
 
 function get_sensor_default(){
     return '<p><b>Sensor: </b>None</p>' +
+            '<canvas id="sensor-chart">' +
     '<table class="table table-striped">' +
         '<tr><td colspan="2"><p>Click on sensor to see sensor data.</p></td></tr>' +
         '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p></td></tr>' +
         '<tr><td colspan="2">(i) use slider to find another timestamp <br>' +
         '(ii) use \'Select measurement\' option to change measurements.</td></tr>' +
-        '</table>'
+        '</table>' +
+            '</canvas>'
 }
 
 

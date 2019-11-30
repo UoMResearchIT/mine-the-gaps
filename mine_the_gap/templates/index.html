@@ -305,12 +305,18 @@
                     var sensorDataUrl = '{% url "sensors_metadata" %}';
                     var regionDataUrl = '{% url "regions_metadata" %}';
                     var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
-                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
+
+                    var sensorTimeseriesUrl = '{{ request.path }}' + 'sensor_timeseries';
+                    var estimatedTimeseriesUrl = '{{ request.path }}' + 'estimated_fields';
+
                 </script>
+
             </div>
             <div id="further-data" class="col-sm-3">
-                <div id="region-data" class="panel-default"></div>
-                <div id="sensor-data" class="panel-default"></div>
+                <div id="region-data" ></div>
+                <div id="sensor-data" >
+
+                </div>
             </div>
         </div>
     </div>
