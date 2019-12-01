@@ -203,22 +203,21 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all
                                                 actual_data__sensor_id=sensor_id)
     elif timestamp_val:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                actual_data__timestamp=str(timestamp_val))
+                                                actual_data__timestamp=str(timestamp_val))\
+            .order_by('actual_data__sensor_id')
     elif sensor_id:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                actual_data__sensor_id=sensor_id)
+                                                actual_data__sensor_id=sensor_id)\
+            .order_by('actual_data__timestamp')
     else:
-        query_set = Actual_value.objects.filter(measurement_name=measurement)
+        query_set = Actual_value.objects.filter(measurement_name=measurement) \
+            .order_by('actual_data__sensor_id', 'actual_data__timestamp')
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     for row in query_set.iterator():
-        try:
-            percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
-        except:
-            percentage_score = None
-
+        percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
         new_row = dict(row.join_sensor) if return_all_fields else dict(row.join_sensor_lite)
         new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
         new_row['percent_score'] = percentage_score
@@ -227,7 +226,10 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all
     return data
 
 def calcuate_percentage_score(value, min, max):
-    return (value - min) / (max - min)
+    try:
+        return round((value - min) / (max - min),2)
+    except:
+        return None
 
 
 def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False,

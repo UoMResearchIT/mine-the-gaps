@@ -300,18 +300,22 @@ $(document).ready(function(){
                     };
 
 
-                    var marker = new L.Marker.SVGMarker(latlng,
+                    var sensorMarker = new L.Marker.SVGMarker(latlng,
                             {   iconOptions: {
                                     color: valColor,
                                     iconSize: [30,40],
                                     circleText: locValue,
                                     circleRatio: 0.8,
                                     fontSize:8
-                                }
-                            },
-                        ).on('click', function(e) {
-                           get_sensor_graph(measurement, loc.sensor_id);
-                        });
+                                },
+                            }
+                        ).on('click', onSensorGraphClick);
+
+                    sensorMarker.sensorId = loc.sensor_id;
+                    sensorMarker.sensorName = loc.name;
+                    sensorMarker.regionId = loc.regions;
+                    sensorMarker.measurement = measurement;
+
 
                     // Add marker
 
@@ -334,9 +338,9 @@ $(document).ready(function(){
                     };
                     extraData += '</table>';
 
-                    marker.bindPopup(extraData);
+                    sensorMarker.bindPopup(extraData);
 
-                    sensorsLayer.addLayer(marker);
+                    sensorsLayer.addLayer(sensorMarker);
                 };
                 sensorsLayer.addTo(map);
 
@@ -408,7 +412,7 @@ $(document).ready(function(){
                     alert("There was an problem fetching the data: " + errors.toString());
             },
             complete: function (request, status) {
-                    // Clear Loader
+                // Clear Loader
                 while (loaderOuterDiv.firstChild) {
                     loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
                 }
@@ -709,53 +713,104 @@ function get_csv(url, filename='data.csv', jsonParams={}){
 };
 
 
-function get_sensor_graph(measurement, sensor_id) {
-    // Set up loader display
-    var loaderOuterDiv = document.getElementById('loader-outer');
-    var loaderDiv = document.createElement('div');
-    loaderDiv.id = 'loader';
-    loaderOuterDiv.appendChild(loaderDiv);
-    drawLoader(loaderDiv, '<p>Getting sensor graph data...</p>');
+function onSensorGraphClick(e) {
+    var measurement = e.target.measurement;
+    var sensorId = e.target.sensorId;
+    var regionId = e.target.regionId;
+    var sensorName = e.target.sensorName;
 
+    $('#sensor-name').html(sensorName);
+
+    var ctx = document.getElementById('sensor-chart').getContext('2d');
+    var sensorChart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+        // The data for our dataset
+        data: {
+            labels: timestampList,
+            datasets: [],
+        },
+        // Configuration options go here
+        options: {}
+    });
+
+    getActualTimeseries(measurement, sensorId, sensorChart);
+    getEstimatedTimeseries(measurement,'diffusion', regionId, sensorId, sensorChart);
+}
+
+function getTimestampValue(data, timestamp) {
+    for (var i=0; i<data.length; i++){
+        if(data[i]['timestamp'].trim() == timestamp.trim()){
+            //alert('timestamp: ' + timestamp + '; dataItem: ' + data[i]['timestamp']);
+            return data[i]['percent_score'];
+        }
+    }
+    return null;
+}
+
+function getActualTimeseries(measurement, sensorId, chart){
     //url: sensor_timeseries/<slug:measurement>/<int:sensor_id>
 
+    var actualUrl = sensorTimeseriesUrl + '/' + measurement + '/' + sensorId + '/';
+    //alert(actualUrl);
     $.ajax({
-        url: sensorTimeseriesUrl + '/' + measurement + '/' + sensor_id + '/',
+        url: actualUrl,
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'json',
         method: 'POST',
         timeout: 40000,
-        async: false,
+        async: true,
         success: function (data) {
-            var ctx = document.getElementById('sensor-chart').getContext('2d');
-            var chart = new Chart(ctx, {
-                // The type of chart we want to create
-                type: 'line',
-
-                // The data for our dataset
-                data: {
-                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                    datasets: [{
-                        label: 'My First dataset',
-                        backgroundColor: 'rgb(255, 99, 132)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        data: [0, 10, 5, 2, 20, 30, 45]
-                    }]
-                },
-
-                // Configuration options go here
-                options: {}
-            });
-
+            var values = [];
+            for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
+                values.push(getTimestampValue(data, timestampList[timestampIdx]));
+            };
+            chart.data.datasets.push(
+                    {
+                        label: 'Sensor values',
+                        backgroundColor: 'green',
+                        borderColor: 'black',
+                        data: values
+                    }
+            );
+            chart.update();
         },
         error: function (request, state, errors) {
             alert("There was an problem obtaining the sensor timeseries data: " + errors.toString());
+        }
+    });
+}
+
+function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, chart){
+    //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/
+    var url_estimates = estimatedTimeseriesUrl + '/diffusion/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
+
+    //alert(url_estimates);
+    $.ajax({
+        url: url_estimates,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 40000,
+        async: true,
+        success: function (data) {
+            var estValues = [];
+            for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
+                estValues.push(getTimestampValue(data, timestampList[timestampIdx]));
+            };
+            chart.data.datasets.push(
+                    {
+                        label: 'Estimated values',
+                        backgroundColor: 'blue',
+                        borderColor: 'black',
+                        data: estValues
+                    }
+            );
+            chart.update();
         },
-        complete: function (request, status) {
-            // Clear Loader
-            while (loaderOuterDiv.firstChild) {
-                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-            }
+        error: function (request, state, errors) {
+            alert("There was an problem obtaining the estimated timeseries data: " + errors.toString());
+            return []
         }
     });
 }
@@ -863,15 +918,14 @@ function get_region_default(){
 }
 
 function get_sensor_default(){
-    return '<p><b>Sensor: </b>None</p>' +
-            '<canvas id="sensor-chart">' +
-    '<table class="table table-striped">' +
-        '<tr><td colspan="2"><p>Click on sensor to see sensor data.</p></td></tr>' +
-        '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p></td></tr>' +
-        '<tr><td colspan="2">(i) use slider to find another timestamp <br>' +
-        '(ii) use \'Select measurement\' option to change measurements.</td></tr>' +
-        '</table>' +
-            '</canvas>'
+    return '<div id="sensor-name"><b>Sensor: </b>None</div>' +
+            '<canvas id="sensor-chart"></canvas>' +
+        '<table class="table table-striped">' +
+            '<tr><td colspan="2"><p>Click on sensor to see sensor data.</p></td></tr>' +
+            '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p></td></tr>' +
+            '<tr><td colspan="2">(i) use slider to find another timestamp <br>' +
+            '(ii) use \'Select measurement\' option to change measurements.</td></tr>' +
+        '</table>';
 }
 
 
