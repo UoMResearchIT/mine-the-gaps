@@ -78,7 +78,7 @@ $(document).ready(function(){
     var bounds = map.getBounds();
 
     $('#region-data').html(get_region_default());
-    $('#sensor-data').html(get_sensor_default());
+    $('#sensor-data-instructions').html(get_sensor_default());
 
 
     update_map(map);
@@ -309,7 +309,7 @@ $(document).ready(function(){
                                     fontSize:8
                                 },
                             }
-                        ).on('click', onSensorGraphClick);
+                        ).on('click', onSensorClick);
 
                     sensorMarker.sensorId = loc.sensor_id;
                     sensorMarker.sensorName = loc.name;
@@ -713,16 +713,22 @@ function get_csv(url, filename='data.csv', jsonParams={}){
 };
 
 
-function onSensorGraphClick(e) {
+function onSensorClick(e) {
     var measurement = e.target.measurement;
     var sensorId = e.target.sensorId;
     var regionId = e.target.regionId;
     var sensorName = e.target.sensorName;
+    var estimationMethod = $("input[name='estimation-method']:checked").val();
 
-    $('#sensor-name').html(sensorName);
+    $('#sensor-chart-title').html('<p><b>Sensor Name: ' + sensorName + '</b><br>' +
+                                  'Measurment: ' + measurement + '<br>' +
+                                  'Estimation Method: ' + estimationMethod + '</p>');
 
+    if((typeof sensorChart != "undefined")){
+        sensorChart.destroy();
+    }
     var ctx = document.getElementById('sensor-chart').getContext('2d');
-    var sensorChart = new Chart(ctx, {
+    sensorChart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
         // The data for our dataset
@@ -735,7 +741,7 @@ function onSensorGraphClick(e) {
     });
 
     getActualTimeseries(measurement, sensorId, sensorChart);
-    getEstimatedTimeseries(measurement,'diffusion', regionId, sensorId, sensorChart);
+    getEstimatedTimeseries(measurement, estimationMethod, regionId, sensorId, sensorChart);
 }
 
 function getTimestampValue(data, timestamp) {
@@ -783,7 +789,7 @@ function getActualTimeseries(measurement, sensorId, chart){
 
 function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, chart){
     //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/
-    var url_estimates = estimatedTimeseriesUrl + '/diffusion/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
+    var url_estimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
 
     //alert(url_estimates);
     $.ajax({
@@ -918,13 +924,11 @@ function get_region_default(){
 }
 
 function get_sensor_default(){
-    return '<div id="sensor-name"><b>Sensor: </b>None</div>' +
-            '<canvas id="sensor-chart"></canvas>' +
-        '<table class="table table-striped">' +
-            '<tr><td colspan="2"><p>Click on sensor to see sensor data.</p></td></tr>' +
-            '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p></td></tr>' +
-            '<tr><td colspan="2">(i) use slider to find another timestamp <br>' +
-            '(ii) use \'Select measurement\' option to change measurements.</td></tr>' +
+    return '<table class="table table-striped">' +
+            '<tr><td colspan="2"><p>Click on sensor to see sensor data across <em>all</em> timestamps.</p></td></tr>' +
+            '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p>' +
+            '<p>(i) use slider to find another timestamp</p>' +
+            '<p>(ii) use \'Select measurement\' option to change measurements.</p></td></tr>' +
         '</table>';
 }
 
