@@ -720,15 +720,36 @@ function onSensorClick(e) {
     var sensorName = e.target.sensorName;
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
-    $('#sensor-chart-title').html('<p><b>Sensor Name: ' + sensorName + '</b><br>' +
-                                  'Measurment: ' + measurement + '<br>' +
-                                  'Estimation Method: ' + estimationMethod + '</p>');
+    /*
+        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+            <canvas id="sensor-chart"></canvas>
+        </div>
+      </a>
 
-    if((typeof sensorChart != "undefined")){
-        sensorChart.destroy();
-    }
-    var ctx = document.getElementById('sensor-chart').getContext('2d');
-    sensorChart = new Chart(ctx, {
+     */
+
+    var listItem = document.createElement('a');
+    listItem.className = "list-group-item list-group-item-action flex-column align-items-start sensor-chart";
+    listItem.href = '#';
+    var listItemDiv = document.createElement('div');
+    listItemDiv.className = 'd-flex w-100 justify-content-between';
+    var newChart = document.createElement('canvas');
+    newChart.id="sensor-chart";
+    var newChartTitle = document.createElement('div');
+
+    newChartTitle.innerHTML = '<p><b>Sensor Name: ' + sensorName + '</b><br>' +
+                                  'Measurment: ' + measurement + '<br>' +
+                                  'Estimation Method: ' + estimationMethod + '</p>';
+
+    listItemDiv.appendChild(newChartTitle);
+    listItemDiv.appendChild(newChart);
+    listItem.appendChild(listItemDiv);
+    var list = document.getElementById('sensor-charts');
+    list.insertBefore(listItem, list.firstChild);
+
+    var ctx = newChart.getContext('2d');
+    var sensorChart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
         // The data for our dataset
@@ -925,7 +946,7 @@ function get_region_default(){
 
 function get_sensor_default(){
     return '<table class="table table-striped">' +
-            '<tr><td colspan="2"><p>Click on sensor to see sensor data across <em>all</em> timestamps.</p></td></tr>' +
+            '<tr><td colspan="2"><p>Click on a sensor to see sensor and estimated data across <em>all</em> timestamps.</p></td></tr>' +
             '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p>' +
             '<p>(i) use slider to find another timestamp</p>' +
             '<p>(ii) use \'Select measurement\' option to change measurements.</p></td></tr>' +
