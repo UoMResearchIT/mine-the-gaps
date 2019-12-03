@@ -89,7 +89,28 @@ def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
     return JsonResponse(data, safe=False)
 
 def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
-    data = estimates(request, method_name, measurement, timestamp_val=timestamp_val, region_id=region_id, return_all_fields=False)
+    data = estimates(
+        request,
+        method_name,
+        measurement,
+        timestamp_val=timestamp_val,
+        region_id=region_id,
+        return_all_fields=False)
+    return JsonResponse(data, safe=False)
+
+def get_actuals_timeseries(request, measurement, sensor_id=None):
+    data = actuals(request, measurement, timestamp_val=None, sensor_id=sensor_id, return_all_fields=False)
+    return JsonResponse(data, safe=False)
+
+def get_estimates_timeseries(request, method_name, measurement, region_id=None, ignore_sensor_id=None):
+    data = estimates(
+        request,
+        method_name,
+        measurement,
+        timestamp_val=None,
+        region_id=region_id,
+        return_all_fields=False,
+        ignore_sensor_id=ignore_sensor_id)
     return JsonResponse(data, safe=False)
 
 
@@ -182,22 +203,21 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all
                                                 actual_data__sensor_id=sensor_id)
     elif timestamp_val:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                actual_data__timestamp=str(timestamp_val))
+                                                actual_data__timestamp=str(timestamp_val))\
+            .order_by('actual_data__sensor_id')
     elif sensor_id:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                actual_data__sensor_id=sensor_id)
+                                                actual_data__sensor_id=sensor_id)\
+            .order_by('actual_data__timestamp')
     else:
-        query_set = Actual_value.objects.filter(measurement_name=measurement)
+        query_set = Actual_value.objects.filter(measurement_name=measurement) \
+            .order_by('actual_data__sensor_id', 'actual_data__timestamp')
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     for row in query_set.iterator():
-        try:
-            percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
-        except:
-            percentage_score = None
-
+        percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
         new_row = dict(row.join_sensor) if return_all_fields else dict(row.join_sensor_lite)
         new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
         new_row['percent_score'] = percentage_score
@@ -206,10 +226,14 @@ def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all
     return data
 
 def calcuate_percentage_score(value, min, max):
-    return (value - min) / (max - min)
+    try:
+        return round((value - min) / (max - min),2)
+    except:
+        return None
 
 
-def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False):
+def estimates(request, method_name, measurement, timestamp_val=None,  region_id=None, return_all_fields=False,
+              ignore_sensor_id=None):
     data = []
     measurement = measurement.strip()
 
@@ -226,16 +250,20 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
         if timestamp_val and region_id:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
                                                        estimated_data__timestamp=str(timestamp_val),
-                                                       estimated_data__region_id=region_id)
+                                                       estimated_data__region_id=region_id)\
+                .order_by('estimated_data__region_id','estimated_data__timestamp')
 
         elif timestamp_val:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
-                                                       estimated_data__timestamp=str(timestamp_val))
+                                                       estimated_data__timestamp=str(timestamp_val))\
+                .order_by('estimated_data__region_id', 'estimated_data__timestamp')
         elif region_id:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
-                                                       actual_data__sensor_id=region_id)
+                                                       estimated_data__region_id=region_id)\
+                .order_by('estimated_data__region_id','estimated_data__timestamp')
         else:
-            query_set = Estimated_value.objects.filter(measurement_name=measurement)
+            query_set = Estimated_value.objects.filter(measurement_name=measurement)\
+                .order_by('estimated_data__region_id','estimated_data__timestamp', 'measurement_name')
 
 
         for row in query_set.iterator():
@@ -249,7 +277,8 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
             new_row['method_name'] = method_name
             data.append(new_row)
     else:
-        sensors = filter_sensors(Sensor.objects.all(), sensor_params)
+        sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
+
         try:
             estimator = Region_estimator_factory.create_region_estimator(method_name, sensors)
         except Exception as err:
@@ -265,7 +294,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
                     else:
                         percentage_score = None
                     data.append(    {'region_id': row['region_id'],
-                                     'timestamp':row['timestamp'],
+                                     'timestamp':estimate_result['timestamp'],
                                      'value': estimate_result['value'],
                                      'percent_score': percentage_score,
                                      'method_name': method_name,

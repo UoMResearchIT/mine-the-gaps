@@ -5,222 +5,229 @@
 {% block body-class %}page-head{% endblock %}
 
 {% block content %}
+    {% block load_files %}
 
-    {% if form %}
-        <div id="load-files" class="container">
-            <div class="row">
-                <div class="col-sm-2">
-                    <button id="btn-select-files">Select data files</button>
+        {% if form %}
+            <div id="load-files" class="container">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button id="btn-select-files">Select data files</button>
+                    </div>
+                </div>
+                <div class="row" id="select-files">
+                    {% with filepaths|first as filepath %}
+                        <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                            <div id="upload-fields" class='col-sm-12'>
+                                {% csrf_token %}
+                                <table class="table table-striped">
+                                    <tr>
+                                      <th scope="col"></th>
+                                        <th scope="col">Timestamped data</th>
+                                        <th scope="col">Metadata</th>
+                                    </tr>
+                                    <tr>
+                                        {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
+
+
+                                        <th scope="row">Actual data</th>
+                                        <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
+                                            {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
+                                        <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
+                                            {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Estimated data</th>
+                                        <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
+                                            {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
+                                        <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
+                                            {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
+                                    </tr>
+                                </table>
+                                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                            </div>
+
+                        </form>
+                    {% endwith %}
                 </div>
             </div>
-            <div class="row" id="select-files">
-                {% with filepaths|first as filepath %}
-                    <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                        <div id="upload-fields" class='col-sm-12'>
-                            {% csrf_token %}
-                            <table class="table table-striped">
-                                <tr>
-                                  <th scope="col"></th>
-                                    <th scope="col">Timestamped data</th>
-                                    <th scope="col">Metadata</th>
-                                </tr>
-                                <tr>
+        {% endif %}
+    {% endblock %}
 
-
-                                    {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
-
-
-                                    <th scope="row">Actual data</th>
-                                    <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
-                                        {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
-                                    <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
-                                        {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Estimated data</th>
-                                    <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
-                                        {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
-                                    <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
-                                        {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
-                                </tr>
-                            </table>
-                            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-                        </div>
-
-                    </form>
-                {% endwith %}
-            </div>
-        </div>
-    {% endif %}
-
-    <div id="map-main-info" class="container">
+    <div id="map-main-info" class="container-fluid">
         <div class="row" id="main">
-            <div id="map" class="col-sm-8">
-                <div id="loader-outer"></div>
 
-                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
-                <div id="mapid"></div>
+            <div id="map-options" class="col-sm-3">
 
-                <div id="map-slider">
-                    <div class="slidecontainer">
-                      <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <div id="map-slider">
+                                    <div class="slidecontainer">
+                                      <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
 
-                        <div id="map-sliderheader">
-                            <div id="slider-value">Value: <span id="current-timestamp"></span></div>
+                                        <div id="map-sliderheader">
+                                            <div id="slider-value">Timestamp: <span id="current-time" class="chosen-option"></span></div>
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                 </div>
 
-                <script type="text/javascript">
-                    var timestampRange = "{{timestamp_range|escapejs }}";
-                    var centerLatLng = "{{center|escapejs }}";
-                    var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
-                    var dataUrl = '{{ request.path }}' + 'all_data';
-                    var mapIconPath = "{% static 'image/leaflet' %}";
-                    var sensorDataUrl = '{% url "sensors_metadata" %}';
-                    var regionDataUrl = '{% url "regions_metadata" %}';
-                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
-                </script>
-
-            </div>
-            <div id="map-options" class="col-sm-4">
-
                 <div id="download-options" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseDownload" aria-expanded="false" aria-controls="collapseDownload">
+                    <div class="panel panel-default" data-toggle="modal" data-target="#modalDownload">
+                        <div class="panel-heading">
                             <div class="panel-title">Download data</div>
                         </div>
                     </div>
-                    <div id="collapseDownload" class="panel-collapse collapse">
-                        <table class="table table-condensed">
-                            <tr id="file-download-instructions" class="download-instructions">
-                                <td colspan="4"><em><b>Download original files used to initialise the map:</b></em></td>
-                            </tr>
-                            <tr id="sensors-download" class="download-file">
-                                <td>
-                                    <label>Sensor metadata</label>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_csv('sensors_metadata_file/csv/','sensors_metatdata.csv');">CSV</button>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_json('sensors_metadata_file/json/','sensors_metadata.json');">JSON</button>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_geojson(sensorDataUrl,'sensors_metadata_geojson.json');">GeoJSON</button>
+                    <div id="modalDownload" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
 
-                                </td>
-                            </tr>
-                            <tr id="actuals-download" class="download-file">
-                                <td>
-                                    <label>Sensor data</label>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_csv('sensors_data_file/csv/','sensors_data.csv');">CSV</button>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_json('sensors_data_file/json/','sensors_data.json');">JSON</button>
-                                </td>
-                                <td></td>
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Download Data</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <table id="download-buttons" class="table table-condensed modal-dialog">
+                                        <tr id="file-download-instructions" class="download-instructions">
+                                            <td colspan="4"><em><b>Download original files used to initialise the map:</b></em></td>
+                                        </tr>
+                                        <tr id="sensors-download" class="download-file">
+                                            <td>
+                                                <label>Sensor metadata</label>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_csv('sensors_metadata_file/csv/','sensors_metatdata.csv');">CSV</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_json('sensors_metadata_file/json/','sensors_metadata.json');">JSON</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_geojson(sensorDataUrl,'sensors_metadata_geojson.json');">GeoJSON</button>
 
-                            </tr>
-                            <tr id="regions-download" class="download-file">
-                                <td>
-                                    <label>Region metadata</label>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_csv('regions_metadata_file/csv/','regions_metadata.csv');">CSV</button>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_json('regions_metadata_file/json/','regions_metadata.json');">JSON</button>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_geojson(regionDataUrl,'regions_metadata_geojson.json');">GeoJSON</button>
-                                </td>
-                            </tr>
-                            <tr id="estimates-download" class="download-file">
-                                <td>
-                                    <label>Region estimates</label>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_csv('regions_estimates_file/csv/','regions_estimates.csv');">CSV</button>
-                                </td>
-                                <td>
-                                    <button type="button" onclick="download_json('regions_estimates_file/json/','regions_estimates.json');">JSON</button>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr><td colspan="4"></td> </tr>
-                            <tr id="api-call-instructions" class="download-instructions">
-                                <td colspan="4"><em><b>Obtain data using REST API:</b>
-                                <br>(Can include newly calculated estimates)</em><br>
-                                <em>Prefix all calls with: <br>
-                                    <code>minethegaps.itservices.manchester.ac.uk</code></em></td>
-                            </tr>
-                            <tr class="download-instructions sub-instructions">
-                                <td colspan="4"><em>Get original files as json</em></td>
-                            </tr>
-                            <tr class="sample-api-call">
-                                <td colspan="4">
-                                    <code>
-                                        /sensors_metadata_file/<br>
-                                        /regions_metadata_file/<br>
-                                        /sensors_data_file/<br>
-                                        /regions_estimates_file/
-                                    </code>
-                                </td>
-                            </tr>
-                            <tr><td colspan="4"></td> </tr>
-                            <tr class="download-instructions sub-instructions">
-                                <td colspan="4"><em>Get geoJson of sensors or regions metadata:</em></td>
-                            </tr>
-                            <tr class="sample-api-call">
-                                <td colspan="4">
-                                    <code>
-                                    /sensors_metadata.geojson<br>
-                                    /regions_metadata.geojson
-                                    </code>
-                                </td>
-                            </tr>
-                            <tr><td colspan="4"></td> </tr>
-                            <tr class="download-instructions sub-instructions">
-                                <td colspan="4"><em>Get data for particular measurement, timestamp and region/sensor</em></td>
-                            </tr>
-                            <tr class="sample-api-call">
-                                <td colspan="4">
-                                    <code>
-                                        /sensor_data/[str:measurement]/[str:timestamp]/[int:sensor_id]/<br>
-                                        /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/[int:sensor_id]/
-                                    </code>
-                                </td>
-                            </tr>
-                            <tr><td colspan="4"></td> </tr>
-                            <tr class="download-instructions sub-instructions">
-                                <td colspan="4"><em>Get data for particular measurement and timestamp</em></td>
-                            </tr>
-                            <tr class="sample-api-call">
-                                <td colspan="4">
-                                    <code>
-                                        /sensor_data/[str:measurement]/[str:timestamp]/<br>
-                                        /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/
-                                    </code>
-                                </td>
-                            </tr>
-                            <tr><td colspan="4"></td> </tr>
-                            <tr class="download-instructions sub-instructions">
-                                <td colspan="4"><em>Get timeseries data for particular measurement and region/sensor_id</em></td>
-                            </tr>
-                            <tr class="sample-api-call">
-                                <td colspan="4">
-                                    <code>
-                                        /sensor_timeseries/[str:measurement]/[int:sensor_id]/<br>
-                                        /estimated_timeseries/[str:estimation_method]/[str:measurement]/[str:region_id]/
-                                    </code>
-                                </td>
-                            </tr>
-                        </table>
+                                            </td>
+                                        </tr>
+                                        <tr id="actuals-download" class="download-file">
+                                            <td>
+                                                <label>Sensor data</label>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_csv('sensors_data_file/csv/','sensors_data.csv');">CSV</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_json('sensors_data_file/json/','sensors_data.json');">JSON</button>
+                                            </td>
+                                            <td></td>
+
+                                        </tr>
+                                        <tr id="regions-download" class="download-file">
+                                            <td>
+                                                <label>Region metadata</label>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_csv('regions_metadata_file/csv/','regions_metadata.csv');">CSV</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_json('regions_metadata_file/json/','regions_metadata.json');">JSON</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_geojson(regionDataUrl,'regions_metadata_geojson.json');">GeoJSON</button>
+                                            </td>
+                                        </tr>
+                                        <tr id="estimates-download" class="download-file">
+                                            <td>
+                                                <label>Region estimates</label>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_csv('regions_estimates_file/csv/','regions_estimates.csv');">CSV</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="download_json('regions_estimates_file/json/','regions_estimates.json');">JSON</button>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </table>
+                                    <table id="api-instructions" class="table table-condensed">
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr id="api-call-instructions" class="download-instructions">
+                                            <td colspan="4"><em><b>Obtain data using REST API:</b>
+                                            <br>(Can include newly calculated estimates)</em><br>
+                                            <em>Prefix all calls with: <br>
+                                                <code>minethegaps.itservices.manchester.ac.uk</code></em></td>
+                                        </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get original files as json</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /sensors_metadata_file/<br>
+                                                    /regions_metadata_file/<br>
+                                                    /sensors_data_file/<br>
+                                                    /regions_estimates_file/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get geoJson of sensors or regions metadata:</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                /sensors_metadata.geojson<br>
+                                                /regions_metadata.geojson
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get data for particular measurement, timestamp and region/sensor</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /sensor_data/[str:measurement]/[str:timestamp]/[int:sensor_id]/<br>
+                                                    /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/[str:region_id]/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get data for particular measurement and timestamp</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /sensor_data/[str:measurement]/[str:timestamp]/<br>
+                                                    /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get timeseries data for particular measurement and region/sensor_id</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /sensor_timeseries/[str:measurement]/[int:sensor_id]/<br>
+                                                    /estimated_timeseries/[str:estimation_method]/[str:measurement]/[str:region_id]/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                             </div>
+                        </div>
                     </div>
                 </div>
 
@@ -289,17 +296,44 @@
                     </div>
                     <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
                 </div>
+            </div>
+            <div id="map" class="col-sm-6">
+                <div id="loader-outer"></div>
 
+                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
+                <div id="mapid"></div>
 
-                <div id="region-data" class="panel-group">
+                <script type="text/javascript">
+                    var timestampRange = "{{timestamp_range|escapejs }}";
+                    var centerLatLng = "{{center|escapejs }}";
+                    var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
+                    var dataUrl = '{{ request.path }}' + 'all_data';
+                    var mapIconPath = "{% static 'image/leaflet' %}";
+                    var sensorDataUrl = '{% url "sensors_metadata" %}';
+                    var regionDataUrl = '{% url "regions_metadata" %}';
+                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
 
-                </div>
+                    var sensorTimeseriesUrl = '{{ request.path }}' + 'sensor_timeseries';
+                    var estimatedTimeseriesUrl = '{{ request.path }}' + 'estimated_timeseries';
+
+                </script>
+
+            </div>
+            <div id="further-data" class="col-sm-3">
+                <div id="sensor-data" >
+                    <div id="sensor-data-instructions"></div>
+                    <div id="sensor-charts"></div>
+                </div><br>
+                <div id="region-data" ></div>
             </div>
         </div>
     </div>
 
 
 {% endblock %}
+
+
+
 
 
 
