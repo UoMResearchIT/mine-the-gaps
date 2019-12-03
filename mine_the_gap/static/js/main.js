@@ -368,6 +368,14 @@ $(document).ready(function(){
                   ]
                 */
 
+                // Clear each region's layer info
+                for (var key in regions) {
+                    regions[key].bindTooltip('None',
+                        {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
+                    )
+
+                }
+
                 // Update regions to show values
                 for (var i=0; i<estimatedData.length; i++){
                     var region = estimatedData[i];
