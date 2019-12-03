@@ -213,7 +213,7 @@ $(document).ready(function(){
 
     function initialise_slider(value=0){
         var slider = document.getElementById("timestamp-range");
-        var output = document.getElementById("current-timestamp");
+        var output = document.getElementById("current-time");
         slider.min = 0;
         slider.max = timestampList.length-1;
         slider.value = value;
@@ -309,13 +309,7 @@ $(document).ready(function(){
                                     fontSize:8
                                 },
                             }
-                        ).on('click', onSensorClick);
-
-                    sensorMarker.sensorId = loc.sensor_id;
-                    sensorMarker.sensorName = loc.name;
-                    sensorMarker.regionId = loc.regions;
-                    sensorMarker.measurement = measurement;
-
+                        );
 
                     // Add marker
 
@@ -338,7 +332,14 @@ $(document).ready(function(){
                     };
                     extraData += '</table>';
 
-                    sensorMarker.bindPopup(extraData);
+
+                    //onSensorClick(measurement, sensorId, regionId, sensorName)
+
+                    var button = document.createElement('button');
+                    button.name = 'get-timeseries';
+                    button.innerHTML = 'Get timeseries';
+                    button.setAttribute("onclick", "onSensorClick('"+measurement+"','" +loc.sensor_id + "','" + loc.regions + "','" + loc.name + "')");
+                    sensorMarker.bindPopup(extraData + button.outerHTML);
 
                     sensorsLayer.addLayer(sensorMarker);
                 };
@@ -713,29 +714,16 @@ function get_csv(url, filename='data.csv', jsonParams={}){
 };
 
 
-function onSensorClick(e) {
-    var measurement = e.target.measurement;
-    var sensorId = e.target.sensorId;
-    var regionId = e.target.regionId;
-    var sensorName = e.target.sensorName;
+function onSensorClick(measurement, sensorId, regionId, sensorName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
-
-    /*
-        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-        <div class="d-flex w-100 justify-content-between">
-            <canvas id="sensor-chart"></canvas>
-        </div>
-      </a>
-
-     */
 
     var listItem = document.createElement('a');
     listItem.className = "list-group-item list-group-item-action flex-column align-items-start sensor-chart";
     listItem.href = '#';
     var listItemDiv = document.createElement('div');
     listItemDiv.className = 'd-flex w-100 justify-content-between';
-    var newChart = document.createElement('canvas');
-    newChart.id="sensor-chart";
+    var canvasItem = document.createElement('canvas');
+    canvasItem.id="sensor-chart";
     var newChartTitle = document.createElement('div');
 
     newChartTitle.innerHTML = '<p><b>Sensor Name: ' + sensorName + '</b><br>' +
@@ -743,13 +731,13 @@ function onSensorClick(e) {
                                   'Estimation Method: ' + estimationMethod + '</p>';
 
     listItemDiv.appendChild(newChartTitle);
-    listItemDiv.appendChild(newChart);
+    listItemDiv.appendChild(canvasItem);
     listItem.appendChild(listItemDiv);
     var list = document.getElementById('sensor-charts');
     list.insertBefore(listItem, list.firstChild);
 
-    var ctx = newChart.getContext('2d');
-    var sensorChart = new Chart(ctx, {
+    var ctx = canvasItem.getContext('2d');
+    var listChart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
         // The data for our dataset
@@ -761,8 +749,57 @@ function onSensorClick(e) {
         options: {}
     });
 
-    getActualTimeseries(measurement, sensorId, sensorChart);
-    getEstimatedTimeseries(measurement, estimationMethod, regionId, sensorId, sensorChart);
+
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    var modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    var span= document.createElement('span');
+    span.className = "close";
+    span.innerHTML = '&times';
+
+
+    modalContent.appendChild(span);
+
+    var modalCanvas = canvasItem.cloneNode(true);
+    modalCanvas.id = 'modal-canvas';
+
+    var ctxModal = modalCanvas.getContext('2d');
+    var modalChart = new Chart(ctxModal, {
+        // The type of chart we want to create
+        type: 'line',
+        // The data for our dataset
+        data: {
+            labels: timestampList,
+            datasets: [],
+        },
+        // Configuration options go here
+        options: {}
+    });
+
+    modalContent.appendChild(modalCanvas);
+    modal.appendChild(modalContent);
+    list.appendChild(modal);
+
+    // When the user clicks the button, open the modal
+    newChartTitle.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    getActualTimeseries(measurement, sensorId, listChart, modalChart);
+    getEstimatedTimeseries(measurement, estimationMethod, regionId, sensorId, listChart, modalChart);
 }
 
 function getTimestampValue(data, timestamp) {
@@ -775,7 +812,7 @@ function getTimestampValue(data, timestamp) {
     return null;
 }
 
-function getActualTimeseries(measurement, sensorId, chart){
+function getActualTimeseries(measurement, sensorId, listChart, modalChart){
     //url: sensor_timeseries/<slug:measurement>/<int:sensor_id>
 
     var actualUrl = sensorTimeseriesUrl + '/' + measurement + '/' + sensorId + '/';
@@ -792,15 +829,26 @@ function getActualTimeseries(measurement, sensorId, chart){
             for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
                 values.push(getTimestampValue(data, timestampList[timestampIdx]));
             };
-            chart.data.datasets.push(
+            listChart.data.datasets.push(
                     {
                         label: 'Sensor values',
                         backgroundColor: 'green',
-                        borderColor: 'black',
+                        borderColor: 'green',
+                        fill:false,
                         data: values
                     }
             );
-            chart.update();
+            listChart.update();
+            modalChart.data.datasets.push(
+                    {
+                        label: 'Sensor values',
+                        backgroundColor: 'green',
+                        borderColor: 'green',
+                        fill:false,
+                        data: values
+                    }
+            );
+            modalChart.update();
         },
         error: function (request, state, errors) {
             alert("There was an problem obtaining the sensor timeseries data: " + errors.toString());
@@ -808,7 +856,7 @@ function getActualTimeseries(measurement, sensorId, chart){
     });
 }
 
-function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, chart){
+function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, listChart, modalChart){
     //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/
     var url_estimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
 
@@ -825,15 +873,26 @@ function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, c
             for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
                 estValues.push(getTimestampValue(data, timestampList[timestampIdx]));
             };
-            chart.data.datasets.push(
+            listChart.data.datasets.push(
                     {
                         label: 'Estimated values',
-                        backgroundColor: 'blue',
-                        borderColor: 'black',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill:false,
                         data: estValues
                     }
             );
-            chart.update();
+            listChart.update();
+            modalChart.data.datasets.push(
+                    {
+                        label: 'Estimated values',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill:false,
+                        data: estValues
+                    }
+            );
+            modalChart.update();
         },
         error: function (request, state, errors) {
             alert("There was an problem obtaining the estimated timeseries data: " + errors.toString());
@@ -946,11 +1005,28 @@ function get_region_default(){
 
 function get_sensor_default(){
     return '<table class="table table-striped">' +
-            '<tr><td colspan="2"><p>Click on a sensor to see sensor and estimated data across <em>all</em> timestamps.</p></td></tr>' +
+            '<tr><td colspan="2"><p>Click on a sensor to see sensor info and the option to see sensor and estimated data across <em>all</em> timestamps.</p></td></tr>' +
             '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p>' +
             '<p>(i) use slider to find another timestamp</p>' +
             '<p>(ii) use \'Select measurement\' option to change measurements.</p></td></tr>' +
         '</table>';
+}
+
+function cloneCanvas(oldCanvas) {
+
+    //create a new canvas
+    var newCanvas = document.createElement('canvas');
+    var context = newCanvas.getContext('2d');
+
+    //set dimensions
+    newCanvas.width = oldCanvas.width;
+    newCanvas.height = oldCanvas.height;
+
+    //apply the old canvas to the new one
+    context.drawImage(oldCanvas, 0, 0);
+
+    //return the new canvas
+    return newCanvas;
 }
 
 
