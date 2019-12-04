@@ -56,8 +56,8 @@ urlpatterns = [
 
     # Get data for particular measurement  (and estimation method for estimated_data)  -  ALL REGIONS AND TIMESTAMPS (slow)
     # Commented out as too slow!
-    #path('sensor_data/<slug:measurement>/', views.get_actuals),
-    #path('estimated_data/<slug:method_name>/<slug:measurement>/', views.get_estimates),
+    path('sensor_data/<slug:measurement>/', views.get_actuals),
+    path('estimated_data/<slug:method_name>/<slug:measurement>/', views.get_estimates),
 
     ##### Timeseries #####
 
