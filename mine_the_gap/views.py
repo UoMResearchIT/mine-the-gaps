@@ -289,10 +289,7 @@ def estimates(request, method_name, measurement, timestamp_val=None,  region_id=
             for row in result:
                 #print('Row:', str(row))
                 for estimate_result in row['estimates']:
-                    if estimate_result['value'] and min_val and max_val:
-                        percentage_score = calcuate_percentage_score(estimate_result['value'], min_val, max_val)
-                    else:
-                        percentage_score = None
+                    percentage_score = calcuate_percentage_score(estimate_result['value'], min_val, max_val)
                     data.append(    {'region_id': row['region_id'],
                                      'timestamp':estimate_result['timestamp'],
                                      'value': estimate_result['value'],
@@ -520,7 +517,7 @@ def handle_uploaded_files(request):
     else:
 
         #Get all sensor measurement names (only accept estimations of values that we have sensors for)
-        sensor_measurements = get_measurement_names()
+        #sensor_measurements = get_measurement_names()
 
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
@@ -633,18 +630,18 @@ def handle_uploaded_files(request):
 
                         # Check that the name has a matching sensor measurement
                         #  and add to model if it has.
-                        if name in sensor_measurements:
-                            try:
-                                fvalue = float(row[idx])
-                            except:
-                                fvalue = None
+                        #if name in sensor_measurements:
+                        try:
+                            fvalue = float(row[idx])
+                        except:
+                            fvalue = None
 
-                            actual_value = Estimated_value( measurement_name=name,
-                                                            value = fvalue,
-                                                            estimated_data = estimated,
-                                                            extra_data=extra_data,
-                            )
-                            actual_value.save()
+                        actual_value = Estimated_value( measurement_name=name,
+                                                        value = fvalue,
+                                                        estimated_data = estimated,
+                                                        extra_data=extra_data,
+                        )
+                        actual_value.save()
 
 
             except Exception as err:

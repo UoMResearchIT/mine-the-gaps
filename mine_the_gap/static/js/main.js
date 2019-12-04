@@ -830,7 +830,7 @@ function getActualTimeseries(measurement, sensorId, listChart, modalChart){
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'json',
         method: 'POST',
-        timeout: 40000,
+        timeout: 60000,
         async: true,
         success: function (data) {
             var values = [];
@@ -874,7 +874,7 @@ function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, l
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'json',
         method: 'POST',
-        timeout: 40000,
+        timeout: 60000,
         async: true,
         success: function (data) {
             var estValues = [];
