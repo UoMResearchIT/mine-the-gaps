@@ -1,12 +1,13 @@
-from mine_the_gap.models import Region, Estimated_data
+from mine_the_gap.models import Estimated_data, Region
 from abc import ABCMeta, abstractmethod
 
 
 class Region_estimator(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, sensors):
+    def __init__(self, sensors, regions):
         self.sensors = sensors
+        self.regions = regions
 
 
     @abstractmethod
@@ -16,11 +17,11 @@ class Region_estimator(object):
 
     def get_estimations(self, measurement, region_id=None, timestamp=None):
         if region_id:
-            region = Region.objects.get(region_id=region_id)
+            region = self.regions.get(region_id=region_id)
             result = [self.get_region_estimation(measurement, region, timestamp)]
         else:
             result = []
-            query_set = Region.objects.all().order_by('region_id')
+            query_set = self.regions.order_by('region_id')
             for region in query_set.iterator():
                 result.append(self.get_region_estimation(measurement, region, timestamp))
 
@@ -49,11 +50,12 @@ class Region_estimator(object):
 
     def get_adjacent_regions(self, regions, ignore_regions):
         # Create an empty queryset for adjacent regions
-        adjacent_regions = Region.objects.none()
+        if len(self.regions) > 0:
+            adjacent_regions =  type(self.regions.first()).objects.none()
 
         # Get all adjacent regions for each region
         for region in regions.iterator():
             adjacent_regions |= region.adjacent_regions
 
         # Return all adjacent regions as a querySet and remove any that are in the completed/ignore list.
-        return Region.objects.filter(region_id__in= adjacent_regions).exclude(region_id__in=ignore_regions)
+        return self.regions.filter(region_id__in= adjacent_regions).exclude(region_id__in=ignore_regions)

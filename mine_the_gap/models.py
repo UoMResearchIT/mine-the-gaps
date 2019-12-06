@@ -15,9 +15,6 @@ class Region(gismodels.Model):
     geom = gismodels.MultiPolygonField(null=False)
     extra_data = JSONField(null=True)
 
-    def __unicode__(self):
-        return self.region_label
-
     @property
     def popup_content(self):
         return {'region_id': self.region_id, 'extra_data': self.extra_data}
@@ -26,6 +23,20 @@ class Region(gismodels.Model):
     def adjacent_regions(self):
         return Region.objects.filter(geom__touches=self.geom)
 
+
+class Region_dynamic(gismodels.Model):
+    region_id = models.CharField(max_length=30, primary_key=True)
+    geom = gismodels.MultiPolygonField(null=False)
+    extra_data = JSONField(null=True)
+    estimation_method = models.CharField(max_length=20, null=True)
+
+    @property
+    def popup_content(self):
+        return {'region_id': self.region_id, 'extra_data': self.extra_data}
+
+    @property
+    def adjacent_regions(self):
+        return Region_dynamic.objects.filter(geom__touches=self.geom)
 
 
 

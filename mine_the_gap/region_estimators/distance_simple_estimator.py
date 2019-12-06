@@ -1,4 +1,4 @@
-from mine_the_gap.models import Actual_value, Region, Sensor, Estimated_data
+from mine_the_gap.models import Actual_value, Region, Sensor
 from django.contrib.gis.db.models.functions import Distance
 
 from mine_the_gap.region_estimators.region_estimator import Region_estimator
@@ -6,11 +6,11 @@ from mine_the_gap.region_estimators.region_estimator import Region_estimator
 
 class Distance_simple_estimator(Region_estimator):
 
-    def __init__(self, sensors=Sensor.objects.all()):
-        super(Distance_simple_estimator, self).__init__(sensors)
+    def __init__(self, sensors=Sensor.objects.all(), regions = Region.objects.all()):
+        super(Distance_simple_estimator, self).__init__(sensors, regions)
 
     class Factory:
-        def create(self, sensors): return Distance_simple_estimator(sensors)
+        def create(self, sensors, regions): return Distance_simple_estimator(sensors, regions)
 
 
 

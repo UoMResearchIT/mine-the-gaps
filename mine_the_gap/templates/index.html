@@ -136,7 +136,7 @@
                                                 <button type="button" onclick="download_json('regions_metadata_file/json/','regions_metadata.json');">JSON</button>
                                             </td>
                                             <td>
-                                                <button type="button" onclick="download_geojson(regionDataUrl,'regions_metadata_geojson.json');">GeoJSON</button>
+                                                <button type="button" onclick="download_geojson(regionsFileUrl,'regions_metadata_geojson.json');">GeoJSON</button>
                                             </td>
                                         </tr>
                                         <tr id="estimates-download" class="download-file">
@@ -281,9 +281,7 @@
                     </div>
                     <div id="collapseEstimationRegion" class="panel-collapse collapse">
                         <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
-                        <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
-                        <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
-                        <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
+                        <input type="radio" name="region-method" value="hexagon-10km"> Hexagons (10km) INCOMPLETE<br>
                     </div>
                 </div>
 
@@ -308,13 +306,16 @@
                     var centerLatLng = "{{center|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
                     var dataUrl = '{{ request.path }}' + 'all_data';
+                    var dataUrlDynamicRegions = '{{ request.path }}' + 'all_data_dynamic_regions';
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensors_metadata" %}';
-                    var regionDataUrl = '{% url "regions_metadata" %}';
+                    var regionsFileUrl = '{% url "regions_metadata" %}';
+
                     var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
 
                     var sensorTimeseriesUrl = '{{ request.path }}' + 'sensor_timeseries';
                     var estimatedTimeseriesUrl = '{{ request.path }}' + 'estimated_timeseries';
+                    var regionsHexagonsUrl = '{{ request.path }}' + "regions_hexagons_geojson";
 
                 </script>
 

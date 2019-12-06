@@ -33,7 +33,11 @@ $(document).ready(function(){
     $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        curDataUrl = dataUrl + '/' + this.value + '/';
+        if ($("input[name='region-method']:checked").val() === 'file') {
+            curDataUrl = dataUrl + '/' + this.value + '/';
+        }else{
+            curDataUrl = dataUrlDynamicRegions + '/' + $("input[name='region-method']:checked").val() + '/' + this.value + '/';
+        }
         update_timeseries_map()
     });
 
@@ -46,14 +50,24 @@ $(document).ready(function(){
     $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
     $("#map-overlays input").change(function() {
         $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
-        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter(), urlRegion=regionsFileUrl);
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
     $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
     $("#estimation-regions input").change(function() {
         $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
-        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
+        if(this.value === 'file'){
+            var regionsUrl = regionsFileUrl;
+            curDataUrl = dataUrl + '/' + $("input[name='estimation-method']:checked").val() + '/';
+        }else{
+           var regionsUrl = regionsHexagonsUrl + '/' +
+               map.getBounds().getNorthWest().lat + '/' + map.getBounds().getNorthWest().lng + '/' +
+               map.getBounds().getSouthEast().lat + '/' + map.getBounds().getSouthEast().lng;
+           //alert($("input[name='estimation-method']:checked").val());
+           curDataUrl = dataUrlDynamicRegions + '/' + this.value + '/' + $("input[name='estimation-method']:checked").val() + '/';
+        }
+        update_map(urlRegion=regionsUrl);
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
@@ -80,8 +94,7 @@ $(document).ready(function(){
     $('#region-data').html(get_region_default());
     $('#sensor-data-instructions').html(get_sensor_default());
 
-
-    update_map(map);
+    update_map();
     // bounds must be set after only the first initialisation of map
     initialise_slider();
 
@@ -263,7 +276,7 @@ $(document).ready(function(){
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
-            timeout: 20000,
+            timeout: 80000,
             success: function (data) {
                 var actualData = data['actual_data'];
                 var estimatedData = data['estimated_data'];
@@ -430,7 +443,7 @@ $(document).ready(function(){
 
     }
 
-    function update_map(mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
+    function update_map(urlRegion=regionsFileUrl, mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
         map.setView(mapCenter, zoomLevel);
 
         /*
@@ -494,7 +507,7 @@ $(document).ready(function(){
 
         regionsLayer.clearLayers();
         $.ajax({
-            url: regionDataUrl,
+            url: urlRegion,
             dataType: 'json',
             async: false,
             success: function(data) {

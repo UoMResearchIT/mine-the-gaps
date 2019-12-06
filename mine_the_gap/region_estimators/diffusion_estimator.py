@@ -6,11 +6,11 @@ from mine_the_gap.region_estimators.region_estimator import Region_estimator
 
 class Diffusion_estimator(Region_estimator):
 
-    def __init__(self, sensors=Sensor.objects.all()):
-        super(Diffusion_estimator, self).__init__(sensors)
+    def __init__(self, sensors=Sensor.objects.all(), regions=Region.objects.all()):
+        super(Diffusion_estimator, self).__init__(sensors, regions)
 
     class Factory:
-        def create(self, sensors): return Diffusion_estimator(sensors)
+        def create(self, sensors, regions): return Diffusion_estimator(sensors, regions)
 
 
     def get_estimate(self, timestamp, measurement, region):
@@ -19,14 +19,14 @@ class Diffusion_estimator(Region_estimator):
         #regions |= region
 
         # Create an empty queryset for storing completed regions
-        regions_completed = Region.objects.none()
+        regions_completed = type(self.regions.first()).objects.none()
 
         # Check there are sensors for this measurement and timestamp
         if Actual_value.objects.filter(actual_data__timestamp=timestamp, measurement_name=measurement).count() == 0:
             return None, {'rings': None}
 
         # Recursively find the sensors in each diffusion ring (starting at 0)
-        return self.get_diffusion_estimate_recursive(Region.objects.filter(pk=region.pk), timestamp, measurement, 0, regions_completed)
+        return self.get_diffusion_estimate_recursive(self.regions.filter(pk=region.pk), timestamp, measurement, 0, regions_completed)
 
 
     def get_diffusion_estimate_recursive(self, regions, timestamp, measurement, diffuse_level, regions_completed):
