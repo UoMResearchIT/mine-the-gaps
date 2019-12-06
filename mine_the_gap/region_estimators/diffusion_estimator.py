@@ -35,9 +35,28 @@ class Diffusion_estimator(Region_estimator):
 
         # Find sensors
         for region in regions.iterator():
-            sensors |= self.sensors.filter(geom__within=region.geom)
+            if not self.caching:
+                sensors |= self.sensors.filter(geom__within=region.geom)
+            elif region.region_id in self.region_cache and \
+                'timestamp' in self.region_cache[region.region_id] and\
+                'measurement' in self.region_cache[region.region_id]['timestamp'] and\
+                'sensors' in self.region_cache[region.region_id]['timestamp']['measurement']:
+                #print('region sensors found in region cache: ', region.region_id)
+                sensors |= self.region_cache[region.region_id]['timestamp']['measurement']['sensors']
+            else:
+                cur_sensors = self.sensors.filter(geom__within=region.geom)
+                #print('region sensors NOT found in region cache: ', region.region_id)
+                sensors |= cur_sensors
+                if region.region_id not in self.region_cache:
+                    self.region_cache[region.region_id] = {'timestamp': {'measurement': {'sensors': cur_sensors}}}
+                elif 'timestamp' not in self.region_cache[region.region_id]:
+                    self.region_cache[region.region_id]['timestamp'] = {'measurement': {'sensors': cur_sensors}}
+                elif 'measurement' not in self.region_cache[region.region_id]['timestamp']:
+                    self.region_cache[region.region_id]['timestamp']['measurement'] = {'sensors': cur_sensors}
+                elif 'sensors' not in self.region_cache[region.region_id]['timestamp']['measurement']:
+                    self.region_cache[region.region_id]['timestamp']['measurement']['sensors'] = cur_sensors
 
-        # Get the actual readings for those sensors
+
         actuals = Actual_value.objects.filter(actual_data__timestamp=timestamp,
                                               actual_data__sensor__in=sensors,
                                               measurement_name=measurement,

@@ -291,7 +291,7 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         except Exception as err:
             print(err)
         else:
-            result = estimator.get_estimations(measurement, region_id, timestamp_val)
+            result = estimator.get_estimations(measurement, region_id, timestamp_val, caching=False)
 
             for row in result:
                 #print('Row:', str(row))
