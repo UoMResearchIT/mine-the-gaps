@@ -9,6 +9,8 @@ django-leaflet==0.25.0
 django-range-slider==0.2.4
 djangorestframework==3.9.4
 fstring==1.7.4
+geojson==2.5.0
+h3==3.4.3
 jsonfield==2.0.2
 lazy-object-proxy==1.4.2
 Mako==1.1.0
