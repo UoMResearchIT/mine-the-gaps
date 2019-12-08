@@ -607,10 +607,15 @@ def handle_uploaded_files(request):
                         actual.save()
 
                         for idx in value_idxs:
-                            try:
-                                fvalue = float(row[idx])
-                            except:
+                            if slugify(str(row[idx])) == 'missing':
                                 fvalue = None
+                            else:
+                                try:
+                                    fvalue = float(row[idx])
+                                except:
+                                    # value is neither missing or a float, so should be ignored for this measurement.
+                                    continue
+
                             name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
                             actual_value = Actual_value(    measurement_name=name,
                                                             value = fvalue,
