@@ -53,7 +53,7 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    context = { 'form': None, #FileUploadForm(),
+    context = { 'form': FileUploadForm(),
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
                 'measurement_names': get_measurement_names(),
@@ -118,7 +118,7 @@ def get_estimates(request, method_name, measurement, region_type='file', timesta
     finally:
         return response
 
-    
+
 def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None, region_type='file'):
     try:
         data = {
@@ -610,14 +610,13 @@ def handle_uploaded_files(request):
                             try:
                                 fvalue = float(row[idx])
                             except:
-                                pass
-                            else:
-                                name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
-                                actual_value = Actual_value(    measurement_name=name,
-                                                                value = fvalue,
-                                                                actual_data = actual
-                                )
-                                actual_value.save()
+                                fvalue = None
+                            name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
+                            actual_value = Actual_value(    measurement_name=name,
+                                                            value = fvalue,
+                                                            actual_data = actual
+                            )
+                            actual_value.save()
 
             except Exception as err:
                 print('Error loading actuals:', err)
