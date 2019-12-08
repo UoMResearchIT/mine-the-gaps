@@ -76,6 +76,5 @@ class Region_estimator(object):
                 else:
                     self.region_cache[region.region_id]['adjacent_regions'] = adj_regs
 
-
         # Return all adjacent regions as a querySet and remove any that are in the completed/ignore list.
         return self.regions.filter(region_id__in = adjacent_regions).exclude(region_id__in=ignore_regions)

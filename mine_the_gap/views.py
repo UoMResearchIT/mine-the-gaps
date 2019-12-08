@@ -68,56 +68,113 @@ def home_page(request):
 def get_sensor_fields(request):
     result = []
 
-    # Check sensors exist
-    first_sensor = Sensor.objects.first()
+    try:
+        # Check sensors exist
+        first_sensor = Sensor.objects.first()
 
-    if first_sensor:
-        # Sensors exist so get field names from the Sensor model
-        for field in Sensor._meta.get_fields():
-            if not (field.many_to_one) and field.related_model is None:
-                field_name = field.name
+        if first_sensor:
+            # Sensors exist so get field names from the Sensor model
+            for field in Sensor._meta.get_fields():
+                if not (field.many_to_one) and field.related_model is None:
+                    field_name = field.name
 
-                if field_name == 'id' or field_name == 'geom':
-                    continue
-                elif field_name == 'extra_data':
-                    result.extend(first_sensor.extra_data.keys())
-                else:
-                    result.append(field_name)
+                    if field_name == 'id' or field_name == 'geom':
+                        continue
+                    elif field_name == 'extra_data':
+                        result.extend(first_sensor.extra_data.keys())
+                    else:
+                        result.append(field_name)
 
-    #print(str(result))
-    return JsonResponse(result, safe=False)
+        #print(str(result))
+        response = JsonResponse(result, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+    finally:
+        return response
 
 
 def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
-    data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
-    return JsonResponse(data, safe=False)
+    try:
+        data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
+        response =  JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+    finally:
+        return response
 
 def get_estimates(request, method_name, measurement, region_type='file', timestamp_val=None, region_id=None):
-    data = estimates(
-        request,
-        method_name,
-        measurement,
-        region_type=region_type,
-        timestamp_val=timestamp_val,
-        region_id=region_id,
-        return_all_fields=False)
-    return JsonResponse(data, safe=False)
+    try:
+        data = estimates(
+            request,
+            method_name,
+            measurement,
+            region_type=region_type,
+            timestamp_val=timestamp_val,
+            region_id=region_id,
+            return_all_fields=False)
+        response =  JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+    finally:
+        return response
+
+    
+def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None, region_type='file'):
+    try:
+        data = {
+                    'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
+                    'estimated_data': estimates(request, method_name, measurement, region_type=region_type, timestamp_val=timestamp_val, return_all_fields=True)
+        }
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+
+    finally:
+        return response
+
+
+def get_all_timeseries_at_region(request, method_name, measurement, region_id, sensor_id, region_type='file'):
+    try:
+        data = {
+            'actual_data': actuals(request, measurement, sensor_id=sensor_id, return_all_fields=True),
+            'estimated_data': estimates(request, method_name, measurement, region_type=region_type, region_id=region_id, return_all_fields=True)
+        }
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+    finally:
+        return response
+
 
 def get_actuals_timeseries(request, measurement, sensor_id=None):
-    data = actuals(request, measurement, timestamp_val=None, sensor_id=sensor_id, return_all_fields=False)
-    return JsonResponse(data, safe=False)
+    try:
+        data = actuals(request, measurement, timestamp_val=None, sensor_id=sensor_id, return_all_fields=False)
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+    finally:
+        return response
+
 
 def get_estimates_timeseries(request, method_name, measurement, region_type='file', region_id=None, ignore_sensor_id=None):
-    data = estimates(
-        request,
-        method_name,
-        measurement,
-        region_type=region_type,
-        timestamp_val=None,
-        region_id=region_id,
-        return_all_fields=False,
-        ignore_sensor_id=ignore_sensor_id)
-    return JsonResponse(data, safe=False)
+    try:
+        data = estimates(
+            request,
+            method_name,
+            measurement,
+            region_type=region_type,
+            timestamp_val=None,
+            region_id=region_id,
+            return_all_fields=False,
+            ignore_sensor_id=ignore_sensor_id)
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+    finally:
+        return response
+
+
+
 
 
 def get_sensors_file(request, file_type=None):
@@ -291,6 +348,7 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         except Exception as err:
             print(err)
         else:
+
             result = estimator.get_estimations(measurement, region_id, timestamp_val, caching=False)
 
             for row in result:
@@ -430,23 +488,6 @@ def hexagons_dataframe_to_geojson(df_hex):
     feat_collection = FeatureCollection(list_features)
 
     return feat_collection
-
-
-def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None, region_type='file'):
-    data = {
-                'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
-                'estimated_data': estimates(request, method_name, measurement, region_type=region_type, timestamp_val=timestamp_val, return_all_fields=True)
-    }
-    return JsonResponse(data, safe=False)
-
-
-def get_all_timeseries_at_region(request, method_name, measurement, region_id, sensor_id, region_type='file'):
-    data = {
-        'actual_data': actuals(request, measurement, sensor_id=sensor_id, return_all_fields=True),
-        'estimated_data': estimates(request, method_name, measurement, region_type=region_type, region_id=region_id, return_all_fields=True)
-    }
-    return JsonResponse(data, safe=False)
-
 
 
 def get_timestamp_list():
