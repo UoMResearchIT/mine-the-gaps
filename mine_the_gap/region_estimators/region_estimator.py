@@ -1,4 +1,4 @@
-from mine_the_gap.models import Estimated_data, Region
+from mine_the_gap.models import Estimated_data
 from abc import ABCMeta, abstractmethod
 import datetime
 
