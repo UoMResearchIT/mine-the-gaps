@@ -19,6 +19,7 @@ import os
 from io import TextIOWrapper
 from h3 import h3
 from geojson import Feature, FeatureCollection
+from django_pandas.io import read_frame
 
 
 
@@ -343,8 +344,12 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
         regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
 
+        df_sensors = read_frame(sensors)
+        df_regions = read_frame(regions)
+        df_actuals = read_frame(Actual_value.objects.all())
+
         try:
-            estimator = Region_estimator_factory.create_region_estimator(method_name, sensors, regions)
+            estimator = Region_estimator_factory.region_estimator(method_name, sensors, regions)
         except Exception as err:
             print(err)
         else:
