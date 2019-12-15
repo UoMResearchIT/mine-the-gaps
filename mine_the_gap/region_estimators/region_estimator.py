@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from shapely.geometry import Point, Polygon
 import geopandas
 
 
@@ -12,8 +11,16 @@ class Region_estimator(object):
         self.regions = regions
         self.actuals = actuals
 
+        print('sensors:')
+        print(self.sensors.head(3))
+        print('regions:')
+        print(self.regions.head(3))
+        print('actuals:')
+        print(self.actuals.head(3))
+
         self.__get_all_region_neighbours()
         self.__get_all_region_sensors()
+        print('2')
 
 
     @abstractmethod
@@ -68,12 +75,21 @@ class Region_estimator(object):
 
 
     def __get_all_region_neighbours(self):
+        self.regions["NEIGHBORS"] = None  # add NEIGHBORS column
         for index, region in self.regions.iterrows():
-            neighbors = self.regions[self.regions.geometry.touches(region['geometry'])].name.tolist()
-            neighbors = neighbors.remove(region.name)
+            print(region.geometry)
+            try:
+
+                neighbors = self.regions[self.regions.geometry.touches(region.geometry)].region_id.tolist()
+            except Exception as err:
+                print('Error getting neighbours: ', str(err))
+            print('1.1')
+            neighbors = neighbors.remove(region['id'])
             self.regions.at[index, "neighbours"] = ", ".join(neighbors)
+        print('1')
 
     def __get_all_region_sensors(self):
+        print('1.5')
         for index, region in self.regions.iterrows():
             sensors = self.sensors[self.sensors.geometry.within(region['geometry'])].name.tolist()
             self.regions.at[index, "sensors"] = ", ".join(sensors)
