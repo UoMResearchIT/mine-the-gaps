@@ -23,7 +23,7 @@ class Diffusion_estimator(Region_estimator):
             return None, {'rings': None}
 
         # Recursively find the sensors in each diffusion ring (starting at 0)
-        return self.get_diffusion_estimate_recursive(self.regions.filter(pk=region.pk), timestamp, 0, regions_completed)
+        return self.get_diffusion_estimate_recursive(region, timestamp, 0, regions_completed)
 
 
     def get_diffusion_estimate_recursive(self, regions, timestamp, diffuse_level, regions_completed):
@@ -31,11 +31,11 @@ class Diffusion_estimator(Region_estimator):
         sensors = []
 
         # Find sensors
-        for region in regions.iterator():
-            sensors.extend(self.region['sensors'].split(','))
+        for index, region in regions.iterrows():
+            sensors.extend(region['sensors'].split(','))
 
         # Get values from sensors
-        actuals = self.actuals.loc[self.actuals['timestamp'] == timestamp and self.actuals['sensor_id'] in sensors]
+        actuals = self.actuals.loc[(self.actuals['timestamp'] == timestamp) & (self.actuals['sensor'].isin(sensors))]
 
         if len(actuals) > 0:
             # If readings found for the sensors, take the average
@@ -43,7 +43,8 @@ class Diffusion_estimator(Region_estimator):
             return result, {'rings': diffuse_level}
         else:
             # If no readings/sensors found, go up a diffusion level (adding completed regions to ignore list)
-            regions_completed.extend(regions)
+            print(regions.index)
+            regions_completed.extend(regions.index)
             diffuse_level += 1
 
             # Find the next set of regions
