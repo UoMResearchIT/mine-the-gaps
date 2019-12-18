@@ -1,4 +1,5 @@
 import pandas as pd
+import geopandas as gpd
 
 from mine_the_gap.region_estimators.region_estimator import Region_estimator
 
@@ -18,22 +19,32 @@ class Distance_simple_estimator(Region_estimator):
 
         # Get the actual values
 
-        actuals = self.actuals.loc[
+        df_actuals = self.actuals.loc[
             (self.actuals['sensor'].isin(self.sensors.index.tolist())) &
             (self.actuals['timestamp'] == timestamp) &
             (self.actuals['value'].notnull())
         ]
+        print('actuals 1:')
+        print(df_actuals)
 
-        actuals = pd.merge(left=actuals,
+        df_actuals = pd.merge(left=df_actuals,
                            right=self.sensors.reset_index().rename(columns={"id": "sensor"}),
                            on='sensor',
                            how='left')
-        print('actuals-3:')
-        print(actuals)
+        print('actuals 2:')
+        print(df_actuals)
+        gdf_actuals = gpd.GeoDataFrame(data=df_actuals, geometry='geometry')
+        print('actuals 3:')
+        print(gdf_actuals)
 
         # Get the closest sensor to the region
-        if len(actuals) > 0:
-            actual = actuals['geometry'].distance(region.geometry).sort_values(by=['distance'], ascending=False)[0]
+        if len(df_actuals) > 0:
+            print('region geometry:', region.geometry)
+            distances = gdf_actuals['geometry'].distance(region.geometry)
+            print('distances:', distances)
+
+            actual = distances.sort_values(ascending=False)[0]
+            print('clostest actual:', actual)
 
             # Get the value for that sensor on that timestamp
             if actual:
