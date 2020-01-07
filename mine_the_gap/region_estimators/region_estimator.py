@@ -1,6 +1,4 @@
 from abc import ABCMeta, abstractmethod
-import geopandas
-
 
 
 class Region_estimator(object):

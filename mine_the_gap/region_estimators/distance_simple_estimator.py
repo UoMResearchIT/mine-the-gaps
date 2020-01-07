@@ -24,31 +24,28 @@ class Distance_simple_estimator(Region_estimator):
             (self.actuals['timestamp'] == timestamp) &
             (self.actuals['value'].notnull())
         ]
-        print('actuals 1:')
-        print(df_actuals)
 
         df_actuals = pd.merge(left=df_actuals,
                            right=self.sensors.reset_index().rename(columns={"id": "sensor"}),
                            on='sensor',
                            how='left')
-        print('actuals 2:')
-        print(df_actuals)
         gdf_actuals = gpd.GeoDataFrame(data=df_actuals, geometry='geometry')
-        print('actuals 3:')
-        print(gdf_actuals)
+        df_actuals.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_actuals.csv')
 
         # Get the closest sensor to the region
-        if len(df_actuals) > 0:
-            print('region geometry:', region.geometry)
-            distances = gdf_actuals['geometry'].distance(region.geometry)
-            print('distances:', distances)
+        if len(gdf_actuals) > 0:
+            df_reset = pd.DataFrame(self.regions.reset_index())
+            regions_temp = df_reset.loc[df_reset['region_id'] == region_id]
+            if len(regions_temp.index) > 0:
+                region = regions_temp.iloc[0]
+            distances = pd.DataFrame(gdf_actuals['geometry'].distance(region.geometry))
+            distances = distances.merge(gdf_actuals, left_index=True, right_index=True)
 
-            actual = distances.sort_values(ascending=False)[0]
-            print('clostest actual:', actual)
+            actual = distances.sort_values(by=[0], ascending=True).iloc[0]
 
             # Get the value for that sensor on that timestamp
-            if actual:
+            if actual is not None:
                 # If readings found for the sensors, take the average
-                result = actual['value'], {'closest_sensor_id': str(actual['sensor_name'])}
+                result = actual['value'], {'closest_sensor_id': str(actual['name'])}
 
         return result
