@@ -1,24 +1,24 @@
 from django.shortcuts import render
-from django.contrib.gis.geos import MultiPolygon, Polygon, Point
+from django.contrib.gis.geos import MultiPolygon, Polygon, Point, GEOSGeometry, fromstr
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.core.files import temp as tempfile
-
 from django.conf import settings
-
 from django.core.files.storage import default_storage
 
 from slugify import slugify
 import csv
 import json
 import pandas as pd
+import geopandas as gpd
 import os
 from io import TextIOWrapper
 from h3 import h3
 from geojson import Feature, FeatureCollection
+from shapely import wkt
 
 
 
@@ -343,13 +343,31 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
         regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
 
+        # Create geopandas dataframes for input into region estimators.
+
+        df_sensors = pd.DataFrame.from_records(sensors.values('id', 'geom', 'name'), index='id')
+        df_sensors['latitude'] = df_sensors.apply(lambda row: row.geom.y, axis=1)
+        df_sensors['longitude'] = df_sensors.apply(lambda row: row.geom.x, axis=1)
+        gdf_sensors = gpd.GeoDataFrame(data=df_sensors, geometry=gpd.points_from_xy(df_sensors.longitude, df_sensors.latitude))
+        gdf_sensors = gdf_sensors.drop(columns=['geom'])
+
+
+        df_regions = pd.DataFrame.from_records(regions.values('region_id','geom'), index='region_id')
+        df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
+        gdf_regions = gpd.GeoDataFrame(data=df_regions, geometry='geometry')
+        gdf_regions = gdf_regions.drop(columns=['geom'])
+
+        df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'sensor', 'timestamp'), index='id')
+        df_actual_values = pd.DataFrame.from_records(Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
+        df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(['actual_data'], axis=1)
+
         try:
-            estimator = Region_estimator_factory.create_region_estimator(method_name, sensors, regions)
+            estimator = Region_estimator_factory.region_estimator(method_name, gdf_sensors, gdf_regions, df_actuals)
         except Exception as err:
             print(err)
         else:
 
-            result = estimator.get_estimations(measurement, region_id, timestamp_val, caching=False)
+            result = estimator.get_estimations(region_id, timestamp_val)
 
             for row in result:
                 #print('Row:', str(row))
