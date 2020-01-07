@@ -52,7 +52,7 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    context = { 'form': FileUploadForm(),
+    context = { 'form': None,#FileUploadForm(),
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
                 'measurement_names': get_measurement_names(),
