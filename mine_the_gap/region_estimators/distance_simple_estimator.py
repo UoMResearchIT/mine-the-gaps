@@ -14,7 +14,7 @@ class Distance_simple_estimator(Region_estimator):
 
 
 
-    def get_estimate(self, timestamp, region):
+    def get_estimate(self, timestamp, region_id):
         result = None, {'closest_sensor_data': None}
 
         # Get the actual values
