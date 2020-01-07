@@ -1,20 +1,29 @@
 import pandas as pd
 import geopandas as gpd
 
-from mine_the_gap.region_estimators.region_estimator import Region_estimator
+from mine_the_gap.region_estimators.region_estimator import RegionEstimator
 
 
-class Distance_simple_estimator(Region_estimator):
+class DistanceSimpleEstimator(RegionEstimator):
 
     def __init__(self, sensors, regions, actuals):
-        super(Distance_simple_estimator, self).__init__(sensors, regions, actuals)
+        super(DistanceSimpleEstimator, self).__init__(sensors, regions, actuals)
 
     class Factory:
-        def create(self, sensors, regions, actuals): return Distance_simple_estimator(sensors, regions, actuals)
+        def create(self, sensors, regions, actuals):
+            return DistanceSimpleEstimator(sensors, regions, actuals)
 
 
 
     def get_estimate(self, timestamp, region_id):
+        """  Find estimations for a region and timestamp using the simple distance method: value of closest actual sensor
+
+            :param timestamp:  timestamp identifier (string)
+            :param region_id: region identifier (string)
+
+            :return: tuple containing result and dict: {'closest_sensor_id': [ID of closest sensor]}
+
+        """
         result = None, {'closest_sensor_data': None}
 
         # Get the actual values
@@ -30,7 +39,6 @@ class Distance_simple_estimator(Region_estimator):
                            on='sensor',
                            how='left')
         gdf_actuals = gpd.GeoDataFrame(data=df_actuals, geometry='geometry')
-        df_actuals.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_actuals.csv')
 
         # Get the closest sensor to the region
         if len(gdf_actuals) > 0:
