@@ -34,15 +34,19 @@ class Region_estimator(object):
     def get_region_estimation(self, region_id, timestamp=None):
         region_result = {'region_id': region_id, 'estimates':[]}
 
-        if timestamp:
+        if timestamp is not None:
             region_result_estimate = self.get_estimate(timestamp, region_id)
             region_result['estimates'].append({'value':region_result_estimate[0],
                                                'extra_data': region_result_estimate[1],
                                                'timestamp':timestamp})
         else:
+            print('getting timestamps...')
             timestamps = sorted(self.actuals['timestamp'].unique())
-            for index, timestamp in timestamps.items():
+            print(timestamps)
+            for index, timestamp in enumerate(timestamps):
+                print('timestamp:',timestamp)
                 region_result_estimate = self.get_estimate(timestamp, region_id)
+                print('result:', region_result_estimate)
                 region_result['estimates'].append(  {'value':region_result_estimate[0],
                                                      'extra_data': region_result_estimate[1],
                                                      'timestamp': timestamp}
