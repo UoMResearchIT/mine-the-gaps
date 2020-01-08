@@ -1,11 +1,12 @@
 from abc import ABCMeta, abstractmethod
 import geopandas as gpd
-from shapely import wkt
+
 
 
 class RegionEstimator(object):
     """
-        Abstract class, parent of region estimators (each implementing a different estimation method.
+        Abstract class, parent of region estimators (each implementing a different estimation method).
+        Requires GeoPandas and Pandas
     """
     __metaclass__ = ABCMeta
 
@@ -22,7 +23,7 @@ class RegionEstimator(object):
                 regions: list of regions as pandas.DataFrame
                     Required columns:
                         'region_id' (string)
-                        'geom' (django.contrib.gis.geos.collections.MultiPolygon): multi-polygon of the regions location
+                        'geom' (shapely.wkt/geom.wkt)
                 actuals: list of sensor values as pandas.DataFrame
                     Required columns:
                         'timestamp' (string): timestamp of actual reading
@@ -37,7 +38,6 @@ class RegionEstimator(object):
                                        geometry=gpd.points_from_xy(sensors.longitude, sensors.latitude))
         gdf_sensors = gdf_sensors.drop(columns=['longitude', 'latitude'])
 
-        regions['geometry'] = regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
         gdf_regions = gpd.GeoDataFrame(data=regions, geometry='geometry')
         gdf_regions = gdf_regions.drop(columns=['geom'])
 

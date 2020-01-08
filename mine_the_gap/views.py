@@ -17,6 +17,7 @@ import os
 from io import TextIOWrapper
 from h3 import h3
 from geojson import Feature, FeatureCollection
+from shapely import wkt
 
 
 
@@ -350,6 +351,8 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         df_sensors = df_sensors.drop(columns=['geom'])
 
         df_regions = pd.DataFrame.from_records(regions.values('region_id','geom'), index='region_id')
+        # convert regions geometry (multipolygone) into a universal format (wkt) for use in region_estimations package
+        df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
 
         df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'sensor', 'timestamp'), index='id')
         df_actual_values = pd.DataFrame.from_records(Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
