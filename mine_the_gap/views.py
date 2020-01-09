@@ -17,6 +17,7 @@ import os
 from io import TextIOWrapper
 from h3 import h3
 from geojson import Feature, FeatureCollection
+from shapely import wkt
 
 
 
@@ -25,7 +26,7 @@ from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value, \
     Region_dynamic
 from django.db.models import Max, Min
-from mine_the_gap.region_estimators.region_estimator_factory import RegionEstimatorFactory
+from region_estimators import RegionEstimatorFactory
 
 @ensure_csrf_cookie
 def home_page(request):
@@ -343,38 +344,39 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
 
         # Create pandas dataframes for input into region estimators.
-
         df_sensors = pd.DataFrame.from_records(sensors.values('id', 'geom', 'name'), index='id')
+        df_sensors.index = df_sensors.index.rename('sensor_id')
         df_sensors['latitude'] = df_sensors.apply(lambda row: row.geom.y, axis=1)
         df_sensors['longitude'] = df_sensors.apply(lambda row: row.geom.x, axis=1)
         df_sensors = df_sensors.drop(columns=['geom'])
+        #df_sensors.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_sensors.csv')
 
         df_regions = pd.DataFrame.from_records(regions.values('region_id','geom'), index='region_id')
+        # convert regions geometry (multipolygone) into a universal format (wkt) for use in region_estimations package
+        df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
+        df_regions = df_regions.drop(columns=['geom'])
+        #df_regions.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_regions.csv')
 
         df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'sensor', 'timestamp'), index='id')
         df_actual_values = pd.DataFrame.from_records(Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
         df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(['actual_data'], axis=1)
+        #df_actuals.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_actuals.csv')
 
         try:
             estimator = RegionEstimatorFactory.region_estimator(method_name, df_sensors, df_regions, df_actuals)
+            result = estimator.get_estimations(region_id, timestamp_val)
         except Exception as err:
             print(err)
         else:
-            try:
-                result = estimator.get_estimations(region_id, timestamp_val)
-            except Exception as err:
-                print(err)
-            else:
-                for row in result:
-                    #print('Row:', str(row))
-                    for estimate_result in row['estimates']:
-                        percentage_score = calcuate_percentage_score(estimate_result['value'], min_val, max_val)
-                        data.append(    {'region_id': row['region_id'],
-                                         'timestamp':estimate_result['timestamp'],
-                                         'value': estimate_result['value'],
-                                         'percent_score': percentage_score,
-                                         'method_name': method_name,
-                                         'extra_data': estimate_result['extra_data']})
+            for row in result:
+                for estimate_result in row['estimates']:
+                    percentage_score = calcuate_percentage_score(estimate_result['value'], min_val, max_val)
+                    data.append(    {'region_id': row['region_id'],
+                                     'timestamp':estimate_result['timestamp'],
+                                     'value': estimate_result['value'],
+                                     'percent_score': percentage_score,
+                                     'method_name': method_name,
+                                     'extra_data': estimate_result['extra_data']})
 
     return data
 
