@@ -340,33 +340,44 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
             new_row['method_name'] = method_name
             data.append(new_row)
     else:
-        sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
-        regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
+        try:
+            sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
+            regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
 
-        # Create pandas dataframes for input into region estimators.
-        df_sensors = pd.DataFrame.from_records(sensors.values('id', 'geom', 'name'), index='id')
-        df_sensors.index = df_sensors.index.rename('sensor_id')
-        df_sensors['latitude'] = df_sensors.apply(lambda row: row.geom.y, axis=1)
-        df_sensors['longitude'] = df_sensors.apply(lambda row: row.geom.x, axis=1)
-        df_sensors = df_sensors.drop(columns=['geom'])
-        #df_sensors.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_sensors.csv')
+            # Create pandas dataframes for input into region estimators.
+            df_sensors = pd.DataFrame.from_records(sensors.values('id', 'geom', 'name'), index='id')
+            df_sensors['latitude'] = df_sensors.apply(lambda row: row.geom.y, axis=1)
+            df_sensors['longitude'] = df_sensors.apply(lambda row: row.geom.x, axis=1)
+            df_sensors = df_sensors.drop(columns=['geom'])
 
-        df_regions = pd.DataFrame.from_records(regions.values('region_id','geom'), index='region_id')
-        # convert regions geometry (multipolygone) into a universal format (wkt) for use in region_estimations package
-        df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
-        df_regions = df_regions.drop(columns=['geom'])
-        #df_regions.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_regions.csv')
 
-        df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'sensor', 'timestamp'), index='id')
-        df_actual_values = pd.DataFrame.from_records(Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
-        df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(['actual_data'], axis=1)
-        #df_actuals.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_actuals.csv')
+            df_regions = pd.DataFrame.from_records(regions.values('region_id','geom'), index='region_id')
+            # convert regions geometry (multipolygone) into a universal format (wkt) for use in region_estimations package
+            df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
+            df_regions = df_regions.drop(columns=['geom'])
+            #df_regions.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_regions.csv')
+
+            df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'sensor', 'timestamp'), index='id')
+            df_actual_values = pd.DataFrame.from_records(Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
+            df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(columns=['actual_data'])
+            df_actuals = df_actuals.merge(df_sensors, left_on='sensor', right_index=True).drop(columns=['latitude', 'longitude','sensor'])
+            df_actuals = df_actuals.rename(columns={"value": measurement, "name":"sensor_id"})
+            df_actuals = df_actuals[['timestamp', 'sensor_id', measurement]]
+            #df_actuals.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_actuals.csv', index=False)
+
+            df_sensors = df_sensors.reset_index().drop(columns=['id'])
+            df_sensors['sensor_id'] = df_sensors['name']
+            df_sensors.drop(columns=['name'], inplace=True)
+            df_sensors.set_index('sensor_id', inplace=True)
+            #df_sensors.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_sensors.csv')
+        except Exception as err:
+            print(str(err))
 
         try:
             estimator = RegionEstimatorFactory.region_estimator(method_name, df_sensors, df_regions, df_actuals)
-            result = estimator.get_estimations(region_id, timestamp_val)
+            result = estimator.get_estimations(measurement, region_id, timestamp_val)
         except Exception as err:
-            print(err)
+            print(str(err))
         else:
             for row in result:
                 for estimate_result in row['estimates']:
