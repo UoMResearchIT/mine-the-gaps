@@ -50,7 +50,9 @@ $(document).ready(function(){
     $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
     $("#map-overlays input").change(function() {
         $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
-        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter(), urlRegion=regionsFileUrl);
+
+        update_map(regionsFileUrl, this.value, map.getZoom(), map.getCenter());
+
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
@@ -276,7 +278,7 @@ $(document).ready(function(){
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
-            timeout: 80000,
+            timeout: 100000,
             success: function (data) {
                 var actualData = data['actual_data'];
                 var estimatedData = data['estimated_data'];
