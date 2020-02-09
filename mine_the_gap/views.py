@@ -53,7 +53,7 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    context = { 'form': None,#FileUploadForm(),
+    context = { 'form': FileUploadForm(),
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
                 'measurement_names': get_measurement_names(),
@@ -741,9 +741,9 @@ def handle_uploaded_files(request):
             title = title.strip().lower()
             if title.startswith('val_'):
                 value_idxs.append(idx)
-            elif title == 'time_stamp':
+            elif (title == 'time_stamp') or (title == 'timestamp'):
                 timestamp_idx = idx
-            elif title == 'region':
+            elif (title == 'region') or (title=='region_id'):
                 region_idx = idx
             elif title.startswith('extra_'):
                 extra_field_idxs.append(idx)
