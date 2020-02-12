@@ -77,6 +77,70 @@
                     </div>
                 </div>
 
+                <div id="measurement-names" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMeasurement" aria-expanded="false" aria-controls="collapseMeasurement">
+                            <div class="panel-title">Select measurement <span class="chosen-option" id="measurement-names-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseMeasurement" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            {% for measurement in measurement_names %}
+                                <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="map-overlays" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMapType" aria-expanded="false" aria-controls="collapseMapType">
+                            <div class="panel-title">Select map  <span class="chosen-option" id="map-overlays-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseMapType" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
+                            <input type="radio" name="map-type" value="topology"> Topology <br>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="estimation-method" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
+                            <div class="panel-title">Select estimation method <span class="chosen-option" id="estimation-method-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationMethod" class="panel-collapse collapse">
+                        <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
+                        <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
+                        <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
+                    </div>
+                </div>
+
+                <div id="estimation-regions" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationRegion" aria-expanded="false" aria-controls="collapseEstimationRegion">
+                            <div class="panel-title">Select estimation regions <span class="chosen-option" id="estimation-regions-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationRegion" class="panel-collapse collapse">
+                        <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
+                        <input type="radio" name="region-method" value="hexagon-10km"> Hexagons (10km) INCOMPLETE<br>
+                    </div>
+                </div>
+
+
+                <div id="sensor-field-data" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
+                            <div class="panel-title"> Filter sensors by... <span class="chosen-option" id="sensor-field-label"></span> </div>
+                        </div>
+                    </div>
+                    <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
+                </div>
+
                 <div id="download-options" class="panel-group">
                     <div class="panel panel-default" data-toggle="modal" data-target="#modalDownload">
                         <div class="panel-heading">
@@ -229,70 +293,6 @@
                              </div>
                         </div>
                     </div>
-                </div>
-
-                <div id="measurement-names" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMeasurement" aria-expanded="false" aria-controls="collapseMeasurement">
-                            <div class="panel-title">Select measurement <span class="chosen-option" id="measurement-names-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseMeasurement" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            {% for measurement in measurement_names %}
-                                <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                <div id="map-overlays" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMapType" aria-expanded="false" aria-controls="collapseMapType">
-                            <div class="panel-title">Select map  <span class="chosen-option" id="map-overlays-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseMapType" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
-                            <input type="radio" name="map-type" value="topology"> Topology <br>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="estimation-method" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
-                            <div class="panel-title">Select estimation method <span class="chosen-option" id="estimation-method-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseEstimationMethod" class="panel-collapse collapse">
-                        <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
-                        <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
-                        <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
-                    </div>
-                </div>
-
-                <div id="estimation-regions" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationRegion" aria-expanded="false" aria-controls="collapseEstimationRegion">
-                            <div class="panel-title">Select estimation regions <span class="chosen-option" id="estimation-regions-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseEstimationRegion" class="panel-collapse collapse">
-                        <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
-                        <input type="radio" name="region-method" value="hexagon-10km"> Hexagons (10km) INCOMPLETE<br>
-                    </div>
-                </div>
-
-
-                <div id="sensor-field-data" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
-                            <div class="panel-title"> Filter sensors by... <span class="chosen-option" id="sensor-field-label"></span> </div>
-                        </div>
-                    </div>
-                    <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
                 </div>
             </div>
             <div id="map" class="col-sm-6">
