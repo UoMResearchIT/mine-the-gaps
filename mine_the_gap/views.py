@@ -53,7 +53,7 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    context = { 'form': None,#FileUploadForm(),
+    context = { 'form': None, #FileUploadForm(),
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
                 'measurement_names': get_measurement_names(),
@@ -392,8 +392,8 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
                                  'method_name': method_name,
                                  'extra_data': json.loads(row['extra_data'])
                                  })
-        print('result data:')
-        print(data)
+        #print('result data:')
+        #print(data)
     return data
 
 
