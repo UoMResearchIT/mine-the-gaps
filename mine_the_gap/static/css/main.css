@@ -202,7 +202,6 @@ table#api-instructions{
 
 #map-sliderheader {
   padding: 2px;
-  cursor: move;
   z-index: 1001;
   background-color: #e0e0e0;
   color: #000000;
