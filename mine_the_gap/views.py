@@ -53,7 +53,7 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    context = { 'form': None, #FileUploadForm(),
+    context = { 'form': FileUploadForm(),
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
                 'measurement_names': get_measurement_names(),
@@ -569,7 +569,7 @@ def handle_uploaded_files(request):
 
 
         extra_field_idxs = []
-        sensor_name_idx = None
+        sensor_id_idx = None
         lat_idx = None
         long_idx = None
 
@@ -582,8 +582,8 @@ def handle_uploaded_files(request):
                 long_idx = idx
             elif title == 'lat':
                 lat_idx = idx
-            elif title == 'sensor_name':
-                sensor_name_idx = idx
+            elif title == 'sensor_id':
+                sensor_id_idx = idx
             else:
                 extra_field_idxs.append(idx)
 
@@ -596,7 +596,7 @@ def handle_uploaded_files(request):
                 point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
                 sensor, created = Sensor.objects.get_or_create(
                     geom = point_loc,
-                    name =  row[sensor_name_idx],
+                    name =  row[sensor_id_idx],
                     extra_data=extra_data)
                 sensor.save()
             except Exception as err:
@@ -610,28 +610,28 @@ def handle_uploaded_files(request):
 
         value_idxs = []
         timestamp_idx = None
-        sensor_name_idx = None
+        sensor_id_idx = None
 
         # Find the fields in the file
         for idx, title in enumerate(field_titles):
             title = title.strip().lower()
             if title.startswith('val_'):
                 value_idxs.append(idx)
-            elif title == 'time_stamp':
+            elif (title == 'time_stamp') or (title == 'timestamp'):
                 timestamp_idx = idx
-            elif title == 'sensor_name':
-                sensor_name_idx = idx
+            elif title == 'sensor_id':
+                sensor_id_idx = idx
 
 
         # Read in the data
         for row in reader:
             try:
-                sensor_name = row[sensor_name_idx]
+                sensor_id = row[sensor_id_idx]
 
                 try:
-                    sensor = Sensor.objects.get(name=sensor_name)
+                    sensor = Sensor.objects.get(name=sensor_id)
                 except Exception as err:
-                    print('Sensor', sensor_name, 'not returned for this actual datapoint, due to:', err)
+                    print('Sensor', sensor_id, 'not returned for this actual datapoint, due to:', err)
                 else:
                     if sensor:
                         actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
