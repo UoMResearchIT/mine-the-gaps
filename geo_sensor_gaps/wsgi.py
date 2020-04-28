@@ -13,7 +13,7 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geo_sensor_gaps.settings.dev")
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geo_sensor_gaps.settings.production")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geo_sensor_gaps.settings.dev")
+#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geo_sensor_gaps.settings.production")
 
 application = get_wsgi_application()
