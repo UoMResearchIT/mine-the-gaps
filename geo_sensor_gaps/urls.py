@@ -87,8 +87,6 @@ urlpatterns = [
     re_path(r'regions_metadata_file/', views.get_regions_file),
     re_path(r'sensors_data_file/', views.get_actuals_file),
     re_path(r'regions_estimates_file/', views.get_estimates_file),
-
-
 ]
 
 if settings.DEBUG:
