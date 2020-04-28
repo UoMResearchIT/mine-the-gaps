@@ -174,9 +174,6 @@ def get_estimates_timeseries(request, method_name, measurement, region_type='fil
         return response
 
 
-
-
-
 def get_sensors_file(request, file_type=None):
     # Create the HttpResponse object with the appropriate CSV header.
     if file_type == 'csv':
@@ -587,21 +584,25 @@ def handle_uploaded_files(request):
             else:
                 extra_field_idxs.append(idx)
 
-        for row in reader:
-            try:
-                extra_data = {}
-                for idx in extra_field_idxs:
-                    item = field_titles[idx]
-                    extra_data[item] = row[idx]
-                point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
-                sensor, created = Sensor.objects.get_or_create(
-                    geom = point_loc,
-                    name =  row[sensor_id_idx],
-                    extra_data=extra_data)
-                sensor.save()
-            except Exception as err:
-                print('Error loading sensor:', err)
-                continue
+        try:
+            for row in reader:
+                try:
+                    extra_data = {}
+                    for idx in extra_field_idxs:
+                        item = field_titles[idx]
+                        extra_data[item] = row[idx]
+                    point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
+                    sensor, created = Sensor.objects.get_or_create(
+                        geom = point_loc,
+                        name =  row[sensor_id_idx],
+                        extra_data=extra_data)
+                    sensor.save()
+                except Exception as err:
+                    print('Error loading sensor:', err)
+                    continue
+        except Exception as err:
+            print('Error reading sensors file:', err)
+            return
 
 
         file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
@@ -624,40 +625,44 @@ def handle_uploaded_files(request):
 
 
         # Read in the data
-        for row in reader:
-            try:
-                sensor_id = row[sensor_id_idx]
-
+        try:
+            for row in reader:
                 try:
-                    sensor = Sensor.objects.get(name=sensor_id)
+                    sensor_id = row[sensor_id_idx]
+
+                    try:
+                        sensor = Sensor.objects.get(name=sensor_id)
+                    except Exception as err:
+                        print('Sensor', sensor_id, 'not returned for this actual datapoint, due to:', err)
+                    else:
+                        if sensor:
+                            actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
+                                                    sensor=sensor)
+                            actual.save()
+
+                            for idx in value_idxs:
+                                if slugify(str(row[idx])) == 'missing':
+                                    fvalue = None
+                                else:
+                                    try:
+                                        fvalue = float(row[idx])
+                                    except:
+                                        # value is neither missing or a float, so should be ignored for this measurement.
+                                        continue
+
+                                name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
+                                actual_value = Actual_value(    measurement_name=name,
+                                                                value = fvalue,
+                                                                actual_data = actual
+                                )
+                                actual_value.save()
+
                 except Exception as err:
-                    print('Sensor', sensor_id, 'not returned for this actual datapoint, due to:', err)
-                else:
-                    if sensor:
-                        actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
-                                                sensor=sensor)
-                        actual.save()
-
-                        for idx in value_idxs:
-                            if slugify(str(row[idx])) == 'missing':
-                                fvalue = None
-                            else:
-                                try:
-                                    fvalue = float(row[idx])
-                                except:
-                                    # value is neither missing or a float, so should be ignored for this measurement.
-                                    continue
-
-                            name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
-                            actual_value = Actual_value(    measurement_name=name,
-                                                            value = fvalue,
-                                                            actual_data = actual
-                            )
-                            actual_value.save()
-
-            except Exception as err:
-                print('Error loading actuals:', err)
-                continue
+                    print('Error loading actuals:', err)
+                    continue
+        except Exception as err:
+            print('Error reading actuals file:', err)
+            return
 
         default_storage.save(filepath_sensor.name, filepath_sensor.file)
         default_storage.save(filepath_actual.name, filepath_actual.file)
@@ -681,49 +686,54 @@ def handle_uploaded_files(request):
         field_titles = next(reader, None)  # skip the headers
         #print('field titles:', field_titles)
 
-        for row in reader:
-            try:
-                extra_data = {}
-                for idx, item in enumerate(field_titles[2:]):
-                    extra_data[item] = row[idx + 2]
-                # Initialise polys
-                multipoly_geo = MultiPolygon()
-                poly = ()
 
-                # Split the row
-                poly_split = row[1].split(' ')[1:]
-
-                # make first_point
-                point_split = poly_split[0].strip().split(',')
+        try:
+            for row in reader:
                 try:
-                    first_point = (float(point_split[0]), float(point_split[1]))
-                except:
+                    extra_data = {}
+                    for idx, item in enumerate(field_titles[2:]):
+                        extra_data[item] = row[idx + 2]
+                    # Initialise polys
+                    multipoly_geo = MultiPolygon()
+                    poly = ()
+
+                    # Split the row
+                    poly_split = row[1].split(' ')[1:]
+
+                    # make first_point
+                    point_split = poly_split[0].strip().split(',')
+                    try:
+                        first_point = (float(point_split[0]), float(point_split[1]))
+                    except:
+                        continue
+
+                    start = True
+                    for point_str in poly_split:
+                        point_split = point_str.strip().split(',')
+                        point = (float(point_split[0]), float(point_split[1]))
+                        poly = poly + (point,)
+                        if start != True and point == first_point:
+                            # Restart as enclosed circle found
+                            # Make an enclosed circle
+                            poly_geo = Polygon(poly)
+                            multipoly_geo.append(poly_geo)
+                            poly = ()
+                            start = True
+                        else:
+                            start = False
+
+                    region = Region(region_id=str(row[0]),
+                                    geom=multipoly_geo,
+                                    extra_data=extra_data
+                                    )
+                    region.save()
+                except Exception as err1:
+                    #print('Region file error. ', err1)
+                    #print('Region file error. Row: ', row[0])
                     continue
-
-                start = True
-                for point_str in poly_split:
-                    point_split = point_str.strip().split(',')
-                    point = (float(point_split[0]), float(point_split[1]))
-                    poly = poly + (point,)
-                    if start != True and point == first_point:
-                        # Restart as enclosed circle found
-                        # Make an enclosed circle
-                        poly_geo = Polygon(poly)
-                        multipoly_geo.append(poly_geo)
-                        poly = ()
-                        start = True
-                    else:
-                        start = False
-
-                region = Region(region_id=str(row[0]),
-                                geom=multipoly_geo,
-                                extra_data=extra_data
-                                )
-                region.save()
-            except Exception as err1:
-                #print('Region file error. ', err1)
-                #print('Region file error. Row: ', row[0])
-                continue
+        except Exception as err:
+            print('Error reading regions file:', err)
+            return
 
         file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
         reader = csv.reader(file_estimates)
@@ -761,46 +771,49 @@ def handle_uploaded_files(request):
             extra_data_idxs[measurement_name][extra_data_field] = extra_idx
 
 
+        try:
+            for row in reader:
+                try:
+                    region = Region.objects.get(region_id=str(row[region_idx]))
 
-        for row in reader:
-            try:
-                region = Region.objects.get(region_id=str(row[region_idx]))
-
-                if region:
-                    estimated = Estimated_data( timestamp=slugify(row[timestamp_idx]),
-                                                region=region
-                                                )
-                    estimated.save()
-
-
-                    for idx in value_idxs:
-                        name = slugify(field_titles[idx].replace('val_', '', 1), to_lower=True, separator='_')
-
-                        # Get extra data fields
-                        extra_idxs = extra_data_idxs[name]
-                        extra_data = {}
-                        for extra_data_name, extra_data_idx in extra_idxs.items():
-                            extra_data[extra_data_name] = row[extra_data_idx]
-
-                        # Check that the name has a matching sensor measurement
-                        #  and add to model if it has.
-                        #if name in sensor_measurements:
-                        try:
-                            fvalue = float(row[idx])
-                        except:
-                            fvalue = None
-
-                        actual_value = Estimated_value( measurement_name=name,
-                                                        value = fvalue,
-                                                        estimated_data = estimated,
-                                                        extra_data=extra_data,
-                        )
-                        actual_value.save()
+                    if region:
+                        estimated = Estimated_data( timestamp=slugify(row[timestamp_idx]),
+                                                    region=region
+                                                    )
+                        estimated.save()
 
 
-            except Exception as err:
-                print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
-                continue
+                        for idx in value_idxs:
+                            name = slugify(field_titles[idx].replace('val_', '', 1), to_lower=True, separator='_')
+
+                            # Get extra data fields
+                            extra_idxs = extra_data_idxs[name]
+                            extra_data = {}
+                            for extra_data_name, extra_data_idx in extra_idxs.items():
+                                extra_data[extra_data_name] = row[extra_data_idx]
+
+                            # Check that the name has a matching sensor measurement
+                            #  and add to model if it has.
+                            #if name in sensor_measurements:
+                            try:
+                                fvalue = float(row[idx])
+                            except:
+                                fvalue = None
+
+                            actual_value = Estimated_value( measurement_name=name,
+                                                            value = fvalue,
+                                                            estimated_data = estimated,
+                                                            extra_data=extra_data,
+                            )
+                            actual_value.save()
+
+
+                except Exception as err:
+                    print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
+                    continue
+        except Exception as err:
+            print('Error reading estimated file:', err)
+            return
 
         default_storage.save(filepath_region.name, filepath_region.file)
         default_storage.save(filepath_estimated.name, filepath_estimated.file)
