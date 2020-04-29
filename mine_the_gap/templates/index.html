@@ -7,7 +7,7 @@
 {% block content %}
     {% block load_files %}
 
-        {% if form %}
+        {% if user.is_authenticated %}
             <div id="load-files" class="container">
                 <div class="row">
                     <div class="col-sm-2">

@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth.decorators import login_required
 
 from django.core.files import temp as tempfile
 from django.conf import settings
@@ -53,7 +54,9 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-    context = { 'form': FileUploadForm(),
+
+
+    context = { 'form': FileUploadForm(),  # On the front end, this is set up to only show if user is logged in.
                 'center': get_center_latlng(),
                 'filepaths': Filenames.objects.all(),
                 'measurement_names': get_measurement_names(),
