@@ -33,11 +33,14 @@ $(document).ready(function(){
     $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        if ($("input[name='region-method']:checked").val() === 'file') {
+
+        // The following (commented out) is from when we still had choice of region types
+        /*if ($("input[name='region-method']:checked").val() === 'file') {
             curDataUrl = dataUrl + '/' + this.value + '/';
         }else{
             curDataUrl = dataUrlDynamicRegions + '/' + $("input[name='region-method']:checked").val() + '/' + this.value + '/';
-        }
+        }*/
+        curDataUrl = dataUrl + '/' + this.value + '/';
         update_timeseries_map()
     });
 
@@ -56,7 +59,8 @@ $(document).ready(function(){
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
-    $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
+    // The following (commented out) is from when we still had choice of region types
+    /*$("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
     $("#estimation-regions input").change(function() {
         $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
         if(this.value === 'file'){
@@ -71,7 +75,7 @@ $(document).ready(function(){
         }
         update_map(urlRegion=regionsUrl);
         initialise_slider(value=document.getElementById("timestamp-range").value);
-    });
+    });*/
 
 
     // Downlaod data functions
@@ -271,14 +275,15 @@ $(document).ready(function(){
               });
         };
 
-
+        //alert(dataUrl);
+        //alert(JSON.stringify(jsonParams));
         $.ajax({
             url: dataUrl,
             data:JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
-            timeout: 100000,
+            timeout: 1000000,
             success: function (data) {
                 var actualData = data['actual_data'];
                 var estimatedData = data['estimated_data'];

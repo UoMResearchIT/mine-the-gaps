@@ -125,8 +125,8 @@ def get_estimates(request, method_name, measurement, region_type='file', timesta
 def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None, region_type='file'):
     try:
         data = {
-                    'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
-                    'estimated_data': estimates(request, method_name, measurement, region_type=region_type, timestamp_val=timestamp_val, return_all_fields=True)
+            'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
+            'estimated_data': estimates(request, method_name, measurement, region_type=region_type, timestamp_val=timestamp_val, return_all_fields=True)
         }
         response = JsonResponse(data, safe=False)
     except Exception as err:
