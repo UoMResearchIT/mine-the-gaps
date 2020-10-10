@@ -8,6 +8,7 @@ $(document).ready(function(){
     // Initialise layer lists for later use
     var sensorsLayer = new L.LayerGroup();
     var regionsLayer = new L.LayerGroup();
+
     var regions = {};
 
     // Make the timestamp slider draggable:
@@ -47,15 +48,6 @@ $(document).ready(function(){
         update_timeseries_map();
     });
 
-    $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
-    $("#map-overlays input").change(function() {
-        $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
-
-        update_map(regionsFileUrl, this.value, map.getZoom(), map.getCenter());
-
-        initialise_slider(value=document.getElementById("timestamp-range").value);
-    });
-
     $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
     $("#estimation-regions input").change(function() {
         $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
@@ -80,13 +72,37 @@ $(document).ready(function(){
 
 
     //Create map
+
+    var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
+    var mapId = 'mapbox.streets';
+    var mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
+            ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
+            ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+    var mapUrlStreet = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+    var mapUrlTopology = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+
+    var streets   = L.tileLayer(mapUrlStreet, {id: mapId, accessToken: accessToken, maxZoom: 18, attribution: mapAttribution});
+    var topology = L.tileLayer(mapUrlTopology, {id: mapId, accessToken: accessToken, maxZoom: 18, attribution: mapAttribution});
+
+    var baseMaps = {
+        "streets": streets,
+        "topology": topology
+    };
+
     var map = L.map('mapid');
+    L.control.layers(baseMaps, {}).addTo(map);
+
+    //var map = L.map('mapid');
     var initZoom = 6;
     try {
         var initCenter = jQuery.parseJSON(centerLatLng);
     }catch{
         var initCenter = ["54.2361", "-4.5481"];
     }
+
+
+
+
     map.setView(initCenter, initZoom);
     map.options.minZoom = 5;
     map.options.maxZoom = 14;
@@ -449,42 +465,6 @@ $(document).ready(function(){
                 Initialise map
 
          */
-
-        var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
-
-        var mapId = 'mapbox.streets';
-        var mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-        var mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
-                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
-                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
-
-        switch(mapType) {
-          case 'street-map':
-            mapId = 'mapbox.streets';
-            mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-            mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
-                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
-                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
-            break;
-          case 'topology':
-            mapId = 'mapbox.streets';
-            mapUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
-            mapAttribution = 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
-                ' contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: ' +
-                '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> ' +
-                '(<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)';
-            break;
-        }
-
-        L.tileLayer(
-            mapUrl,
-           {
-                maxZoom: 18,
-                attribution: mapAttribution,
-                id: mapId,
-                accessToken: accessToken
-            }
-        ).addTo(map);
 
         function locateBounds () {
          // geolocate
@@ -890,8 +870,8 @@ function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, l
 
 
 function getGreenToRed(percent){
-    g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
-    r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
+    var g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
+    var r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
     return 'rgb('+r+','+g+',0)';
 }
 
