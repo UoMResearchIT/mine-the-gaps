@@ -1,3 +1,8 @@
+import {drawLoader, stopLoader} from "./loader.js";
+
+let resultsLoading = false;  // Variable used to prevent multiple ajax requests queuing up and confusing UI.
+let xhr = null;
+
 $(document).ready(function(){
 
     // Initialise layer lists for later use
@@ -10,12 +15,7 @@ $(document).ready(function(){
 
     $("#file-upload-form").on("submit", function(){
         if(confirm('Do you really want to replace these files?')){
-            var loaderOuterDiv = document.getElementById('loader-outer');
-            // Set up loader display
-            var loaderDiv = document.createElement('div');
-            loaderDiv.id = 'loader';
-            loaderOuterDiv.appendChild(loaderDiv);
-            drawLoader(loaderDiv, '<p>Uploading data...</p>');
+            drawLoader('loader-outer', 'loader', '<p>Uploading data...</p>');
             return true;
         }else{
             return false;
@@ -33,14 +33,11 @@ $(document).ready(function(){
     $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-
-        // The following (commented out) is from when we still had choice of region types
-        /*if ($("input[name='region-method']:checked").val() === 'file') {
+        if ($("input[name='region-method']:checked").val() === 'file') {
             curDataUrl = dataUrl + '/' + this.value + '/';
         }else{
             curDataUrl = dataUrlDynamicRegions + '/' + $("input[name='region-method']:checked").val() + '/' + this.value + '/';
-        }*/
-        curDataUrl = dataUrl + '/' + this.value + '/';
+        }
         update_timeseries_map()
     });
 
@@ -59,8 +56,7 @@ $(document).ready(function(){
         initialise_slider(value=document.getElementById("timestamp-range").value);
     });
 
-    // The following (commented out) is from when we still had choice of region types
-    /*$("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
+    $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
     $("#estimation-regions input").change(function() {
         $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
         if(this.value === 'file'){
@@ -75,7 +71,7 @@ $(document).ready(function(){
         }
         update_map(urlRegion=regionsUrl);
         initialise_slider(value=document.getElementById("timestamp-range").value);
-    });*/
+    });
 
 
     // Downlaod data functions
@@ -256,14 +252,6 @@ $(document).ready(function(){
         var jsonParams = get_sensor_select_url_params();
         jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
 
-
-        // Set up loader display
-        var loaderOuterDiv = document.getElementById('loader-outer');
-        var loaderDiv = document.createElement('div');
-        loaderDiv.id = 'loader';
-        loaderOuterDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
-
         // 1. Update sensors to show values
 
         // Clear sensor and region data
@@ -275,15 +263,20 @@ $(document).ready(function(){
               });
         };
 
-        //alert(dataUrl);
-        //alert(JSON.stringify(jsonParams));
+
         $.ajax({
             url: dataUrl,
             data:JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": csrftoken},
             dataType: 'json',
             method: 'POST',
-            timeout: 1000000,
+            timeout: 100000,
+            beforeSend: function () {
+                // we are now awaiting browse results to load
+                resultsLoading = true;
+                // Set up loader display
+                drawLoader('loader-outer', 'fetch-data-loader', '<p>Collecting sensor data...</p>');
+            },
             success: function (data) {
                 var actualData = data['actual_data'];
                 var estimatedData = data['estimated_data'];
@@ -442,9 +435,8 @@ $(document).ready(function(){
             },
             complete: function (request, status) {
                 // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                }
+                stopLoader('loader-outer');
+                resultsLoading = false;
             }
         });
 
@@ -484,13 +476,6 @@ $(document).ready(function(){
             break;
         }
 
-        // Set up loader display
-        var loaderOuterDiv = document.getElementById('loader-outer');
-        var loaderDiv = document.createElement('div');
-        loaderDiv.id = 'loader';
-        loaderOuterDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Setting up map and region data...</p>');
-
         L.tileLayer(
             mapUrl,
            {
@@ -517,6 +502,10 @@ $(document).ready(function(){
             url: urlRegion,
             dataType: 'json',
             async: false,
+            beforeSend: function () {
+                // Set up loader display
+                drawLoader('loader-outer', 'loader', '<p>Setting up map and region data...</p>');
+            },
             success: function(data) {
 
                 // Add GeoJSON layer
@@ -560,10 +549,8 @@ $(document).ready(function(){
                     alert("There was an problem fetching the region meta-data: " + errors.toString());
             },
             complete: function (request, status) {
-                    // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                }
+                // Clear Loader
+                stopLoader('loader-outer');
             }
         });
     };
@@ -574,15 +561,6 @@ $(document).ready(function(){
 
 
 function download_csv(url, filename){
-    // Set up loader display
-    var loaderOuterDiv = document.getElementById('loader-outer');
-    var loaderDiv = document.createElement('div');
-    loaderDiv.id = 'loader';
-    loaderOuterDiv.appendChild(loaderDiv);
-    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
-
-
-
     $.ajax({
         url: url,
         headers: {"X-CSRFToken": csrftoken},
@@ -590,6 +568,10 @@ function download_csv(url, filename){
         method: 'POST',
         timeout: 60000,
         async: true,
+        beforeSend: function () {
+            // Set up loader display
+            drawLoader('loader-outer', 'loader', '<p>Downloading ' + filename + '...</p>');
+        },
         success: function (data) {
             /*
             A hack found online, to allow the use of success/fail callbacks by using js ajax call.
@@ -610,27 +592,20 @@ function download_csv(url, filename){
         },
         complete: function (request, status) {
             // Clear Loader
-            while (loaderOuterDiv.firstChild) {
-                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-            }
+            stopLoader('loader-outer');
         }
     })
 };
 
 function download_geojson(url, filename){
-    // Set up loader display
-    var loaderOuterDiv = document.getElementById('loader-outer');
-    var loaderDiv = document.createElement('div');
-    loaderDiv.id = 'loader';
-    loaderOuterDiv.appendChild(loaderDiv);
-    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
-
-
-
     $.ajax({
         url: url,
         dataType: 'json',
         async: true,
+        beforeSend: function () {
+            // Set up loader display
+            drawLoader('loader-outer', 'loader', '<p>Downloading ' + filename + '...</p>');
+        },
         success: function (data) {
             /*
             A hack found online, to allow the use of success/fail callbacks by using js ajax call.
@@ -648,24 +623,13 @@ function download_geojson(url, filename){
         },
         complete: function (request, status) {
             // Clear Loader
-            while (loaderOuterDiv.firstChild) {
-                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-            }
+            stopLoader('loader-outer');
         }
     })
 };
 
 
 function download_json(url, filename){
-    // Set up loader display
-    var loaderOuterDiv = document.getElementById('loader-outer');
-    var loaderDiv = document.createElement('div');
-    loaderDiv.id = 'loader';
-    loaderOuterDiv.appendChild(loaderDiv);
-    drawLoader(loaderDiv, '<p>Downloading ' + filename + '...</p>');
-
-
-
     $.ajax({
         url: url,
         headers: {"X-CSRFToken": csrftoken},
@@ -673,6 +637,10 @@ function download_json(url, filename){
         method: 'POST',
         timeout: 90000,
         async: true,
+        beforeSend: function () {
+            // Set up loader display
+            drawLoader('loader-outer', 'loader', '<p>Downloading ' + filename + '...</p>');
+        },
         success: function (data) {
             /*
             A hack found online, to allow the use of success/fail callbacks by using js ajax call.
@@ -690,9 +658,7 @@ function download_json(url, filename){
         },
         complete: function (request, status) {
             // Clear Loader
-            while (loaderOuterDiv.firstChild) {
-                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-            }
+            stopLoader('loader-outer');
         }
     })
 };
@@ -701,15 +667,6 @@ function download_json(url, filename){
 // File downloads
 
 function get_csv(url, filename='data.csv', jsonParams={}){
-    // Set up loader display
-    var loaderOuterDiv = document.getElementById('loader-outer');
-    var loaderDiv = document.createElement('div');
-    loaderDiv.id = 'loader';
-    loaderOuterDiv.appendChild(loaderDiv);
-    drawLoader(loaderDiv, '<p>Downloading data...</p>');
-
-
-
     $.ajax({
         url: url,
         data: JSON.stringify(jsonParams),
@@ -718,6 +675,10 @@ function get_csv(url, filename='data.csv', jsonParams={}){
         method: 'POST',
         timeout: 40000,
         async: false,
+        beforeSend: function () {
+            // Set up loader display
+            drawLoader('loader-outer', 'loader', '<p>Downloading ' + filename + '...</p>');
+        },
         success: function (data) {
             if (!data.match(/^data:text\/csv/i)) {
                 data = 'data:text/csv;charset=utf-8,' + data;
@@ -734,9 +695,7 @@ function get_csv(url, filename='data.csv', jsonParams={}){
         },
         complete: function (request, status) {
             // Clear Loader
-            while (loaderOuterDiv.firstChild) {
-                loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-            }
+            stopLoader('loader-outer');
         }
     })
 };
@@ -850,7 +809,7 @@ function getActualTimeseries(measurement, sensorId, listChart, modalChart){
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'json',
         method: 'POST',
-        timeout: 60000,
+        timeout: 200000,
         async: true,
         success: function (data) {
             var values = [];
@@ -894,7 +853,7 @@ function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, l
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'json',
         method: 'POST',
-        timeout: 60000,
+        timeout: 300000,
         async: true,
         success: function (data) {
             var estValues = [];
@@ -953,33 +912,6 @@ function slugify(string) {
     .replace(/\-\-+/g, '-') // Replace multiple - with single -
     .replace(/^-+/, '') // Trim - from start of text
     .replace(/-+$/, '') // Trim - from end of text
-}
-
-
-function drawLoader(loaderDiv, explanation, sizeOneToFive=3){
-    loaderDiv.style.zIndex = 2000;
-    var strClassSuffix = '';
-    if(isNumeric(sizeOneToFive) & parseInt(sizeOneToFive) >=1 & parseInt(sizeOneToFive) <=5) {
-        strClassSuffix = ' size-' + sizeOneToFive.toString();
-    }
-
-    // Delete previous if exists
-    if($(loaderDiv).children(".ajax-waiting-explanation").length){
-        // Remove
-        $(loaderDiv).children(".ajax-waiting-explanation").remove();
-    }
-
-    // Draw new loader
-    var divWaitingExplanation = document.createElement('div');
-    divWaitingExplanation.className = 'ajax-waiting-explanation';
-    var divAjaxWaitText = document.createElement('div');
-    divAjaxWaitText.className = 'ajax-waiting-text' + strClassSuffix;
-    divAjaxWaitText.innerHTML = explanation;
-    var divLoader = document.createElement('div');
-    divLoader.className = 'ajax-call-loader' + strClassSuffix;
-    divWaitingExplanation.appendChild(divLoader);
-    divWaitingExplanation.appendChild(divAjaxWaitText);
-    loaderDiv.appendChild(divWaitingExplanation);
 }
 
 // Make the DIV element draggable:
