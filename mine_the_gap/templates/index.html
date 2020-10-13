@@ -92,20 +92,6 @@
                     </div>
                 </div>
 
-                <div id="map-overlays" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMapType" aria-expanded="false" aria-controls="collapseMapType">
-                            <div class="panel-title">Select map  <span class="chosen-option" id="map-overlays-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseMapType" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
-                            <input type="radio" name="map-type" value="topology"> Topology <br>
-                        </div>
-                    </div>
-                </div>
-
                 <div id="estimation-method" class="panel-group">
                     <div class="panel panel-default">
                         <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
@@ -293,7 +279,6 @@
                     var centerLatLng = "{{center|escapejs }}";
                     var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
                     var dataUrl = '{{ request.path }}' + 'all_data';
-                    var dataUrlDynamicRegions = '{{ request.path }}' + 'all_data_dynamic_regions';
                     var mapIconPath = "{% static 'image/leaflet' %}";
                     var sensorDataUrl = '{% url "sensors_metadata" %}';
                     var regionsFileUrl = '{% url "regions_metadata" %}';
@@ -302,7 +287,6 @@
 
                     var sensorTimeseriesUrl = '{{ request.path }}' + 'sensor_timeseries';
                     var estimatedTimeseriesUrl = '{{ request.path }}' + 'estimated_timeseries';
-                    var regionsHexagonsUrl = '{{ request.path }}' + "regions_hexagons_geojson";
 
                 </script>
 
