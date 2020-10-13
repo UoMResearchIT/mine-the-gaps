@@ -1,14 +1,17 @@
 import {LoaderDisplay} from "./loader.js";
 import {GapMap} from "./gapMap.js";
 
-let xhr = null;
-var curDataUrl = dataUrl + '/file/';
+const csrftoken = getCookie('csrftoken');
+var xhr = null;
+
 var curLoader;
-var gapMap = null;
+var gapMap;
 
 $(document).ready(function(){
+    gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons);
+    gapMap.dataUrl = dataUrl + '/file/';
+    gapMap.createMap(centerLatLng);
 
-    gapMap = new GapMap('mapid', regionsFileUrl, curDataUrl, csrftoken);
 
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
@@ -31,38 +34,16 @@ $(document).ready(function(){
     $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        if ($("input[name='region-method']:checked").val() === 'file') {
-            curDataUrl = dataUrl + '/' + this.value + '/';
-        }else{
-            curDataUrl = dataUrlDynamicRegions + '/' + $("input[name='region-method']:checked").val() + '/' + this.value + '/';
-        }
-        gapMap.updateTimeseries(get_sensor_select_url_params())
+        gapMap.dataUrl = dataUrl + '/' + this.value + '/';
+        gapMap.updateTimeseries(get_sensor_select_url_params());
     });
 
     $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
     $("#measurement-names input").change(function() {
         $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
-        updateTimeseries(get_sensor_select_url_params());
+        gapMap.updateTimeseries(get_sensor_select_url_params());
     });
 
-    $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
-    $("#estimation-regions input").change(function() {
-        $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
-        if(this.value === 'file'){
-            var regionsUrl = regionsFileUrl;
-            curDataUrl = dataUrl + '/' + $("input[name='estimation-method']:checked").val() + '/';
-        }else{
-           var regionsUrl = regionsHexagonsUrl + '/' +
-               map.getBounds().getNorthWest().lat + '/' + map.getBounds().getNorthWest().lng + '/' +
-               map.getBounds().getSouthEast().lat + '/' + map.getBounds().getSouthEast().lng;
-           //alert($("input[name='estimation-method']:checked").val());
-           curDataUrl = dataUrlDynamicRegions + '/' + this.value + '/' + $("input[name='estimation-method']:checked").val() + '/';
-        }
-        gapMap.updateMap();
-        initialise_slider({value:document.getElementById("timestamp-range").value});
-    });
-
-    gapMap.createMap(centerLatLng);
 
     $('#region-data').html(get_region_default());
     $('#sensor-data-instructions').html(get_sensor_default());
@@ -494,6 +475,199 @@ function cloneCanvas(oldCanvas) {
     return newCanvas;
 }
 
+function showTimelineComparisons(measurement, sensorId, regionId, sensorName) {
+    var estimationMethod = $("input[name='estimation-method']:checked").val();
+
+    var listItem = document.createElement('a');
+    listItem.className = "list-group-item list-group-item-action flex-column align-items-start sensor-chart";
+    listItem.href = '#';
+    var listItemDiv = document.createElement('div');
+    listItemDiv.className = 'd-flex w-100 justify-content-between';
+    var canvasItem = document.createElement('canvas');
+    canvasItem.id = "sensor-chart";
+    var newChartTitle = document.createElement('div');
+
+    newChartTitle.innerHTML = '<p><b>Sensor Name: ' + sensorName + '</b><br>' +
+        'Measurment: ' + measurement + '<br>' +
+        'Estimation Method: ' + estimationMethod + '</p>';
+
+    listItemDiv.appendChild(newChartTitle);
+    listItemDiv.appendChild(canvasItem);
+    listItem.appendChild(listItemDiv);
+    var list = document.getElementById('sensor-charts');
+    list.insertBefore(listItem, list.firstChild);
+
+    var ctx = canvasItem.getContext('2d');
+    var listChart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+        // The data for our dataset
+        data: {
+            labels: timestampList,
+            datasets: [],
+        },
+        // Configuration options go here
+        options: {}
+    });
+
+
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    var modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    var span = document.createElement('span');
+    span.className = "close";
+    span.innerHTML = '&times';
+
+    modalContent.appendChild(span);
+
+    var modalCanvas = canvasItem.cloneNode(true);
+    modalCanvas.id = 'modal-canvas';
+
+    var ctxModal = modalCanvas.getContext('2d');
+    var modalChart = new Chart(ctxModal, {
+        // The type of chart we want to create
+        type: 'line',
+        // The data for our dataset
+        data: {
+            labels: timestampList,
+            datasets: [],
+        },
+        // Configuration options go here
+        options: {}
+    });
+
+    modalContent.appendChild(modalCanvas);
+    modal.appendChild(modalContent);
+    list.appendChild(modal);
+
+    // When the user clicks the button, open the modal
+    newChartTitle.onclick = function () {
+        modal.style.display = "block";
+    };
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    };
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+
+    getActualTimeseries(measurement, sensorId, listChart, modalChart);
+    getEstimatedTimeseries(measurement, estimationMethod, regionId, sensorId, listChart, modalChart);
+}
+window.showTimelineComparisons = showTimelineComparisons;
+
+
+function getActualTimeseries(measurement, sensorId, listChart, modalChart){
+    //url: sensor_timeseries/<slug:measurement>/<int:sensor_id>
+
+    var urlActual = sensorTimeseriesUrl + '/' + measurement + '/' + sensorId + '/';
+    //alert(actualUrl);
+    var self = this;
+    xhr = $.ajax({
+        url: urlActual,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 200000,
+        async: true,
+        success: function (data) {
+            var values = [];
+            for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
+                values.push(getTimestampValue(data, timestampList[timestampIdx]));
+            };
+            listChart.data.datasets.push(
+                    {
+                        label: 'Sensor values',
+                        backgroundColor: 'green',
+                        borderColor: 'green',
+                        fill:false,
+                        data: values
+                    }
+            );
+            listChart.update();
+            modalChart.data.datasets.push(
+                    {
+                        label: 'Sensor values',
+                        backgroundColor: 'green',
+                        borderColor: 'green',
+                        fill:false,
+                        data: values
+                    }
+            );
+            modalChart.update();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem obtaining the sensor timeseries data: "
+                    + "url: " + urlActual + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        }
+    });
+}
+
+function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, listChart, modalChart){
+    //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/
+    var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
+
+    //alert(url_estimates);
+    var self = this;
+    xhr = $.ajax({
+        url: urlEstimates,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 300000,
+        async: true,
+        success: function (data) {
+            var estValues = [];
+            for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
+                estValues.push(getTimestampValue(data, timestampList[timestampIdx]));
+            };
+            listChart.data.datasets.push(
+                    {
+                        label: 'Estimated values',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill:false,
+                        data: estValues
+                    }
+            );
+            listChart.update();
+            modalChart.data.datasets.push(
+                    {
+                        label: 'Estimated values',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill:false,
+                        data: estValues
+                    }
+            );
+            modalChart.update();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem obtaining the estimated timeseries data: "
+                    + "url: " + urlEstimates + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        }
+    });
+}
+
 
 // ******************************************************************
 // ****************** CSRF-TOKEN SET-UP *****************************
@@ -515,7 +689,6 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-var csrftoken = getCookie('csrftoken');
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
