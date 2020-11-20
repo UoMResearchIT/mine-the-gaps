@@ -54,13 +54,12 @@ def home_page(request):
 
             return HttpResponseRedirect(request.path_info)
 
-
-
-    context = { 'form': FileUploadForm(),  # On the front end, this is set up to only show if user is logged in.
-                'center': get_center_latlng(),
-                'filepaths': Filenames.objects.all(),
-                'measurement_names': get_measurement_names(),
-                'timestamp_range': get_timestamp_list()}
+    context = {'form': FileUploadForm(),  # On the front end, this is set up to only show if user is logged in.
+                                            # To do this use [main url]/admin
+               'center': get_center_latlng(),
+               'filepaths': Filenames.objects.all(),
+               'measurement_names': get_measurement_names(),
+               'timestamp_range': get_timestamp_list()}
 
     return render(request, 'index.html', context)
 

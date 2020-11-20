@@ -7,11 +7,9 @@ var xhr = null;
 var curLoader;
 var gapMap;
 
+
 $(document).ready(function(){
     gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons);
-    gapMap.dataUrl = dataUrl + '/file/';
-    gapMap.createMap(centerLatLng);
-
 
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
@@ -44,11 +42,8 @@ $(document).ready(function(){
         gapMap.updateTimeseries(get_sensor_select_url_params());
     });
 
-
     $('#region-data').html(get_region_default());
     $('#sensor-data-instructions').html(get_sensor_default());
-
-    gapMap.updateMap();
 
     // bounds must be set after only the first initialisation of map
     initialise_slider();

@@ -4,11 +4,17 @@ var map = null;
 const sensorsLayer = new L.LayerGroup();
 const regionsLayer = new L.LayerGroup();
 const accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
+//const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
+//                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
+//               ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
                 ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
-                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+                ', Topology © <a href="https://opentopomap.org">OpenTopoMap</a>';
 const mapId = 'mapbox.streets';
-const mapUrlStreet = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+//const mapUrlStreet = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+const mapUrlStreet = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+
+
 const mapUrlTopology = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
 const defaultInitCenter = ["54.2361", "-4.5481"];
 const initZoom = 6;
@@ -21,11 +27,14 @@ export class GapMap {
         this.accessToken = accessToken;
         this.bounds = null;
         this.regionsFileUrl = regionsFileUrl;
-        this.dataUrl = null;
         this.csrftoken = csrfToken;
         this.resultsLoading = false; // Variable used to prevent multiple ajax requests queuing up and confusing UI.
         this.curLoader = null;
         this.onSensorClickFn = onSensorClickFn;
+
+        this.dataUrl = dataUrl + '/file/';
+        this.createMap(centerLatLng);
+        this.updateMap();
     }
 
     createMap(centerLatLng){
@@ -59,6 +68,9 @@ export class GapMap {
 
     updateTimeseries(jsonParams, timeseries_idx=document.getElementById("timestamp-range").value,
                                measurement=$("input[name='measurement']:checked").val()){
+        if(timestampList.length < 1 || timestampList[0] == null || timestampList[0] == ''){
+            return;
+        }
         var timeseries_val = timestampList[timeseries_idx].trim();
         var dataUrl = this.dataUrl + measurement + '/' + timeseries_val + '/';
 
@@ -87,7 +99,8 @@ export class GapMap {
                 // we are now awaiting browse results to load
                 self.resultsLoading = true;
                 // Set up loader display
-                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting sensor data...</p>', 'fetch-data-loader');
+                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting sensor data...</p>',
+                    'fetch-data-loader');
             },
             success: function (data) {
                 //alert(JSON.stringify(data));
