@@ -1,7 +1,7 @@
 import {LoaderDisplay} from "./loader.js";
 
 var map = null;
-const sensorsLayer = new L.LayerGroup();
+const sitesLayer = new L.LayerGroup();
 const regionsLayer = new L.LayerGroup();
 const accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 //const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
@@ -74,10 +74,10 @@ export class GapMap {
         var timeseries_val = timestampList[timeseries_idx].trim();
         var dataUrl = this.dataUrl + measurement + '/' + timeseries_val + '/';
 
-        // 1. Update sensors to show values
+        // 1. Update sites to show values
 
-        // Clear sensor and region data
-        sensorsLayer.clearLayers();
+        // Clear site and region data
+        sitesLayer.clearLayers();
         for (var key in regions){
             regions[key].setStyle({
                 'fillColor': 'transparent',
@@ -99,7 +99,7 @@ export class GapMap {
                 // we are now awaiting browse results to load
                 self.resultsLoading = true;
                 // Set up loader display
-                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting sensor data...</p>',
+                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting site data...</p>',
                     'fetch-data-loader');
             },
             success: function (data) {
@@ -134,7 +134,7 @@ export class GapMap {
                 "value":66,
                 "timestamp":"2017-01-01 00:00:00+00",
                 "percent_score":0.436241610738255,
-                "sensor_id":757,
+                "site_id":757,
                 "geom":[-2.1031362,57.1453481],
                 "name": 'Aberdeen Union Street Roadside',
                 "ignore": False,
@@ -163,13 +163,13 @@ export class GapMap {
             var bespokeOptions = {
                 // Bespoke for gapMap
                 measurement: measurement,
-                sensor_id: loc.sensor_id,
+                site_id: loc.site_id,
                 regions: loc.regions,
                 name: loc.name
             }
 
 
-            var sensorMarker = new L.Marker.SVGMarker(latlng,
+            var siteMarker = new L.Marker.SVGMarker(latlng,
                     {   iconOptions: {
                             color: valColor,
                             iconSize: [30,40],
@@ -188,7 +188,7 @@ export class GapMap {
 
             var extraData = '<table class="table table-striped">';
             extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
-            extraData += '<tr><th>ID</th><td>' + loc.sensor_id + '</td></tr>';
+            extraData += '<tr><th>ID</th><td>' + loc.site_id + '</td></tr>';
             extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
             extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
             extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
@@ -198,9 +198,9 @@ export class GapMap {
                     extraData += '<tr><th>' + key + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
                 }
             };
-            for (var key in loc['sensor_extra_data']){
-                if(loc['sensor_extra_data'][key] != null && loc['sensor_extra_data'][key] != '') {
-                    extraData += '<tr><th>' + key + '</th><td>' + loc['sensor_extra_data'][key] + '</td></tr>';
+            for (var key in loc['site_extra_data']){
+                if(loc['site_extra_data'][key] != null && loc['site_extra_data'][key] != '') {
+                    extraData += '<tr><th>' + key + '</th><td>' + loc['site_extra_data'][key] + '</td></tr>';
                 }
             };
             extraData += '</table>';
@@ -211,13 +211,13 @@ export class GapMap {
             popButton.className = 'get-timeseries';
             popButton.value = 'Get timeseries';
             popButton.setAttribute("onclick",
-                "showTimelineComparisons('"+measurement+"','" +loc.sensor_id + "','" + loc.regions + "','" + loc.name + "')");
+                "showTimelineComparisons('"+measurement+"','" +loc.site_id + "','" + loc.regions + "','" + loc.name + "')");
 
-            sensorMarker.bindPopup(extraData + popButton.outerHTML);
-            sensorsLayer.addLayer(sensorMarker);
+            siteMarker.bindPopup(extraData + popButton.outerHTML);
+            sitesLayer.addLayer(siteMarker);
 
         };
-        sensorsLayer.addTo(map);
+        sitesLayer.addTo(map);
 
         /*[
             {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",

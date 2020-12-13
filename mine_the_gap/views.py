@@ -40,8 +40,8 @@ def home_page(request):
                 filenames = Filenames()
 
             try:
-                if form.cleaned_data.get("sensor_metadata_file"):
-                    filenames.sensor_metadata_filename = form.cleaned_data.get("sensor_metadata_file")
+                if form.cleaned_data.get("site_metadata_file"):
+                    filenames.site_metadata_filename = form.cleaned_data.get("site_metadata_file")
                 if form.cleaned_data.get("actual_data_file"):
                     filenames.actual_data_filename = form.cleaned_data.get("actual_data_file")
                 if form.cleaned_data.get("region_metadata_file"):
@@ -67,14 +67,14 @@ def home_page(request):
 
 
 
-def get_sensor_fields(request):
+def get_site_fields(request):
     result = []
 
     try:
-        # Check sensors exist
-        first_sensor = Sensor.objects.first()
+        # Check sites exist
+        first_site = Sensor.objects.first()
 
-        if first_sensor:
+        if first_site:
             # Sensors exist so get field names from the Sensor model
             for field in Sensor._meta.get_fields():
                 if not (field.many_to_one) and field.related_model is None:
@@ -83,7 +83,7 @@ def get_sensor_fields(request):
                     if field_name == 'id' or field_name == 'geom':
                         continue
                     elif field_name == 'extra_data':
-                        result.extend(first_sensor.extra_data.keys())
+                        result.extend(first_site.extra_data.keys())
                     else:
                         result.append(field_name)
 
@@ -95,9 +95,9 @@ def get_sensor_fields(request):
         return response
 
 
-def get_actuals(request, measurement, timestamp_val=None, sensor_id=None):
+def get_actuals(request, measurement, timestamp_val=None, site_id=None):
     try:
-        data = actuals(request, measurement, timestamp_val=timestamp_val, sensor_id=sensor_id, return_all_fields=False)
+        data = actuals(request, measurement, timestamp_val=timestamp_val, site_id=site_id, return_all_fields=False)
         response =  JsonResponse(data, safe=False)
     except Exception as err:
         response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
@@ -135,10 +135,10 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
         return response
 
 
-def get_all_timeseries_at_region(request, method_name, measurement, region_id, sensor_id, region_type='file'):
+def get_all_timeseries_at_region(request, method_name, measurement, region_id, site_id, region_type='file'):
     try:
         data = {
-            'actual_data': actuals(request, measurement, sensor_id=sensor_id, return_all_fields=True),
+            'actual_data': actuals(request, measurement, site_id=site_id, return_all_fields=True),
             'estimated_data': estimates(request, method_name, measurement, region_type=region_type, region_id=region_id, return_all_fields=True)
         }
         response = JsonResponse(data, safe=False)
@@ -148,9 +148,9 @@ def get_all_timeseries_at_region(request, method_name, measurement, region_id, s
         return response
 
 
-def get_actuals_timeseries(request, measurement, sensor_id=None):
+def get_actuals_timeseries(request, measurement, site_id=None):
     try:
-        data = actuals(request, measurement, timestamp_val=None, sensor_id=sensor_id, return_all_fields=False)
+        data = actuals(request, measurement, timestamp_val=None, site_id=site_id, return_all_fields=False)
         response = JsonResponse(data, safe=False)
     except Exception as err:
         response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
@@ -158,7 +158,7 @@ def get_actuals_timeseries(request, measurement, sensor_id=None):
         return response
 
 
-def get_estimates_timeseries(request, method_name, measurement, region_type='file', region_id=None, ignore_sensor_id=None):
+def get_estimates_timeseries(request, method_name, measurement, region_type='file', region_id=None, ignore_site_id=None):
     try:
         data = estimates(
             request,
@@ -168,7 +168,7 @@ def get_estimates_timeseries(request, method_name, measurement, region_type='fil
             timestamp_val=None,
             region_id=region_id,
             return_all_fields=False,
-            ignore_sensor_id=ignore_sensor_id)
+            ignore_site_id=ignore_site_id)
         response = JsonResponse(data, safe=False)
     except Exception as err:
         response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
@@ -176,13 +176,13 @@ def get_estimates_timeseries(request, method_name, measurement, region_type='fil
         return response
 
 
-def get_sensors_file(request, file_type=None):
+def get_sites_file(request, file_type=None):
     # Create the HttpResponse object with the appropriate CSV header.
     if file_type == 'csv':
-        response = get_csv_response(Filenames.objects.first().sensor_metadata_filename, 'sensors_metadata.csv')
+        response = get_csv_response(Filenames.objects.first().site_metadata_filename, 'sites_metadata.csv')
     else:
-        response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().sensor_metadata_filename),
-                                     'sensors_metadata.json',
+        response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().site_metadata_filename),
+                                     'sites_metadata.json',
                                      file_type)
     return response
 
@@ -200,10 +200,10 @@ def get_regions_file(request, file_type=None):
 
 def get_actuals_file(request, file_type=None):
     if file_type == 'csv':
-        response = get_csv_response(Filenames.objects.first().actual_data_filename, 'sensors_data.csv')
+        response = get_csv_response(Filenames.objects.first().actual_data_filename, 'sites_data.csv')
     else:
         response = get_json_response(os.path.join(settings.MEDIA_ROOT, Filenames.objects.first().actual_data_filename),
-                                     'sensors_data.json',
+                                     'sites_data.json',
                                      file_type)
     return response
 
@@ -250,38 +250,38 @@ def get_json_response(stored_filename, new_filename, file_type):
 
 
 
-def actuals(request, measurement, timestamp_val=None, sensor_id=None, return_all_fields=True):
+def actuals(request, measurement, timestamp_val=None, site_id=None, return_all_fields=True):
     data = []
     measurement = measurement.strip()
 
     try:
-        sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+        site_params = json.loads(request.body.decode("utf-8"))['selectors']
     except:
-        sensor_params = []
+        site_params = []
 
-    if timestamp_val and sensor_id:
+    if timestamp_val and site_id:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
                                                 actual_data__timestamp=str(timestamp_val),
-                                                actual_data__sensor_id=sensor_id)
+                                                actual_data__site_id=site_id)
     elif timestamp_val:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
                                                 actual_data__timestamp=str(timestamp_val))\
-            .order_by('actual_data__sensor_id')
-    elif sensor_id:
+            .order_by('actual_data__site_id')
+    elif site_id:
         query_set = Actual_value.objects.filter(measurement_name=measurement,
-                                                actual_data__sensor_id=sensor_id)\
+                                                actual_data__site_id=site_id)\
             .order_by('actual_data__timestamp')
     else:
         query_set = Actual_value.objects.filter(measurement_name=measurement) \
-            .order_by('actual_data__sensor_id', 'actual_data__timestamp')
+            .order_by('actual_data__site_id', 'actual_data__timestamp')
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
     for row in query_set.iterator():
         percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
-        new_row = dict(row.join_sensor) if return_all_fields else dict(row.join_sensor_lite)
-        new_row['ignore'] = False if select_sensor(new_row, sensor_params) else True
+        new_row = dict(row.join_site) if return_all_fields else dict(row.join_site_lite)
+        new_row['ignore'] = False if select_site(new_row, site_params) else True
         new_row['percent_score'] = percentage_score
         data.append(new_row)
 
@@ -295,15 +295,15 @@ def calcuate_percentage_score(value, min, max):
 
 
 def estimates(request, method_name, measurement, region_type='file', timestamp_val=None,  region_id=None, return_all_fields=False,
-              ignore_sensor_id=None):
+              ignore_site_id=None):
     data = []
     measurement = measurement.strip()
 
     try:
-        sensor_params = json.loads(request.body.decode("utf-8"))['selectors']
+        site_params = json.loads(request.body.decode("utf-8"))['selectors']
     except:
-        sensor_params = []
-    # print(json.dumps(sensor_params))
+        site_params = []
+    # print(json.dumps(site_params))
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
@@ -340,14 +340,14 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
             data.append(new_row)
     else:
 
-        sensors = filter_sensors(Sensor.objects.exclude(id=ignore_sensor_id), sensor_params)
+        sites = filter_sites(Sensor.objects.exclude(id=ignore_site_id), site_params)
         regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
 
         # Create pandas dataframes for input into region estimators.
-        df_sensors = pd.DataFrame.from_records(sensors.values('id', 'geom', 'name'), index='id')
-        df_sensors['latitude'] = df_sensors.apply(lambda row: row.geom.y, axis=1)
-        df_sensors['longitude'] = df_sensors.apply(lambda row: row.geom.x, axis=1)
-        df_sensors = df_sensors.drop(columns=['geom'])
+        df_sites = pd.DataFrame.from_records(sites.values('id', 'geom', 'name'), index='id')
+        df_sites['latitude'] = df_sites.apply(lambda row: row.geom.y, axis=1)
+        df_sites['longitude'] = df_sites.apply(lambda row: row.geom.x, axis=1)
+        df_sites = df_sites.drop(columns=['geom'])
 
 
         df_regions = pd.DataFrame.from_records(regions.values('region_id','geom'), index='region_id')
@@ -356,23 +356,23 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
         df_regions = df_regions.drop(columns=['geom'])
         #df_regions.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_regions.csv')
 
-        df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'sensor', 'timestamp'), index='id')
+        df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'site', 'timestamp'), index='id')
         df_actual_values = pd.DataFrame.from_records(Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
         df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(columns=['actual_data'])
-        df_actuals = df_actuals.merge(df_sensors, left_on='sensor', right_index=True).drop(columns=['latitude', 'longitude','sensor'])
-        df_actuals = df_actuals.rename(columns={"value": measurement, "name":"sensor_id"})
-        df_actuals = df_actuals[['timestamp', 'sensor_id', measurement]]
+        df_actuals = df_actuals.merge(df_sites, left_on='site', right_index=True).drop(columns=['latitude', 'longitude','site'])
+        df_actuals = df_actuals.rename(columns={"value": measurement, "name":"site_id"})
+        df_actuals = df_actuals[['timestamp', 'site_id', measurement]]
         #df_actuals.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_actuals.csv', index=False)
 
-        df_sensors = df_sensors.reset_index().drop(columns=['id'])
-        df_sensors['sensor_id'] = df_sensors['name']
-        df_sensors.drop(columns=['name'], inplace=True)
-        df_sensors.set_index('sensor_id', inplace=True)
-        #df_sensors.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_sensors.csv')
+        df_sites = df_sites.reset_index().drop(columns=['id'])
+        df_sites['site_id'] = df_sites['name']
+        df_sites.drop(columns=['name'], inplace=True)
+        df_sites.set_index('site_id', inplace=True)
+        #df_sites.to_csv('/home/mcassag/Documents/PROJECTS/Turing_Breathing/Manuele/Mine_the_gap_inputs/temp/df_sites.csv')
 
 
         try:
-            estimator = RegionEstimatorFactory.region_estimator(method_name, df_sensors, df_regions, df_actuals)
+            estimator = RegionEstimatorFactory.region_estimator(method_name, df_sites, df_regions, df_actuals)
             df_result = estimator.get_estimations(measurement, region_id, timestamp_val)
         except Exception as err:
             print(str(err))
@@ -396,48 +396,48 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
     return data
 
 
-def select_sensor(sensor, params):
-    # [{"name": {"omit_sensors": ["Inverness"]}}]
-    # [{"name": {"select_sensors": ["Inverness"]}}]
+def select_site(site, params):
+    # [{"name": {"omit_sites": ["Inverness"]}}]
+    # [{"name": {"select_sites": ["Inverness"]}}]
     for item in params:
         item_key = next(iter(item))
         if item_key == 'name':
-            sensor_field = sensor['name']
+            site_field = site['name']
         else:
-            sensor_field = sensor['sensor_extra_data'][item_key]
+            site_field = site['site_extra_data'][item_key]
 
         dict_item = item[item_key]
-        if dict_item and 'select_sensors' in dict_item and sensor_field not in dict_item['select_sensors']:
+        if dict_item and 'select_sites' in dict_item and site_field not in dict_item['select_sites']:
             return False
-        if dict_item and 'omit_sensors' in dict_item and sensor_field in dict_item['omit_sensors']:
+        if dict_item and 'omit_sites' in dict_item and site_field in dict_item['omit_sites']:
             return False
 
     return True
 
-def filter_sensors(sensors, params):
-    # [{"name": {"omit_sensors": ["Inverness"]}}]
-    # [{"pc": {"select_sensors": ["kdljdflja"]}}]
+def filter_sites(sites, params):
+    # [{"name": {"omit_sites": ["Inverness"]}}]
+    # [{"pc": {"select_sites": ["kdljdflja"]}}]
 
     for item in params:
         item_key = next(iter(item))
         dict_selector = item[item_key]
         omit_or_select = next(iter(dict_selector))
-        include = True if omit_or_select == 'select_sensors' else False
+        include = True if omit_or_select == 'select_sites' else False
         values = item[item_key][omit_or_select]
 
         if item_key == 'name':
             if include:
-                sensors = sensors.filter(name__in=values)
+                sites = sites.filter(name__in=values)
             else:
-                sensors = sensors.exclude(name__in=values)
+                sites = sites.exclude(name__in=values)
         else:
             for value in values:
                 if include:
-                    sensors = sensors.filter(extra_data__contains={item_key: value})
+                    sites = sites.filter(extra_data__contains={item_key: value})
                 else:
-                    sensors = sensors.exclude(extra_data__contains={item_key: value})
+                    sites = sites.exclude(extra_data__contains={item_key: value})
 
-    return sensors
+    return sites
 
 
 
@@ -536,10 +536,10 @@ def get_center_latlng():
     y_average = 0
     found=False
 
-    for idx, sensor in enumerate(Sensor.objects.all()):
+    for idx, site in enumerate(Sensor.objects.all()):
         found = True
-        x_average = x_average * (idx / (idx + 1)) + sensor.geom.coords[0] / (idx + 1)
-        y_average = y_average * (idx / (idx + 1)) + sensor.geom.coords[1] / (idx + 1)
+        x_average = x_average * (idx / (idx + 1)) + site.geom.coords[0] / (idx + 1)
+        y_average = y_average * (idx / (idx + 1)) + site.geom.coords[1] / (idx + 1)
 
     if found:
         return json.dumps([str(y_average), str(x_average)])
@@ -550,25 +550,25 @@ def get_center_latlng():
 def handle_uploaded_files(request):
 
     try:
-        filepath_sensor = request.FILES['sensor_metadata_file']
+        filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
     except Exception as err:
-        filepath_sensor, filepath_actual = False,False
+        filepath_site, filepath_actual = False,False
         print(err)
     else:
         #  Saving POST'ed file to storage
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
 
-        file_sensors = TextIOWrapper(filepath_sensor.file, encoding=request.encoding)
-        reader = csv.reader(file_sensors)
+        file_sites = TextIOWrapper(filepath_site.file, encoding=request.encoding)
+        reader = csv.reader(file_sites)
         field_titles = next(reader, None)  # skip the headers
 
         #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
 
 
         extra_field_idxs = []
-        sensor_id_idx = None
+        site_id_idx = None
         lat_idx = None
         long_idx = None
 
@@ -581,8 +581,8 @@ def handle_uploaded_files(request):
                 long_idx = idx
             elif title == 'lat':
                 lat_idx = idx
-            elif title == 'sensor_id':
-                sensor_id_idx = idx
+            elif title == 'site_id':
+                site_id_idx = idx
             else:
                 extra_field_idxs.append(idx)
 
@@ -594,16 +594,16 @@ def handle_uploaded_files(request):
                         item = field_titles[idx]
                         extra_data[item] = row[idx]
                     point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
-                    sensor, created = Sensor.objects.get_or_create(
+                    site, created = Sensor.objects.get_or_create(
                         geom = point_loc,
-                        name =  row[sensor_id_idx],
+                        name =  row[site_id_idx],
                         extra_data=extra_data)
-                    sensor.save()
+                    site.save()
                 except Exception as err:
-                    print('Error loading sensor:', err)
+                    print('Error loading site:', err)
                     continue
         except Exception as err:
-            print('Error reading sensors file:', err)
+            print('Error reading sites file:', err)
             return
 
 
@@ -613,7 +613,7 @@ def handle_uploaded_files(request):
 
         value_idxs = []
         timestamp_idx = None
-        sensor_id_idx = None
+        site_id_idx = None
 
         # Find the fields in the file
         for idx, title in enumerate(field_titles):
@@ -622,24 +622,24 @@ def handle_uploaded_files(request):
                 value_idxs.append(idx)
             elif (title == 'time_stamp') or (title == 'timestamp'):
                 timestamp_idx = idx
-            elif title == 'sensor_id':
-                sensor_id_idx = idx
+            elif title == 'site_id':
+                site_id_idx = idx
 
 
         # Read in the data
         try:
             for row in reader:
                 try:
-                    sensor_id = row[sensor_id_idx]
+                    site_id = row[site_id_idx]
 
                     try:
-                        sensor = Sensor.objects.get(name=sensor_id)
+                        site = Sensor.objects.get(name=site_id)
                     except Exception as err:
-                        print('Sensor', sensor_id, 'not returned for this actual datapoint, due to:', err)
+                        print('Sensor', site_id, 'not returned for this actual datapoint, due to:', err)
                     else:
-                        if sensor:
+                        if site:
                             actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
-                                                    sensor=sensor)
+                                                    site=site)
                             actual.save()
 
                             for idx in value_idxs:
@@ -666,7 +666,7 @@ def handle_uploaded_files(request):
             print('Error reading actuals file:', err)
             return
 
-        default_storage.save(filepath_sensor.name, filepath_sensor.file)
+        default_storage.save(filepath_site.name, filepath_site.file)
         default_storage.save(filepath_actual.name, filepath_actual.file)
 
 
@@ -677,8 +677,8 @@ def handle_uploaded_files(request):
         filepath_estimated, filepath_region = False, False
     else:
 
-        #Get all sensor measurement names (only accept estimations of values that we have sensors for)
-        #sensor_measurements = get_measurement_names()
+        #Get all site measurement names (only accept estimations of values that we have sites for)
+        #site_measurements = get_measurement_names()
 
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
@@ -794,9 +794,9 @@ def handle_uploaded_files(request):
                             for extra_data_name, extra_data_idx in extra_idxs.items():
                                 extra_data[extra_data_name] = row[extra_data_idx]
 
-                            # Check that the name has a matching sensor measurement
+                            # Check that the name has a matching site measurement
                             #  and add to model if it has.
-                            #if name in sensor_measurements:
+                            #if name in site_measurements:
                             try:
                                 fvalue = float(row[idx])
                             except:

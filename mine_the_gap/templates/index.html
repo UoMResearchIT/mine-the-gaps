@@ -32,8 +32,8 @@
                                         <th scope="row">Actual data</th>
                                         <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
                                             {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
-                                        <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_metadata_filename|safe }})</span>
-                                            {% if form.sensor_metadata_file %}<br>{{ form.sensor_metadata_file }}{% endif %}</td>
+                                        <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.site_metadata_filename|safe }})</span>
+                                            {% if form.site_metadata_file %}<br>{{ form.site_metadata_file }}{% endif %}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Estimated data</th>
@@ -105,10 +105,10 @@
                     </div>
                 </div>
 
-                <div id="sensor-field-data" class="panel-group">
+                <div id="site-field-data" class="panel-group">
                     <div class="panel panel-default">
                         <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
-                            <div class="panel-title"> Filter sensors by... <span class="chosen-option" id="sensor-field-label"></span> </div>
+                            <div class="panel-title"> Filter sites by... <span class="chosen-option" id="site-field-label"></span> </div>
                         </div>
                     </div>
                     <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
@@ -134,18 +134,18 @@
                                         <tr id="file-download-instructions" class="download-instructions">
                                             <td colspan="4"><em><b>Download original files used to initialise the map:</b></em></td>
                                         </tr>
-                                        <tr id="sensors-download" class="download-file">
+                                        <tr id="sites-download" class="download-file">
                                             <td>
                                                 <label>Sensor metadata</label>
                                             </td>
                                             <td>
-                                                <button type="button" onclick="download_csv('sensors_metadata_file/csv/','sensors_metatdata.csv');">CSV</button>
+                                                <button type="button" onclick="download_csv('sites_metadata_file/csv/','sites_metatdata.csv');">CSV</button>
                                             </td>
                                             <td>
-                                                <button type="button" onclick="download_json('sensors_metadata_file/json/','sensors_metadata.json');">JSON</button>
+                                                <button type="button" onclick="download_json('sites_metadata_file/json/','sites_metadata.json');">JSON</button>
                                             </td>
                                             <td>
-                                                <button type="button" onclick="download_geojson(sensorDataUrl,'sensors_metadata_geojson.json');">GeoJSON</button>
+                                                <button type="button" onclick="download_geojson(siteDataUrl,'sites_metadata_geojson.json');">GeoJSON</button>
 
                                             </td>
                                         </tr>
@@ -154,10 +154,10 @@
                                                 <label>Sensor data</label>
                                             </td>
                                             <td>
-                                                <button type="button" onclick="download_csv('sensors_data_file/csv/','sensors_data.csv');">CSV</button>
+                                                <button type="button" onclick="download_csv('sites_data_file/csv/','sites_data.csv');">CSV</button>
                                             </td>
                                             <td>
-                                                <button type="button" onclick="download_json('sensors_data_file/json/','sensors_data.json');">JSON</button>
+                                                <button type="button" onclick="download_json('sites_data_file/json/','sites_data.json');">JSON</button>
                                             </td>
                                             <td></td>
 
@@ -203,33 +203,33 @@
                                         <tr class="sample-api-call">
                                             <td colspan="4">
                                                 <code>
-                                                    /sensors_metadata_file/<br>
+                                                    /sites_metadata_file/<br>
                                                     /regions_metadata_file/<br>
-                                                    /sensors_data_file/<br>
+                                                    /sites_data_file/<br>
                                                     /regions_estimates_file/
                                                 </code>
                                             </td>
                                         </tr>
                                         <tr><td colspan="4"></td> </tr>
                                         <tr class="download-instructions sub-instructions">
-                                            <td colspan="4"><em>Get geoJson of sensors or regions metadata:</em></td>
+                                            <td colspan="4"><em>Get geoJson of sites or regions metadata:</em></td>
                                         </tr>
                                         <tr class="sample-api-call">
                                             <td colspan="4">
                                                 <code>
-                                                /sensors_metadata.geojson<br>
+                                                /sites_metadata.geojson<br>
                                                 /regions_metadata.geojson
                                                 </code>
                                             </td>
                                         </tr>
                                         <tr><td colspan="4"></td> </tr>
                                         <tr class="download-instructions sub-instructions">
-                                            <td colspan="4"><em>Get data for particular measurement, timestamp and region/sensor</em></td>
+                                            <td colspan="4"><em>Get data for particular measurement, timestamp and region/site</em></td>
                                         </tr>
                                         <tr class="sample-api-call">
                                             <td colspan="4">
                                                 <code>
-                                                    /sensor_data/[str:measurement]/[str:timestamp]/[int:sensor_id]/<br>
+                                                    /site_data/[str:measurement]/[str:timestamp]/[int:site_id]/<br>
                                                     /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/[str:region_id]/
                                                 </code>
                                             </td>
@@ -241,19 +241,19 @@
                                         <tr class="sample-api-call">
                                             <td colspan="4">
                                                 <code>
-                                                    /sensor_data/[str:measurement]/[str:timestamp]/<br>
+                                                    /site_data/[str:measurement]/[str:timestamp]/<br>
                                                     /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/
                                                 </code>
                                             </td>
                                         </tr>
                                         <tr><td colspan="4"></td> </tr>
                                         <tr class="download-instructions sub-instructions">
-                                            <td colspan="4"><em>Get timeseries data for particular measurement and region/sensor_id</em></td>
+                                            <td colspan="4"><em>Get timeseries data for particular measurement and region/site_id</em></td>
                                         </tr>
                                         <tr class="sample-api-call">
                                             <td colspan="4">
                                                 <code>
-                                                    /sensor_timeseries/[str:measurement]/[int:sensor_id]/<br>
+                                                    /site_timeseries/[str:measurement]/[int:site_id]/<br>
                                                     /estimated_timeseries/[str:estimation_method]/[str:measurement]/[str:region_id]/
                                                 </code>
                                             </td>
@@ -280,21 +280,21 @@
                     var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
                     var dataUrl = '{{ request.path }}' + 'all_data';
                     var mapIconPath = "{% static 'image/leaflet' %}";
-                    var sensorDataUrl = '{% url "sensors_metadata" %}';
+                    var siteDataUrl = '{% url "sites_metadata" %}';
                     var regionsFileUrl = '{% url "regions_metadata" %}';
 
-                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
+                    var siteFieldsUrl = '{{ request.path }}' + 'site_fields';
 
-                    var sensorTimeseriesUrl = '{{ request.path }}' + 'sensor_timeseries';
+                    var siteTimeseriesUrl = '{{ request.path }}' + 'site_timeseries';
                     var estimatedTimeseriesUrl = '{{ request.path }}' + 'estimated_timeseries';
 
                 </script>
 
             </div>
             <div id="further-data" class="col-sm-3">
-                <div id="sensor-data" >
-                    <div id="sensor-data-instructions"></div>
-                    <div id="sensor-charts"></div>
+                <div id="site-data" >
+                    <div id="site-data-instructions"></div>
+                    <div id="site-charts"></div>
                 </div><br>
                 <div id="region-data" ></div>
             </div>
