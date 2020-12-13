@@ -33,52 +33,52 @@ $(document).ready(function(){
     $("#estimation-method input").change(function() {
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
         gapMap.dataUrl = dataUrl + '/' + this.value + '/';
-        gapMap.updateTimeseries(get_sensor_select_url_params());
+        gapMap.updateTimeseries(get_site_select_url_params());
     });
 
     $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
     $("#measurement-names input").change(function() {
         $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
-        gapMap.updateTimeseries(get_sensor_select_url_params());
+        gapMap.updateTimeseries(get_site_select_url_params());
     });
 
     $('#region-data').html(get_region_default());
-    $('#sensor-data-instructions').html(get_sensor_default());
+    $('#site-data-instructions').html(get_site_default());
 
     // bounds must be set after only the first initialisation of map
     initialise_slider();
-    initialise_sensor_fields();
+    initialise_site_fields();
 
 });
 
 // Map functions
 
-function initialise_sensor_fields(){
+function initialise_site_fields(){
     /*
-            Add Sensor fields (to UI sensor selection/filtering mechanism)
+            Add Sensor fields (to UI site selection/filtering mechanism)
 
      */
 
-    $.getJSON(sensorFieldsUrl, function (data) {
+    $.getJSON(siteFieldsUrl, function (data) {
         // Add GeoJSON layer
         //alert(JSON.stringify(data));
 
-        // Create the table for sensor fields
-        var sensor_fields = '<table class="table table-striped">';
+        // Create the table for site fields
+        var site_fields = '<table class="table table-striped">';
 
         for (var i=0; i<data.length; i++){
             var fieldName = data[i];
 
-            // Add sensor field data to the table
+            // Add site field data to the table
             var row = '<tr class="select-button-row">' +
                 '<td class="field-name">' + fieldName + '</td>' +
                 '<td id="'+ slugify(fieldName) + '-used' +'" class="field-used chosen-option"></td></tr>';
-            sensor_fields += row;
-            // Add user input fields for selecting sensors
+            site_fields += row;
+            // Add user input fields for selecting sites
             var rows =
                 '<tr class="select-field-instructions info">' +
                     '<td></td>' +
-                    '<td><div id="sensor-select-instructions">' +
+                    '<td><div id="site-select-instructions">' +
                         '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
                             '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
                             '(\'Omit values\' ignored if both used)' +
@@ -91,15 +91,15 @@ function initialise_sensor_fields(){
                 '<tr id="' + slugify(fieldName) + '-omit' + '" class="omittor-field info">' +
                 '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
                 '</tr>';
-            sensor_fields += rows;
+            site_fields += rows;
         }
-        sensor_fields += '</table>';
+        site_fields += '</table>';
 
         // Add the table and instructions to the html div
-        $('#collapseFilterSensors').html(sensor_fields);
+        $('#collapseFilterSensors').html(site_fields);
 
         // Toggle the field selector / omittor fields (and instructions div) until required
-        $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
+        $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #site-select-instructions").hide();
 
         $("table .select-button-row").on('click', function(){
             $(this).nextUntil("tr.select-button-row").toggle('slow');
@@ -109,7 +109,7 @@ function initialise_sensor_fields(){
         $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
             if(e.keyCode === 13){ // Enter key
 
-                // Get the sensor field name to be filtered
+                // Get the site field name to be filtered
                 var fieldNameId = this.closest('tr').id;
                 var fieldName2 = fieldNameId.replace('-select', '').replace('-omit','');
 
@@ -121,11 +121,11 @@ function initialise_sensor_fields(){
                 var omitText = $('tr#' + fieldName2 + '-omit input').val().trim();
 
                 // If valid, create a newVal string and update the select/omit display div with this new value.
-                if( selectText !== '' && check_sensor_select_params(selectText) === true) {
+                if( selectText !== '' && check_site_select_params(selectText) === true) {
                     var newVal = '<em>Select: [' + selectText+ ']</em>';
                     $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
                 }else{
-                    if( omitText !== '' && check_sensor_select_params(omitText) === true) {
+                    if( omitText !== '' && check_site_select_params(omitText) === true) {
                         var newVal = '<em>Omit: [' + omitText + ']</em>';
                         $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
                     }else{
@@ -135,16 +135,16 @@ function initialise_sensor_fields(){
 
                 // Check if this edit boxes select/omit values have changed. If so update map.
                 if(newVal !== prevVal){
-                    gapMap.updateTimeseries(get_sensor_select_url_params(), document.getElementById("timestamp-range").value);
+                    gapMap.updateTimeseries(get_site_select_url_params(), document.getElementById("timestamp-range").value);
                 }
             }
         });
     });
 }
 
-function get_sensor_select_url_params(){
+function get_site_select_url_params(){
     var result = {'selectors':[]};
-    $('#sensor-field-data table td.field-name').each(function(index){
+    $('#site-field-data table td.field-name').each(function(index){
         var fieldDict = {};
         var fieldName = $(this).html();
         var dictFieldName = {};
@@ -155,10 +155,10 @@ function get_sensor_select_url_params(){
         var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
 
         if (fieldSelectorsJson.length > 0){
-            dictFieldName['select_sensors'] = fieldSelectorsJson.map(Function.prototype.call, String.prototype.trim);
+            dictFieldName['select_sites'] = fieldSelectorsJson.map(Function.prototype.call, String.prototype.trim);
         }else{
             if (fieldOmittorsJson.length > 0) {
-                dictFieldName['omit_sensors'] = fieldOmittorsJson.map(Function.prototype.call, String.prototype.trim);
+                dictFieldName['omit_sites'] = fieldOmittorsJson.map(Function.prototype.call, String.prototype.trim);
             }
         }
         if(Object.keys(dictFieldName).length > 0){
@@ -170,7 +170,7 @@ function get_sensor_select_url_params(){
     return result;
 }
 
-function check_sensor_select_params(paramString){
+function check_site_select_params(paramString){
     //todo check params
     // Must return true for empty string
     return true;
@@ -185,13 +185,13 @@ function initialise_slider(value=0){
     slider.max = timestampList.length-1;
     slider.value = value;
     output.innerHTML = timestampList[value]; // Display the default slider value
-    gapMap.updateTimeseries(get_sensor_select_url_params(), value);
+    gapMap.updateTimeseries(get_site_select_url_params(), value);
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function() {
         output.innerHTML = timestampList[this.value];
     };
     slider.onchange = function() {
-        gapMap.updateTimeseries(get_sensor_select_url_params(), this.value);
+        gapMap.updateTimeseries(get_site_select_url_params(), this.value);
     };
 
 }
@@ -444,10 +444,10 @@ function get_region_default(){
         '<tr><td colspan="2"><p>Hover over regions to see region data.</p></td></tr></table>';
 }
 
-function get_sensor_default(){
+function get_site_default(){
     return '<table class="table table-striped">' +
-            '<tr><td colspan="2"><p>Click on a sensor to see sensor info and the option to see sensor and estimated data across <em>all</em> timestamps.</p></td></tr>' +
-            '<tr><td colspan="2"><p>If no sensors exist for this timestamp, either: </p>' +
+            '<tr><td colspan="2"><p>Click on a site to see site info and the option to see site and estimated data across <em>all</em> timestamps.</p></td></tr>' +
+            '<tr><td colspan="2"><p>If no sites exist for this timestamp, either: </p>' +
             '<p>(i) use slider to find another timestamp</p>' +
             '<p>(ii) use \'Select measurement\' option to change measurements.</p></td></tr>' +
         '</table>';
@@ -470,26 +470,26 @@ function cloneCanvas(oldCanvas) {
     return newCanvas;
 }
 
-function showTimelineComparisons(measurement, sensorId, regionId, sensorName) {
+function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
     var listItem = document.createElement('a');
-    listItem.className = "list-group-item list-group-item-action flex-column align-items-start sensor-chart";
+    listItem.className = "list-group-item list-group-item-action flex-column align-items-start site-chart";
     listItem.href = '#';
     var listItemDiv = document.createElement('div');
     listItemDiv.className = 'd-flex w-100 justify-content-between';
     var canvasItem = document.createElement('canvas');
-    canvasItem.id = "sensor-chart";
+    canvasItem.id = "site-chart";
     var newChartTitle = document.createElement('div');
 
-    newChartTitle.innerHTML = '<p><b>Sensor Name: ' + sensorName + '</b><br>' +
+    newChartTitle.innerHTML = '<p><b>Sensor Name: ' + siteName + '</b><br>' +
         'Measurment: ' + measurement + '<br>' +
         'Estimation Method: ' + estimationMethod + '</p>';
 
     listItemDiv.appendChild(newChartTitle);
     listItemDiv.appendChild(canvasItem);
     listItem.appendChild(listItemDiv);
-    var list = document.getElementById('sensor-charts');
+    var list = document.getElementById('site-charts');
     list.insertBefore(listItem, list.firstChild);
 
     var ctx = canvasItem.getContext('2d');
@@ -553,16 +553,16 @@ function showTimelineComparisons(measurement, sensorId, regionId, sensorName) {
         }
     };
 
-    getActualTimeseries(measurement, sensorId, listChart, modalChart);
-    getEstimatedTimeseries(measurement, estimationMethod, regionId, sensorId, listChart, modalChart);
+    getActualTimeseries(measurement, siteId, listChart, modalChart);
+    getEstimatedTimeseries(measurement, estimationMethod, regionId, siteId, listChart, modalChart);
 }
 window.showTimelineComparisons = showTimelineComparisons;
 
 
-function getActualTimeseries(measurement, sensorId, listChart, modalChart){
-    //url: sensor_timeseries/<slug:measurement>/<int:sensor_id>
+function getActualTimeseries(measurement, siteId, listChart, modalChart){
+    //url: site_timeseries/<slug:measurement>/<int:site_id>
 
-    var urlActual = sensorTimeseriesUrl + '/' + measurement + '/' + sensorId + '/';
+    var urlActual = siteTimeseriesUrl + '/' + measurement + '/' + siteId + '/';
     //alert(actualUrl);
     var self = this;
     xhr = $.ajax({
@@ -600,7 +600,7 @@ function getActualTimeseries(measurement, sensorId, listChart, modalChart){
         },
         error: function (xhr, status, error) {
             if (xhr.statusText !== 'abort') {
-                alert("There was an problem obtaining the sensor timeseries data: "
+                alert("There was an problem obtaining the site timeseries data: "
                     + "url: " + urlActual + '; '
                     + "message: " + error + "; "
                     + "status: " + xhr.status + "; "
@@ -612,7 +612,7 @@ function getActualTimeseries(measurement, sensorId, listChart, modalChart){
 }
 
 function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, listChart, modalChart){
-    //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_sensor_id>/
+    //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_site_id>/
     var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
 
     //alert(url_estimates);
