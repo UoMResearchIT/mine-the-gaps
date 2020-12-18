@@ -4922,7 +4922,7 @@ Map.include({
  * The layer names can contain HTML, which allows you to add additional styling to the items:
  *
  * ```js
- * {"<img src='my-layer-icon' /> <span class='my-layer-item'>My Layer</span>": myLayer}
+ * {"<image src='my-layer-icon' /> <span class='my-layer-item'>My Layer</span>": myLayer}
  * ```
  */
 
@@ -7090,7 +7090,7 @@ var Icon = Class.extend({
 	},
 
 	// @method createIcon(oldIcon?: HTMLElement): HTMLElement
-	// Called internally when the icon has to be shown, returns a `<img>` HTML element
+	// Called internally when the icon has to be shown, returns a `<image>` HTML element
 	// styled according to the options.
 	createIcon: function (oldIcon) {
 		return this._createIcon('icon', oldIcon);
@@ -10611,7 +10611,7 @@ Icon.Default = IconDefault;
  * @aka L.GridLayer
  *
  * Generic class for handling a tiled grid of HTML elements. This is the base class for all tile layers and replaces `TileLayer.Canvas`.
- * GridLayer can be extended to create a tiled grid of HTML elements like `<canvas>`, `<img>` or `<div>`. GridLayer will handle creating and animating these DOM elements for you.
+ * GridLayer can be extended to create a tiled grid of HTML elements like `<canvas>`, `<image>` or `<div>`. GridLayer will handle creating and animating these DOM elements for you.
  *
  *
  * @section Synchronous usage
@@ -11646,7 +11646,7 @@ var TileLayer = GridLayer.extend({
 
 	// @method createTile(coords: Object, done?: Function): HTMLElement
 	// Called only internally, overrides GridLayer's [`createTile()`](#gridlayer-createtile)
-	// to return an `<img>` HTML element with the appropriate image URL given `coords`. The `done`
+	// to return an `<image>` HTML element with the appropriate image URL given `coords`. The `done`
 	// callback is called when the tile has been loaded.
 	createTile: function (coords, done) {
 		var tile = document.createElement('img');
