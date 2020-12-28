@@ -564,9 +564,6 @@ def handle_uploaded_files(request):
         reader = csv.reader(file_sites)
         field_titles = next(reader, None)  # skip the headers
 
-        #titles: ['long', 'lat', 'name', 'Postcode3', 'Address']
-
-
         extra_field_idxs = []
         site_id_idx = None
         lat_idx = None
@@ -574,18 +571,17 @@ def handle_uploaded_files(request):
 
         #print(str(field_titles))
 
-        # Find the fields in the file
+        # Find the fields in the sites file
         for idx, title in enumerate(field_titles):
             title = title.strip().lower()
-            if title == 'long':
+            if title == 'longitude':
                 long_idx = idx
-            elif title == 'lat':
+            elif title == 'latitude':
                 lat_idx = idx
             elif title == 'site_id':
                 site_id_idx = idx
             else:
                 extra_field_idxs.append(idx)
-
         try:
             for row in reader:
                 try:
@@ -593,10 +589,10 @@ def handle_uploaded_files(request):
                     for idx in extra_field_idxs:
                         item = field_titles[idx]
                         extra_data[item] = row[idx]
-                    point_loc = Point(x=float(row[long_idx]),y=float(row[lat_idx]))
+                    point_loc = Point(x=float(row[long_idx]), y=float(row[lat_idx]))
                     site, created = Sensor.objects.get_or_create(
-                        geom = point_loc,
-                        name =  row[site_id_idx],
+                        geom=point_loc,
+                        name=row[site_id_idx],
                         extra_data=extra_data)
                     site.save()
                 except Exception as err:
@@ -642,22 +638,32 @@ def handle_uploaded_files(request):
                                                     site=site)
                             actual.save()
 
+                            #print('Value indexes: {}'.format(value_idxs))
                             for idx in value_idxs:
-                                if slugify(str(row[idx])) == 'missing':
+                                slug_val = slugify(str(row[idx]))
+                                if slug_val == 'missing':  #IMPORTANT: DO NOT TRY TO CATER FOR EMPTY STRINGS AS THESE SHOULD
                                     fvalue = None
+                                elif slug_val == '':
+                                    continue
                                 else:
+                                    #print('Obtaining value ({}) in field {} as float.'.format(row[idx], field_titles[idx]))
                                     try:
                                         fvalue = float(row[idx])
-                                    except:
+                                    except Exception as err:
                                         # value is neither missing or a float, so should be ignored for this measurement.
+                                        #print('Error obtaining value ({}) in field {} as float. {}'
+                                        #      .format(row[idx], field_titles[idx], err))
                                         continue
-
-                                name = slugify(field_titles[idx].replace('val_','',1), to_lower=True, separator='_')
-                                actual_value = Actual_value(    measurement_name=name,
-                                                                value = fvalue,
-                                                                actual_data = actual
-                                )
-                                actual_value.save()
+                                try:
+                                    #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
+                                    name = slugify(field_titles[idx].replace('val_', '', 1), separator='_')
+                                    actual_value = Actual_value(    measurement_name=name,
+                                                                    value = fvalue,
+                                                                    actual_data = actual)
+                                    actual_value.save()
+                                except Exception as err:
+                                    # value could not be added
+                                    print('Error adding value ({}) in field {} as float. {}'.format(fvalue, field_titles[idx], err))
 
                 except Exception as err:
                     print('Error loading actuals:', err)
