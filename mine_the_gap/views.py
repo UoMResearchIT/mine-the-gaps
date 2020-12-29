@@ -557,6 +557,7 @@ def handle_uploaded_files(request):
         print(err)
     else:
         #  Saving POST'ed file to storage
+        Actual_value.objects.all().delete()
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
 
@@ -686,6 +687,7 @@ def handle_uploaded_files(request):
         #Get all site measurement names (only accept estimations of values that we have sites for)
         #site_measurements = get_measurement_names()
 
+        Estimated_value.objects.all().delete()
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
 
