@@ -657,7 +657,7 @@ def handle_uploaded_files(request):
                                         continue
                                 try:
                                     #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
-                                    name = slugify(field_titles[idx].replace('val_', '', 1), separator='_')
+                                    name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
                                     actual_value = Actual_value(    measurement_name=name,
                                                                     value = fvalue,
                                                                     actual_data = actual)
@@ -774,7 +774,7 @@ def handle_uploaded_files(request):
             field_name = field_titles[extra_idx].replace('extra_', '', 1)
             # 'rings_Platanus_max'
             extra_data_field = field_name.split('_')[0]  # 'rings'
-            measurement_name = slugify(field_name.replace(extra_data_field + '_', '', 1), to_lower=True, separator='_')
+            measurement_name = slugify(field_name.replace(extra_data_field + '_', '', 1), lowercase=True, separator='_')
             # 'Platanus_max'
             if measurement_name not in extra_data_idxs:
                 extra_data_idxs[measurement_name] = {}
@@ -794,7 +794,7 @@ def handle_uploaded_files(request):
 
 
                         for idx in value_idxs:
-                            name = slugify(field_titles[idx].replace('val_', '', 1), to_lower=True, separator='_')
+                            name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
 
                             # Get extra data fields
                             extra_idxs = extra_data_idxs[name]
