@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
+from django.forms import ValidationError
 
 from django.core.files import temp as tempfile
 from django.conf import settings
@@ -19,9 +20,6 @@ from io import TextIOWrapper
 from h3 import h3
 from geojson import Feature, FeatureCollection
 from shapely import wkt
-
-
-
 
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value, \
@@ -38,7 +36,6 @@ def home_page(request):
             filenames = Filenames.objects.first()
             if not filenames:
                 filenames = Filenames()
-
             try:
                 if form.cleaned_data.get("site_metadata_file"):
                     filenames.site_metadata_filename = form.cleaned_data.get("site_metadata_file")
@@ -53,6 +50,8 @@ def home_page(request):
                 print('Error uploading files:', str(err))
 
             return HttpResponseRedirect(request.path_info)
+        else:
+            return render(request, 'index.html', {'form': form})
 
     context = {'form': FileUploadForm(),  # On the front end, this is set up to only show if user is logged in.
                                             # To do this use [main url]/admin
@@ -548,22 +547,29 @@ def get_center_latlng():
 
 
 def handle_uploaded_files(request):
+    print('request.FILES:\n{}'.format(request.FILES))
+    #If empty: request.FILES:
+    #          <MultiValueDict: {}>
 
+    # Use can upload actual data and/or estimated data (but in each case both data and meta-data files must be input)
+    upload_actual_data(request)
+    upload_estimated_data(request)
+
+def upload_actual_data(request):
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
-    except Exception as err:
-        filepath_site, filepath_actual = False,False
-        print(err)
+    except Exception:
+        pass
     else:
-        #  Saving POST'ed file to storage
         Actual_value.objects.all().delete()
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
 
         file_sites = TextIOWrapper(filepath_site.file, encoding=request.encoding)
         reader = csv.reader(file_sites)
-        field_titles = next(reader, None)  # skip the headers
+        # skip/get the headers
+        field_titles = next(reader, None)
 
         extra_field_idxs = []
         site_id_idx = None
@@ -603,10 +609,10 @@ def handle_uploaded_files(request):
             print('Error reading sites file:', err)
             return
 
-
         file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
         reader = csv.reader(file_actual)
-        field_titles = next(reader, None)  # skip the headers
+        # skip/get the headers
+        field_titles = next(reader, None)
 
         value_idxs = []
         timestamp_idx = None
@@ -632,7 +638,7 @@ def handle_uploaded_files(request):
                     try:
                         site = Sensor.objects.get(name=site_id)
                     except Exception as err:
-                        print('Sensor', site_id, 'not returned for this actual datapoint, due to:', err)
+                        print('Site', site_id, 'not returned for this actual datapoint, due to:', err)
                     else:
                         if site:
                             actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
@@ -651,9 +657,6 @@ def handle_uploaded_files(request):
                                     try:
                                         fvalue = float(row[idx])
                                     except Exception as err:
-                                        # value is neither missing or a float, so should be ignored for this measurement.
-                                        #print('Error obtaining value ({}) in field {} as float. {}'
-                                        #      .format(row[idx], field_titles[idx], err))
                                         continue
                                 try:
                                     #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
@@ -676,26 +679,22 @@ def handle_uploaded_files(request):
         default_storage.save(filepath_site.name, filepath_site.file)
         default_storage.save(filepath_actual.name, filepath_actual.file)
 
-
+def upload_estimated_data(request):
     try:
         filepath_estimated = request.FILES['estimated_data_file']
         filepath_region = request.FILES['region_metadata_file']
     except Exception:
-        filepath_estimated, filepath_region = False, False
+        pass
     else:
-
-        #Get all site measurement names (only accept estimations of values that we have sites for)
-        #site_measurements = get_measurement_names()
-
         Estimated_value.objects.all().delete()
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
 
         file_regions = TextIOWrapper(filepath_region.file, encoding=request.encoding)
         reader = csv.reader(file_regions)
-        field_titles = next(reader, None)  # skip the headers
-        #print('field titles:', field_titles)
-
+        # skip/get the headers
+        field_titles = next(reader, None)
+        # print('field titles:', field_titles)
 
         try:
             for row in reader:
@@ -747,9 +746,9 @@ def handle_uploaded_files(request):
 
         file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
         reader = csv.reader(file_estimates)
-        field_titles = next(reader, None)  # skip the headers
+        # skip/get the headers
+        field_titles = next(reader, None)
         #print('field titles:', field_titles)
-
 
         value_idxs = []
         extra_field_idxs = []
@@ -827,6 +826,3 @@ def handle_uploaded_files(request):
 
         default_storage.save(filepath_region.name, filepath_region.file)
         default_storage.save(filepath_estimated.name, filepath_estimated.file)
-
-
-
