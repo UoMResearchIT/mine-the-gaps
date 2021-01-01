@@ -96,6 +96,9 @@ export class GapMap {
             method: 'POST',
             timeout: 100000,
             beforeSend: function () {
+                // Stop previous loading
+                self.curLoader.stopLoader('loader-outer');
+                xhr.abort();
                 // we are now awaiting browse results to load
                 self.resultsLoading = true;
                 // Set up loader display
