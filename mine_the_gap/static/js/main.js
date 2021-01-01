@@ -23,7 +23,7 @@ $(document).ready(function(){
         }
     });
 
-    $("div#select-files").hide();
+    $("div#select-files").show();
     // Upload files toggle button
     $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');

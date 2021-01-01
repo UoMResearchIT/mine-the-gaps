@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
+from django.forms import ValidationError
 
 from django.core.files import temp as tempfile
 from django.conf import settings
@@ -19,9 +20,6 @@ from io import TextIOWrapper
 from h3 import h3
 from geojson import Feature, FeatureCollection
 from shapely import wkt
-
-
-
 
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value, \
@@ -38,7 +36,6 @@ def home_page(request):
             filenames = Filenames.objects.first()
             if not filenames:
                 filenames = Filenames()
-
             try:
                 if form.cleaned_data.get("site_metadata_file"):
                     filenames.site_metadata_filename = form.cleaned_data.get("site_metadata_file")
@@ -53,6 +50,8 @@ def home_page(request):
                 print('Error uploading files:', str(err))
 
             return HttpResponseRedirect(request.path_info)
+        else:
+            return render(request, 'index.html', {'form': form})
 
     context = {'form': FileUploadForm(),  # On the front end, this is set up to only show if user is logged in.
                                             # To do this use [main url]/admin
@@ -560,10 +559,8 @@ def upload_actual_data(request):
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
-    except Exception as err:
-        raise ValueError(
-            'No input file: {}. Both actual data and site meta-data files must be input for actuals upload.'
-              .format(err))
+    except Exception:
+        pass
     else:
         Actual_value.objects.all().delete()
         Actual_data.objects.all().delete()
@@ -641,7 +638,7 @@ def upload_actual_data(request):
                     try:
                         site = Sensor.objects.get(name=site_id)
                     except Exception as err:
-                        print('Sensor', site_id, 'not returned for this actual datapoint, due to:', err)
+                        print('Site', site_id, 'not returned for this actual datapoint, due to:', err)
                     else:
                         if site:
                             actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
@@ -686,10 +683,8 @@ def upload_estimated_data(request):
     try:
         filepath_estimated = request.FILES['estimated_data_file']
         filepath_region = request.FILES['region_metadata_file']
-    except Exception as err:
-        raise ValueError(
-            'No input file: {}. Both estimated data and region meta-data files must be input for estimates upload.'
-              .format(err))
+    except Exception:
+        pass
     else:
         Estimated_value.objects.all().delete()
         Estimated_data.objects.all().delete()

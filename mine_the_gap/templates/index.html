@@ -15,6 +15,7 @@
                     </div>
                 </div>
                 <div class="row" id="select-files">
+
                     {% with filepaths|first as filepath %}
                         <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
                             <div id="upload-fields" class='col-sm-12'>
@@ -30,9 +31,9 @@
 
 
                                         <th scope="row">Actual data</th>
-                                        <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_filename|safe }})</span>
+                                        <td><span class="current-filename">Site data file: (current: {{ filepath.actual_data_filename|safe }})</span>
                                             {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
-                                        <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.site_metadata_filename|safe }})</span>
+                                        <td><span class="current-filename">Site metadata file: (current: {{ filepath.site_metadata_filename|safe }})</span>
                                             {% if form.site_metadata_file %}<br>{{ form.site_metadata_file }}{% endif %}</td>
                                     </tr>
                                     <tr>
@@ -45,7 +46,13 @@
                                 </table>
                                 <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
                             </div>
-
+                            {% if form.errors %}
+                                {% for error in form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
                         </form>
                     {% endwith %}
                 </div>
@@ -107,11 +114,11 @@
 
                 <div id="site-field-data" class="panel-group">
                     <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSites" aria-expanded="false" aria-controls="collapseFilterSites">
                             <div class="panel-title"> Filter sites by... <span class="chosen-option" id="site-field-label"></span> </div>
                         </div>
                     </div>
-                    <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
+                    <div id="collapseFilterSites" class="panel-collapse collapse"></div>
                 </div>
 
                 <div id="download-options" class="panel-group">
@@ -136,7 +143,7 @@
                                         </tr>
                                         <tr id="sites-download" class="download-file">
                                             <td>
-                                                <label>Sensor metadata</label>
+                                                <label>Site metadata</label>
                                             </td>
                                             <td>
                                                 <button type="button" onclick="download_csv('sites_metadata_file/csv/','sites_metatdata.csv');">CSV</button>
@@ -151,7 +158,7 @@
                                         </tr>
                                         <tr id="actuals-download" class="download-file">
                                             <td>
-                                                <label>Sensor data</label>
+                                                <label>Site data</label>
                                             </td>
                                             <td>
                                                 <button type="button" onclick="download_csv('sites_data_file/csv/','sites_data.csv');">CSV</button>
