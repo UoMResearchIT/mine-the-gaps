@@ -548,22 +548,31 @@ def get_center_latlng():
 
 
 def handle_uploaded_files(request):
+    print('request.FILES:\n{}'.format(request.FILES))
+    #If empty: request.FILES:
+    #          <MultiValueDict: {}>
 
+    # Use can upload actual data and/or estimated data (but in each case both data and meta-data files must be input)
+    upload_actual_data(request)
+    upload_estimated_data(request)
+
+def upload_actual_data(request):
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
     except Exception as err:
-        filepath_site, filepath_actual = False,False
-        print(err)
+        raise ValueError(
+            'No input file: {}. Both actual data and site meta-data files must be input for actuals upload.'
+              .format(err))
     else:
-        #  Saving POST'ed file to storage
         Actual_value.objects.all().delete()
         Actual_data.objects.all().delete()
         Sensor.objects.all().delete()
 
         file_sites = TextIOWrapper(filepath_site.file, encoding=request.encoding)
         reader = csv.reader(file_sites)
-        field_titles = next(reader, None)  # skip the headers
+        # skip/get the headers
+        field_titles = next(reader, None)
 
         extra_field_idxs = []
         site_id_idx = None
@@ -603,10 +612,10 @@ def handle_uploaded_files(request):
             print('Error reading sites file:', err)
             return
 
-
         file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
         reader = csv.reader(file_actual)
-        field_titles = next(reader, None)  # skip the headers
+        # skip/get the headers
+        field_titles = next(reader, None)
 
         value_idxs = []
         timestamp_idx = None
@@ -651,9 +660,6 @@ def handle_uploaded_files(request):
                                     try:
                                         fvalue = float(row[idx])
                                     except Exception as err:
-                                        # value is neither missing or a float, so should be ignored for this measurement.
-                                        #print('Error obtaining value ({}) in field {} as float. {}'
-                                        #      .format(row[idx], field_titles[idx], err))
                                         continue
                                 try:
                                     #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
@@ -676,26 +682,24 @@ def handle_uploaded_files(request):
         default_storage.save(filepath_site.name, filepath_site.file)
         default_storage.save(filepath_actual.name, filepath_actual.file)
 
-
+def upload_estimated_data(request):
     try:
         filepath_estimated = request.FILES['estimated_data_file']
         filepath_region = request.FILES['region_metadata_file']
-    except Exception:
-        filepath_estimated, filepath_region = False, False
+    except Exception as err:
+        raise ValueError(
+            'No input file: {}. Both estimated data and region meta-data files must be input for estimates upload.'
+              .format(err))
     else:
-
-        #Get all site measurement names (only accept estimations of values that we have sites for)
-        #site_measurements = get_measurement_names()
-
         Estimated_value.objects.all().delete()
         Estimated_data.objects.all().delete()
         Region.objects.all().delete()
 
         file_regions = TextIOWrapper(filepath_region.file, encoding=request.encoding)
         reader = csv.reader(file_regions)
-        field_titles = next(reader, None)  # skip the headers
-        #print('field titles:', field_titles)
-
+        # skip/get the headers
+        field_titles = next(reader, None)
+        # print('field titles:', field_titles)
 
         try:
             for row in reader:
@@ -747,9 +751,9 @@ def handle_uploaded_files(request):
 
         file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
         reader = csv.reader(file_estimates)
-        field_titles = next(reader, None)  # skip the headers
+        # skip/get the headers
+        field_titles = next(reader, None)
         #print('field titles:', field_titles)
-
 
         value_idxs = []
         extra_field_idxs = []
@@ -827,6 +831,3 @@ def handle_uploaded_files(request):
 
         default_storage.save(filepath_region.name, filepath_region.file)
         default_storage.save(filepath_estimated.name, filepath_estimated.file)
-
-
-
