@@ -446,8 +446,10 @@ function get_region_default(){
 
 function get_site_default(){
     return '<table class="table table-striped">' +
-            '<tr><td>A tool for estimating regional measurements based on known values and visualising the results. ' +
-            'Uses python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
+            '<tr><td>A tool for estimating regional measurements based on known values and visualising the results. </br>' +
+            'Site measurement data uses data from MEDMI and AURN, described in: <a href="https://zenodo.org/record/4315225#.X-9k_1P7RH5/" target = _blank>' +
+                'https://zenodo.org/record/4315225#.X-9k_1P7RH5 </a></br>' +
+            'Region estimations uses python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
                 'https://pypi.org/project/region-estimators/ </a>' +
             '</td></tr>' +
             '<tr><td colspan="2"><p>Click on a site to see site info and the option to see site and estimated data across <em>all</em> timestamps.</p></td></tr>' +
