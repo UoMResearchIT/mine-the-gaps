@@ -223,7 +223,7 @@ export class GapMap {
             sitesLayer.addLayer(siteMarker);
 
         };
-        sitesLayer.addTo(map);
+        //sitesLayer.addTo(map);
 
         /*[
             {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
@@ -364,7 +364,7 @@ export class GapMap {
                     },
                 );
                 regionsLayer.addLayer(geoLayer);
-                regionsLayer.addTo(map);
+                //regionsLayer.addTo(map);
             },
             error: function (xhr, status, error) {
                 if (xhr.statusText !== 'abort') {
