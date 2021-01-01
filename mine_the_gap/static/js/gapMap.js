@@ -14,7 +14,6 @@ const mapId = 'mapbox.streets';
 //const mapUrlStreet = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
 const mapUrlStreet = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
-
 const mapUrlTopology = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
 const defaultInitCenter = ["54.2361", "-4.5481"];
 const initZoom = 6;
@@ -31,7 +30,6 @@ export class GapMap {
         this.resultsLoading = false; // Variable used to prevent multiple ajax requests queuing up and confusing UI.
         this.curLoader = null;
         this.onSensorClickFn = onSensorClickFn;
-
         this.dataUrl = dataUrl + '/file/';
         this.createMap(centerLatLng);
         this.updateMap();
@@ -46,10 +44,15 @@ export class GapMap {
             "topology": topology
         };
 
+        var overlayMaps = {
+            "Sites": sitesLayer,
+            "Regions": regionsLayer
+        };
+
         map = L.map('mapid',{
-            layers: [streets]
+            layers: [streets, sitesLayer, regionsLayer]
         });
-        L.control.layers(baseMaps).addTo(map);
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 
         try {
@@ -83,7 +86,7 @@ export class GapMap {
                 'fillColor': 'transparent',
                 'fillOpacity': 0.2,
               });
-        };
+        }
 
         //alert(dataUrl);
 
@@ -158,10 +161,10 @@ export class GapMap {
             if (loc['value'] != null){
                 valColor = this.getGreenToRed(loc.percent_score * 100).toString();
                 locValue = loc.value.toString();
-            };
+            }
             if (loc['ignore']) {
                 valColor = 'blue';
-            };
+            }
 
             var bespokeOptions = {
                 // Bespoke for gapMap
