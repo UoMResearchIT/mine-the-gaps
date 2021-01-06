@@ -51,11 +51,11 @@ $(document).ready(function(){
     initialise_site_fields();
 
     $('#upload-data-button').change(function(){
-        upload_geo_timeseries(this);
+        uploadUserData(this);
         //gapMap.updateTimeseries(get_site_select_url_params());
     })
 
-    function upload_geo_timeseries(inputElem){
+    function uploadUserData(inputElem){
         //alert(inputElem);
         var file = inputElem.files[0];
         uploadData(file);
@@ -65,14 +65,22 @@ $(document).ready(function(){
 // Upload user data functions
 function uploadData(file){
     var csvType = 'text/csv';
+    var success = false;
     userUploadedData = null;
     if (file.type.match(csvType)) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            userUploadedData = processCSV(reader.result);
+            try {
+                userUploadedData = processCSV(reader.result);
+                success = true;
+            }catch {
+                success = false;
+            }
         }
         reader.onloadend = function(e){
-            gapMap.addUploadedData(userUploadedData);
+            if(success === true) {
+                gapMap.addUploadedData(userUploadedData);
+            }
         }
         reader.readAsText(file);
     } else {
@@ -89,13 +97,16 @@ function processCSV(dataString) {
     var strHeaders = dataRows[0];
     var headers = strHeaders.split(',');
     if (headers[0] != 'timestamp'){
-        throw "CSV file does not contain required 'timestamp' as column 0";
+        alert("CSV file does not contain required 'timestamp' as 1st column");
+        throw "CSV file does not contain required 'timestamp' as 1st column"
     }
     if (headers[1] != 'geom'){
-        throw "CSV file does not contain required 'geom' as column 1";
+        alert("CSV file does not contain required 'geom' as 2nd column");
+        throw "CSV file does not contain required 'geom' as 2nd column"
     }
     if (headers.length < 3 ){
-        throw "CSV file does not contain any value columns";
+        alert("CSV file does not contain any value columns (after the 'timestamp' and 'geom' columns)");
+        throw "CSV file does not contain any value columns (after the 'timestamp' and 'geom' columns)";
     }
 
     // Read lines into array
@@ -144,7 +155,7 @@ function processCSV(dataString) {
 
         for(var j=2; j<line.length; j++){
             // Convert the string value read in from file into a float
-            var fValue = parseFloat(line[j]);
+            var fValue = parseFloat(line[j]);  // if not float, assigns null
 
             // Set the dictionary value
             dictItem[headers[j]] = {'value': fValue};

@@ -3,6 +3,7 @@ import {LoaderDisplay} from "./loader.js";
 var map = null;
 const sitesLayer = new L.LayerGroup();
 const regionsLayer = new L.LayerGroup();
+var userMeasurementLayers = {};
 var layerControl = null;
 const accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 //const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
@@ -114,18 +115,28 @@ export class GapMap {
                 }
                ],
          */
+        // Clear out any previous user uploaded data layers
+        for(var measurement in userMeasurementLayers){
+            layerControl.removeLayer(userMeasurementLayers[measurement]);
+        }
+        userMeasurementLayers = {};
 
-        var measurementLayers = {};
         var measurementLayer = null;
+
+        // If user data doesn't contain current timestamp, stop processing it here
+        // (silently - don't want a pop up every time!!)
+        if(!timeseries_val in this.userUploadedData){
+            return;
+        }
 
         for (var geom in this.userUploadedData[timeseries_val]){
             for(var i=0; i < this.userUploadedData[timeseries_val][geom].length; i++) {
                 for(var measurement in this.userUploadedData[timeseries_val][geom][i]) {
-                    if(measurement in measurementLayers){
-                        measurementLayer = measurementLayers[measurement];
+                    if(measurement in userMeasurementLayers){
+                        measurementLayer = userMeasurementLayers[measurement];
                     }else {
                         measurementLayer = new L.LayerGroup();
-                        measurementLayers[measurement] = measurementLayer;
+                        userMeasurementLayers[measurement] = measurementLayer;
                     }
 
                     var valColor = 'grey';
@@ -158,9 +169,9 @@ export class GapMap {
                 }
             }
         }
-
-        for(measurement in measurementLayers) {
-            layerControl.addOverlay(measurementLayers[measurement], measurement);
+        // Add the new set of measurement layers to map and layer control
+        for(measurement in userMeasurementLayers) {
+            layerControl.addOverlay(userMeasurementLayers[measurement], measurement);
         }
     }
 
