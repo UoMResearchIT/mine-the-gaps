@@ -194,7 +194,7 @@ function processCSV(dataString) {
 
 function initialise_site_fields(){
     /*
-            Add Sensor fields (to UI site selection/filtering mechanism)
+            Add Site fields (to UI site selection/filtering mechanism)
 
      */
 
@@ -235,7 +235,7 @@ function initialise_site_fields(){
         site_fields += '</table>';
 
         // Add the table and instructions to the html div
-        $('#collapseFilterSensors').html(site_fields);
+        $('#collapseFilterSites').html(site_fields);
 
         // Toggle the field selector / omittor fields (and instructions div) until required
         $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #site-select-instructions").hide();
@@ -627,7 +627,7 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     canvasItem.id = "site-chart";
     var newChartTitle = document.createElement('div');
 
-    newChartTitle.innerHTML = '<p><b>Sensor Name: ' + siteName + '</b><br>' +
+    newChartTitle.innerHTML = '<p><b>Site Name: ' + siteName + '</b><br>' +
         'Measurment: ' + measurement + '<br>' +
         'Estimation Method: ' + estimationMethod + '</p>';
 
@@ -724,7 +724,7 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
             };
             listChart.data.datasets.push(
                     {
-                        label: 'Sensor values',
+                        label: 'Site values',
                         backgroundColor: 'green',
                         borderColor: 'green',
                         fill:false,
@@ -734,7 +734,7 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
             listChart.update();
             modalChart.data.datasets.push(
                     {
-                        label: 'Sensor values',
+                        label: 'Site values',
                         backgroundColor: 'green',
                         borderColor: 'green',
                         fill:false,
@@ -756,9 +756,9 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
     });
 }
 
-function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, listChart, modalChart){
+function getEstimatedTimeseries(measurement, method, regionId, ignoreSiteId, listChart, modalChart){
     //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_site_id>/
-    var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
+    var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSiteId + '/';
 
     //alert(url_estimates);
     var self = this;
