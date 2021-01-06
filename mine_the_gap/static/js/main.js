@@ -6,6 +6,7 @@ var xhr = null;
 
 var curLoader;
 var gapMap;
+var userUploadedData = null;
 
 
 $(document).ready(function(){
@@ -49,13 +50,151 @@ $(document).ready(function(){
     initialise_slider();
     initialise_site_fields();
 
+    $('#upload-data-button').change(function(){
+        upload_geo_timeseries(this);
+        //gapMap.updateTimeseries(get_site_select_url_params());
+    })
+
+    function upload_geo_timeseries(inputElem){
+        //alert(inputElem);
+        var file = inputElem.files[0];
+        uploadData(file);
+    }
 });
+
+// Upload user data functions
+function uploadData(file){
+    var csvType = 'text/csv';
+    userUploadedData = null;
+    if (file.type.match(csvType)) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            userUploadedData = processCSV(reader.result);
+        }
+        reader.onloadend = function(e){
+            gapMap.addUploadedData(userUploadedData);
+        }
+        reader.readAsText(file);
+    } else {
+        alert("Only CSV files are accepted. File type: " + file.type );
+    }
+}
+
+// Process the user uploaded CSV file by reading it in to javascript array
+function processCSV(dataString) {
+    var dictAll = {};
+    var maxs = {};
+    var mins = {};
+    var dataRows = dataString.toLowerCase().split(/\n/); // Convert to one string per line
+    var strHeaders = dataRows[0];
+    var headers = strHeaders.split(',');
+    if (headers[0] != 'timestamp'){
+        throw "CSV file does not contain required 'timestamp' as column 0";
+    }
+    if (headers[1] != 'geom'){
+        throw "CSV file does not contain required 'geom' as column 1";
+    }
+    if (headers.length < 3 ){
+        throw "CSV file does not contain any value columns";
+    }
+
+    // Read lines into array
+    var lines = dataRows
+        .map(function(lineStr) {
+            return lineStr.split(",");   // Convert each line to array (,)
+        })
+        .slice(1);                       // Ignore header line
+
+    // Convert to list of dicts. Each dict looks like:
+    /*  {"2016-03-18":{
+            "point (-2.2346505 53.4673973)":[
+                {"how_feeling":{
+                    "value":0,
+                    "percent_score":null
+                    },
+                 "taken_meds_today":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "nose":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "eyes":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "breathing":{
+                    "value":0,
+                    "percent_score":null
+                 }
+                }
+               ],
+             "point (-0.1150684 51.5225896)":
+               [...]
+            }
+         }
+
+    }*/
+    for(var i=0; i<lines.length; i++){
+        var dictItem = {};
+        var line = lines[i];
+        var timestamp = line[0];
+        var geom = line[1];
+
+        for(var j=2; j<line.length; j++){
+            // Convert the string value read in from file into a float
+            var fValue = parseFloat(line[j]);
+
+            // Set the dictionary value
+            dictItem[headers[j]] = {'value': fValue};
+
+            // Get the min and max for each column, so we can set percentage scores (after outer loop has completed).
+            if(!(headers[j] in maxs)){
+                maxs[headers[j]] = fValue;
+                mins[headers[j]] = fValue;
+            }else{
+                // Set new max if higher
+                if(fValue > maxs[headers[j]]){
+                    maxs[headers[j]] = fValue;
+                }else{
+                    // Set new min if lower
+                    if(fValue < mins[headers[j]]){
+                        mins[headers[j]] = fValue;
+                    }
+                }
+            }
+        }
+        if(!(timestamp in dictAll)){
+            dictAll[timestamp] = {};
+        }
+        if(!(geom in dictAll[timestamp])) {
+            dictAll[timestamp][geom] = [];
+        }
+        dictAll[timestamp][geom].push(dictItem);
+    }
+
+    // Now we have processed all values for each values column, set the percentage scores.
+    for(var timestampKey in dictAll){
+        for(var geomKey in dictAll[timestampKey]){
+            for(var k=0; k<dictAll[timestampKey][geomKey].length; k++) {
+                for (var headerKey in dictAll[timestampKey][geomKey][k]) {
+                    var curVal = dictAll[timestampKey][geomKey][k][headerKey]['value'];
+                    var score = (curVal - mins[headerKey]) / (maxs[headerKey] - mins[headerKey]);
+                    dictAll[timestampKey][geomKey][k][headerKey]['percent_score'] = score;
+                }
+            }
+        }
+    }
+    // Return final dict
+    return dictAll;
+}
 
 // Map functions
 
 function initialise_site_fields(){
     /*
-            Add Sensor fields (to UI site selection/filtering mechanism)
+            Add Site fields (to UI site selection/filtering mechanism)
 
      */
 
@@ -96,7 +235,7 @@ function initialise_site_fields(){
         site_fields += '</table>';
 
         // Add the table and instructions to the html div
-        $('#collapseFilterSensors').html(site_fields);
+        $('#collapseFilterSites').html(site_fields);
 
         // Toggle the field selector / omittor fields (and instructions div) until required
         $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #site-select-instructions").hide();
@@ -488,7 +627,7 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     canvasItem.id = "site-chart";
     var newChartTitle = document.createElement('div');
 
-    newChartTitle.innerHTML = '<p><b>Sensor Name: ' + siteName + '</b><br>' +
+    newChartTitle.innerHTML = '<p><b>Site Name: ' + siteName + '</b><br>' +
         'Measurment: ' + measurement + '<br>' +
         'Estimation Method: ' + estimationMethod + '</p>';
 
@@ -585,7 +724,7 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
             };
             listChart.data.datasets.push(
                     {
-                        label: 'Sensor values',
+                        label: 'Site values',
                         backgroundColor: 'green',
                         borderColor: 'green',
                         fill:false,
@@ -595,7 +734,7 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
             listChart.update();
             modalChart.data.datasets.push(
                     {
-                        label: 'Sensor values',
+                        label: 'Site values',
                         backgroundColor: 'green',
                         borderColor: 'green',
                         fill:false,
@@ -617,9 +756,9 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
     });
 }
 
-function getEstimatedTimeseries(measurement, method, regionId, ignoreSensorId, listChart, modalChart){
+function getEstimatedTimeseries(measurement, method, regionId, ignoreSiteId, listChart, modalChart){
     //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_site_id>/
-    var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSensorId + '/';
+    var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSiteId + '/';
 
     //alert(url_estimates);
     var self = this;

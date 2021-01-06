@@ -3,6 +3,7 @@ import {LoaderDisplay} from "./loader.js";
 var map = null;
 const sitesLayer = new L.LayerGroup();
 const regionsLayer = new L.LayerGroup();
+var layerControl = null;
 const accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 //const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
 //                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
@@ -31,6 +32,7 @@ export class GapMap {
         this.curLoader = null;
         this.onSensorClickFn = onSensorClickFn;
         this.dataUrl = dataUrl + '/file/';
+        this.userUploadedData = null;
         this.createMap(centerLatLng);
         this.updateMap();
     }
@@ -52,7 +54,8 @@ export class GapMap {
         map = L.map('mapid',{
             layers: [streets, sitesLayer, regionsLayer]
         });
-        L.control.layers(baseMaps, overlayMaps).addTo(map);
+        layerControl = L.control.layers(baseMaps, overlayMaps);
+        layerControl.addTo(map);
 
 
         try {
@@ -67,6 +70,112 @@ export class GapMap {
         map.options.maxZoom = 14;
         // bounds must be set after only the first initialisation of map
         this.bounds = map.getBounds();
+    }
+
+    addUploadedData(uploadedData) {
+        //alert(JSON.stringify(data));
+        // Save user uploaded data for displaying
+        this.userUploadedData = uploadedData;
+        // Display newly loaded data
+        this.displayUserUploadedData();
+    }
+
+    displayUserUploadedData(timeseries_idx=document.getElementById("timestamp-range").value){
+        if(this.userUploadedData === null){
+            return;
+        }
+        // Get current timestamp
+        var timeseries_val = timestampList[timeseries_idx].trim();
+        // Clear old user data
+
+        /*
+        "2016-03-18":{
+            "point (-2.2346505 53.4673973)":[
+                {"how_feeling":{
+                    "value":0,
+                    "percent_score":null
+                    },
+                 "taken_meds_today":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "nose":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "eyes":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "breathing":{
+                    "value":0,
+                    "percent_score":null
+                 }
+                }
+               ],
+         */
+
+        var measurementLayers = {};
+        var measurementLayer = null;
+
+        for (var geom in this.userUploadedData[timeseries_val]){
+            for(var i=0; i < this.userUploadedData[timeseries_val][geom].length; i++) {
+                for(var measurement in this.userUploadedData[timeseries_val][geom][i]) {
+                    if(measurement in measurementLayers){
+                        measurementLayer = measurementLayers[measurement];
+                    }else {
+                        measurementLayer = new L.LayerGroup();
+                        measurementLayers[measurement] = measurementLayer;
+                    }
+
+                    var valColor = 'grey';
+                    var locValue = 'null';
+
+                    var geomData = this.userUploadedData[timeseries_val][geom][i][measurement];
+                    if (geomData['value'] != null) {
+                        valColor = this.getGreenToRed(geomData['percent_score'] * 100).toString();
+                        locValue = geomData['value'].toString();
+                    }
+                    //alert(JSON.stringify(geom));  //"point (-0.0830567 51.4221912)"
+                    var latlng = this.getGeomLatLng(geom);
+                    //alert(latlng);
+                    if (latlng != null) {
+                        var userDataMarker = new L.Marker.SVGMarker(latlng,
+                            {
+                                iconOptions: {
+                                    color: valColor,
+                                    iconSize: [30, 40],
+                                    circleText: locValue,
+                                    circleRatio: 0.8,
+                                    fontSize: 8,
+                                },
+                            });
+                    } else {
+                        //if (isGeomPolygon(geom)) {}
+                    }
+                    // Add marker
+                    measurementLayer.addLayer(userDataMarker);
+                }
+            }
+        }
+
+        for(measurement in measurementLayers) {
+            layerControl.addOverlay(measurementLayers[measurement], measurement);
+        }
+    }
+
+    getGeomLatLng(strGeom){
+        //"point (-0.0830567 51.4221912)"
+        var result = null;
+        try {
+            if (strGeom.indexOf('point') === 0) {
+                var splitStr = strGeom.replace('(','').replace(')','').split(' ');
+                result = [splitStr[2], splitStr[1]];
+            }
+        }
+        finally {
+            return result;
+        }
     }
 
     updateTimeseries(jsonParams, timeseries_idx=document.getElementById("timestamp-range").value,
@@ -87,6 +196,9 @@ export class GapMap {
                 'fillOpacity': 0.2,
               });
         }
+
+        //Update user uploaded data
+        this.displayUserUploadedData();
 
         //alert(dataUrl);
 
@@ -388,6 +500,8 @@ export class GapMap {
         var r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
         return 'rgb('+r+','+g+',0)';
     }
+
+
 }
 
 

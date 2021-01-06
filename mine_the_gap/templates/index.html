@@ -28,8 +28,6 @@
                                     </tr>
                                     <tr>
                                         {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
-
-
                                         <th scope="row">Actual data</th>
                                         <td><span class="current-filename">Site data file: (current: {{ filepath.actual_data_filename|safe }})</span>
                                             {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
@@ -95,6 +93,19 @@
                             {% for measurement in measurement_names %}
                                 <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
                             {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="upload-data" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
+                            <div class="panel-title">Upload GEO timeseries data <span class="chosen-option" id="upload-data-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseUpload" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <input id="upload-data-button" type="file">
                         </div>
                     </div>
                 </div>
