@@ -39,6 +39,8 @@ export class GapMap {
     }
 
     createMap(centerLatLng){
+        // Called once on web app initialisation.
+
         var streets   = L.tileLayer(mapUrlStreet, {id: mapId, accessToken: accessToken, attribution: attribution});
         var topology = L.tileLayer(mapUrlTopology, {id: mapId, accessToken: accessToken, attribution: attribution});
 
@@ -55,8 +57,7 @@ export class GapMap {
         map = L.map('mapid',{
             layers: [streets, sitesLayer, regionsLayer]
         });
-        layerControl = L.control.layers(baseMaps, overlayMaps);
-        layerControl.addTo(map);
+        layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 
 
         try {
@@ -87,7 +88,6 @@ export class GapMap {
         }
         // Get current timestamp
         var timeseries_val = timestampList[timeseries_idx].trim();
-        // Clear old user data
 
         /*
         "2016-03-18":{
@@ -115,8 +115,13 @@ export class GapMap {
                 }
                ],
          */
+        // Save visible user loaded layers
+        var activeOverlays = layerControl.getActiveOverlays();
+        //alert(JSON.stringify(activeOverlays));
+        
         // Clear out any previous user uploaded data layers
         for(var measurement in userMeasurementLayers){
+            userMeasurementLayers[measurement].clearLayers();
             layerControl.removeLayer(userMeasurementLayers[measurement]);
         }
         userMeasurementLayers = {};
@@ -172,6 +177,9 @@ export class GapMap {
         // Add the new set of measurement layers to map and layer control
         for(measurement in userMeasurementLayers) {
             layerControl.addOverlay(userMeasurementLayers[measurement], measurement);
+            if(measurement in activeOverlays && activeOverlays[measurement] == true) {
+                map.addLayer(userMeasurementLayers[measurement]);
+            }
         }
     }
 
@@ -345,8 +353,7 @@ export class GapMap {
             siteMarker.bindPopup(extraData + popButton.outerHTML);
             sitesLayer.addLayer(siteMarker);
 
-        };
-        //sitesLayer.addTo(map);
+        }
 
         /*[
             {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
@@ -487,7 +494,6 @@ export class GapMap {
                     },
                 );
                 regionsLayer.addLayer(geoLayer);
-                //regionsLayer.addTo(map);
             },
             error: function (xhr, status, error) {
                 if (xhr.statusText !== 'abort') {
@@ -511,8 +517,31 @@ export class GapMap {
         var r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
         return 'rgb('+r+','+g+',0)';
     }
-
-
 }
+
+// Add method to layer control class
+L.Control.Layers.include({
+  getActiveOverlays: function() {
+    // create hash to hold all layers
+    var control, layers;
+    layers = {};
+    control = this;
+
+    // loop thru all layers in control
+    control._layers.forEach(function(obj) {
+      var layerName;
+
+      // check if layer is an overlay
+      if (obj.overlay) {
+        // get name of overlay
+        layerName = obj.name;
+        // store whether it's present on the map or not
+        return layers[layerName] = control._map.hasLayer(obj.layer);
+      }
+    });
+
+    return layers;
+  }
+});
 
 
