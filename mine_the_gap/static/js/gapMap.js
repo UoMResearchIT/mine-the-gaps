@@ -3,7 +3,7 @@ import {LoaderDisplay} from "./loader.js";
 var map = null;
 const sitesLayer = new L.LayerGroup();
 const regionsLayer = new L.LayerGroup();
-const userDataLayer = new L.LayerGroup();
+var layerControl = null;
 const accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
 //const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
 //                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
@@ -48,14 +48,14 @@ export class GapMap {
 
         var overlayMaps = {
             "Sites": sitesLayer,
-            "Regions": regionsLayer,
-            "User data": userDataLayer
+            "Regions": regionsLayer
         };
 
         map = L.map('mapid',{
             layers: [streets, sitesLayer, regionsLayer]
         });
-        L.control.layers(baseMaps, overlayMaps).addTo(map);
+        layerControl = L.control.layers(baseMaps, overlayMaps);
+        layerControl.addTo(map);
 
 
         try {
@@ -87,7 +87,6 @@ export class GapMap {
         // Get current timestamp
         var timeseries_val = timestampList[timeseries_idx].trim();
         // Clear old user data
-        userDataLayer.clearLayers();
 
         /*
         "2016-03-18":{
@@ -116,9 +115,19 @@ export class GapMap {
                ],
          */
 
+        var measurementLayers = {};
+        var measurementLayer = null;
+
         for (var geom in this.userUploadedData[timeseries_val]){
             for(var i=0; i < this.userUploadedData[timeseries_val][geom].length; i++) {
                 for(var measurement in this.userUploadedData[timeseries_val][geom][i]) {
+                    if(measurement in measurementLayers){
+                        measurementLayer = measurementLayers[measurement];
+                    }else {
+                        measurementLayer = new L.LayerGroup();
+                        measurementLayers[measurement] = measurementLayer;
+                    }
+
                     var valColor = 'grey';
                     var locValue = 'null';
 
@@ -145,9 +154,13 @@ export class GapMap {
                         //if (isGeomPolygon(geom)) {}
                     }
                     // Add marker
-                    userDataLayer.addLayer(userDataMarker);
+                    measurementLayer.addLayer(userDataMarker);
                 }
             }
+        }
+
+        for(measurement in measurementLayers) {
+            layerControl.addOverlay(measurementLayers[measurement], measurement);
         }
     }
 
@@ -176,7 +189,6 @@ export class GapMap {
         // 1. Update sites to show values
 
         // Clear site and region data
-        userDataLayer.clearLayers();
         sitesLayer.clearLayers();
         for (var key in regions){
             regions[key].setStyle({
