@@ -100,11 +100,24 @@
                 <div id="upload-data" class="panel-group">
                     <div class="panel panel-default">
                         <div class="panel-heading" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
-                            <div class="panel-title">Upload GEO timeseries data <span class="chosen-option" id="upload-data-label"></span></div>
+                            <div class="panel-title">Upload data and visualise<span class="chosen-option" id="upload-data-label"></span></div>
                         </div>
                     </div>
                     <div id="collapseUpload" class="panel-collapse collapse">
                         <div class="panel-body">
+                            <div id="upload-data-instructions">
+                                Upload geographical time-series data as a CSV file.
+                                The csv file must have the following columns: <br/><br/>
+                                Column 1: has header 'timestamp' and contains timestamps as strings,
+                                matching those available on the timestamp slider, <br/>
+                                Example: 2016-10-12 <br/> <br/>
+                                Column 2: has header 'geom' and contains geographical locations (currently points only), <br/>
+                                Example: POINT (-2.2346505 53.4673973) <br/><br/>
+                                Columns remaining: header(s) will be used as measurement name(s) and
+                                values should be numeric (non numeric will be converted to null)<br/><br/>
+                                <em>Note that the uploaded file's data is stored locally on the browser, and only used
+                                    for visualisation on the map, within this browser session.</em>
+                            </div>
                             <input id="upload-data-button" type="file">
                         </div>
                     </div>

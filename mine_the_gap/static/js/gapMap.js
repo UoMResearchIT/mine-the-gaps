@@ -118,7 +118,7 @@ export class GapMap {
         // Save visible user loaded layers
         var activeOverlays = layerControl.getActiveOverlays();
         //alert(JSON.stringify(activeOverlays));
-        
+
         // Clear out any previous user uploaded data layers
         for(var measurement in userMeasurementLayers){
             userMeasurementLayers[measurement].clearLayers();
