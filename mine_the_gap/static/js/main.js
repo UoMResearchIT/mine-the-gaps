@@ -2,6 +2,7 @@ import {LoaderDisplay} from "./loader.js";
 import {GapMap} from "./gapMap.js";
 
 const csrftoken = getCookie('csrftoken');
+const fileSizeLimit = 5;
 var xhr = null;
 
 var curLoader;
@@ -52,7 +53,6 @@ $(document).ready(function(){
 
     $('#upload-data-button').change(function(){
         uploadUserData(this);
-        //gapMap.updateTimeseries(get_site_select_url_params());
     })
 
     function uploadUserData(inputElem){
@@ -67,6 +67,10 @@ function uploadData(file){
     var csvType = 'text/csv';
     var success = false;
     userUploadedData = null;
+    if(!validateFileSize(file)){
+        alert('File size exceeeds limit: ' + fileSizeLimit.toString() + ' MiB');
+        return;
+    }
     if (file.type.match(csvType)) {
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -86,6 +90,13 @@ function uploadData(file){
     } else {
         alert("Only CSV files are accepted. File type: " + file.type );
     }
+}
+
+function validateFileSize(file) {
+    // Convert to Megabytes
+    var fileSize = file.size / 1024 / 1024; // in MiB
+    // check OK
+    return (fileSize <= fileSizeLimit);
 }
 
 // Process the user uploaded CSV file by reading it in to javascript array
