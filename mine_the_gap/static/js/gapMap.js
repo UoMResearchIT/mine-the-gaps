@@ -79,14 +79,16 @@ export class GapMap {
         // Save user uploaded data for displaying
         this.userUploadedData = uploadedData;
         // Display newly loaded data
-        this.displayUserUploadedData();
+        this.displayUserUploadedData(true);
     }
 
-    displayUserUploadedData(timeseries_idx=document.getElementById("timestamp-range").value){
+    displayUserUploadedData(reset=false){
         if(this.userUploadedData === null){
             return;
         }
+
         // Get current timestamp
+        var timeseries_idx = document.getElementById("timestamp-range").value;
         var timeseries_val = timestampList[timeseries_idx].trim();
 
         /*
@@ -177,7 +179,7 @@ export class GapMap {
         // Add the new set of measurement layers to map and layer control
         for(measurement in userMeasurementLayers) {
             layerControl.addOverlay(userMeasurementLayers[measurement], measurement);
-            if(measurement in activeOverlays && activeOverlays[measurement] == true) {
+            if(reset || (measurement in activeOverlays && activeOverlays[measurement] == true)) {
                 map.addLayer(userMeasurementLayers[measurement]);
             }
         }
