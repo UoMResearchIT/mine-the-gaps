@@ -155,6 +155,8 @@ export class GapMap {
         const shapes = ["square", "triangle", "diamond", "arrowhead-up", "triangle-down", "star",
                             "arrowhead-down", "heart", "hexagon"]
 
+        var svgs = {};
+
         for (var geom in this.userUploadedData[timeseries_val]){
             for(var i=0; i < this.userUploadedData[timeseries_val][geom].length; i++) {
                 var j = -1;
@@ -180,8 +182,12 @@ export class GapMap {
 
                     if (latlng != null) {
                         // Get shape for main map icon
+                        // Get svg for map
                         var svg = this.svgIcons.getSVGFromName(
-                            shapes[j % shapes.length], valColor, 'darkslategray', 1, .9);
+                            shapes[j % shapes.length], valColor, 'darkslategray', 0.6, .9);
+                        // Get svg shape only, and add to dict for layers control
+                        svgs[measurement] = this.svgIcons.getSVGFromName(
+                            shapes[j % shapes.length], 'transparent', 'darkslategray', 1, .5);
                         var icon = L.divIcon({
                             html: svg,
                             iconSize: [13, 13],
@@ -212,7 +218,7 @@ export class GapMap {
         }
         // Add the new set of measurement layers to map and layer control
         for(measurement in userMeasurementLayers) {
-            layerControl.addOverlay(userMeasurementLayers[measurement], measurement + svg);
+            layerControl.addOverlay(userMeasurementLayers[measurement], measurement + '   ' + svgs[measurement]);
             if(reset || (measurement in activeOverlays && activeOverlays[measurement] == true)) {
                 map.addLayer(userMeasurementLayers[measurement]);
             }
