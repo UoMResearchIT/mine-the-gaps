@@ -1,6 +1,14 @@
 import {LoaderDisplay} from "./loader.js";
-
+import  {svgIcons}  from "./svgIcons.js";
+import  {iconShapes} from "./svgIcons.js";
+import  {iconColours} from "./svgIcons.js";
 var map = null;
+
+const leafColours = iconColours;
+const featureShapes = iconShapes;
+const MAX_UNIQUE_FEATURE_LENGTH = featureShapes.length;
+const MAX_UNIQUE_LEAF_LENGTH = leafColours.length;
+
 const sitesLayer = new L.LayerGroup();
 const regionsLayer = new L.LayerGroup();
 var userMeasurementLayers = {};
@@ -24,6 +32,7 @@ var regions = {};
 
 export class GapMap {
     constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn) {
+        this.svgIcons = new svgIcons();
         this.domId = mapDomId;
         this.accessToken = accessToken;
         this.bounds = null;
@@ -36,6 +45,13 @@ export class GapMap {
         this.userUploadedData = null;
         this.createMap(centerLatLng);
         this.updateMap();
+
+        this.colourShapeMarker = L.Marker.extend({
+          options: {
+              colour: 'black',
+              shape: 'square'
+          }
+        });
     }
 
     createMap(centerLatLng){
@@ -136,9 +152,14 @@ export class GapMap {
             return;
         }
 
+        const shapes = ["square", "triangle", "diamond", "arrowhead-up", "triangle-down", "star",
+                            "arrowhead-down", "heart", "hexagon"]
+
         for (var geom in this.userUploadedData[timeseries_val]){
             for(var i=0; i < this.userUploadedData[timeseries_val][geom].length; i++) {
+                var j = -1;
                 for(var measurement in this.userUploadedData[timeseries_val][geom][i]) {
+                    j++;
                     if(measurement in userMeasurementLayers){
                         measurementLayer = userMeasurementLayers[measurement];
                     }else {
@@ -156,18 +177,31 @@ export class GapMap {
                     }
                     //alert(JSON.stringify(geom));  //"point (-0.0830567 51.4221912)"
                     var latlng = this.getGeomLatLng(geom);
-                    //alert(latlng);
+
                     if (latlng != null) {
-                        var userDataMarker = new L.Marker.SVGMarker(latlng,
-                            {
-                                iconOptions: {
-                                    color: valColor,
-                                    iconSize: [30, 40],
-                                    circleText: locValue,
-                                    circleRatio: 0.8,
-                                    fontSize: 8,
-                                },
-                            });
+                        // Get shape for main map icon
+                        var svg = this.svgIcons.getSVGFromName(
+                            shapes[j % shapes.length], valColor, 'darkslategray', 1, .9);
+                        var icon = L.divIcon({
+                            html: svg,
+                            iconSize: [13, 13],
+                            className: 'user-data-icon' // Specify something to get rid of the default class.
+                        });
+                        var userDataMarker = new this.colourShapeMarker(latlng,
+                        {
+                            icon: icon,
+                            colour: valColor,
+                            shape: shapes[j % shapes.length],
+                            title: (geomData['value']).toString()
+                        });
+
+                        var extraData = '<table class="table table-striped">';
+                        extraData += '<tr><th>Measurement</th><td>' + measurement + '</td></tr>';
+                        extraData += '<tr><th>Value</th><td>' + geomData.value + '</td></tr>';
+                        extraData += '<tr><th>Percentage Score</th><td>' +
+                            (geomData.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '</table>';
+                        userDataMarker.bindPopup(extraData);
                     } else {
                         //if (isGeomPolygon(geom)) {}
                     }
@@ -178,7 +212,7 @@ export class GapMap {
         }
         // Add the new set of measurement layers to map and layer control
         for(measurement in userMeasurementLayers) {
-            layerControl.addOverlay(userMeasurementLayers[measurement], measurement);
+            layerControl.addOverlay(userMeasurementLayers[measurement], measurement + svg);
             if(reset || (measurement in activeOverlays && activeOverlays[measurement] == true)) {
                 map.addLayer(userMeasurementLayers[measurement]);
             }
@@ -328,7 +362,8 @@ export class GapMap {
             var extraData = '<table class="table table-striped">';
             extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
             extraData += '<tr><th>ID</th><td>' + loc.site_id + '</td></tr>';
-            extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
+            extraData += '<tr><th>Location</th><td>' + loc.geom[0].toFixed(2).toString() +
+                ', ' + loc.geom[1].toFixed(2).toString() +  '</td></tr>';
             extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
             extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
             extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
