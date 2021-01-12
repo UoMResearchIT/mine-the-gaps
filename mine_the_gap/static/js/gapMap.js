@@ -135,7 +135,7 @@ export class GapMap {
          */
         // Save visible user loaded layers
         var activeOverlays = layerControl.getActiveOverlays();
-        //alert(JSON.stringify(activeOverlays));
+        //alert('active overlays before: \n' + JSON.stringify(activeOverlays));
 
         // Clear out any previous user uploaded data layers
         for(var measurement in userMeasurementLayers){
@@ -184,7 +184,7 @@ export class GapMap {
                         // Get shape for main map icon
                         // Get svg for map
                         var svg = this.svgIcons.getSVGFromName(
-                            shapes[j % shapes.length], valColor, 'darkslategray', 0.6, .9);
+                            shapes[j % shapes.length], valColor, 'darkslategray', 0.4, .9);
                         // Get svg shape only, and add to dict for layers control
                         svgs[measurement] = this.svgIcons.getSVGFromName(
                             shapes[j % shapes.length], 'transparent', 'darkslategray', 1, .5);
@@ -218,11 +218,20 @@ export class GapMap {
         }
         // Add the new set of measurement layers to map and layer control
         for(measurement in userMeasurementLayers) {
-            layerControl.addOverlay(userMeasurementLayers[measurement], measurement + '   ' + svgs[measurement]);
-            if(reset || (measurement in activeOverlays && activeOverlays[measurement] == true)) {
+            // Add to layer control
+            layerControl.addOverlay(userMeasurementLayers[measurement],
+                this.getLayerControlItemHTML(measurement, svgs[measurement]));
+            // If selected in last layer control (last time this function was called), add to map
+            if(reset || (this.getLayerControlItemHTML(measurement, svgs[measurement]) in activeOverlays &&
+                activeOverlays[this.getLayerControlItemHTML(measurement, svgs[measurement])]  == true)) {
                 map.addLayer(userMeasurementLayers[measurement]);
             }
         }
+        //alert('active overlays after: \n' + JSON.stringify(layerControl.getActiveOverlays()));
+    }
+
+    getLayerControlItemHTML(heading, svg){
+        return heading + '   ' + svg;
     }
 
     getGeomLatLng(strGeom){
