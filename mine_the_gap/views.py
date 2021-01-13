@@ -24,7 +24,7 @@ from shapely import wkt
 from mine_the_gap.forms import FileUploadForm
 from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value, \
     Region_dynamic
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Avg, StdDev
 from region_estimators import RegionEstimatorFactory
 
 @ensure_csrf_cookie
@@ -277,18 +277,33 @@ def actuals(request, measurement, timestamp_val=None, site_id=None, return_all_f
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
 
+    mean_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Avg('value'))['value__avg']
+    std_dev = Actual_value.objects.filter(measurement_name=measurement).aggregate(StdDev('value'))['value__stddev']
+
     for row in query_set.iterator():
-        percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
+        percentage_score = calculate_percentage_score(row.value, min_val, max_val)
+        z_score = calculate_z_score(row.value, mean_val, std_dev)
         new_row = dict(row.join_site) if return_all_fields else dict(row.join_site_lite)
         new_row['ignore'] = False if select_site(new_row, site_params) else True
         new_row['percent_score'] = percentage_score
+        new_row['z_score'] = z_score
+        new_row['min'] = min_val
+        new_row['max'] = max_val
+        new_row['mean'] = mean_val
+        new_row['std_dev'] = std_dev
         data.append(new_row)
 
     return data
 
-def calcuate_percentage_score(value, min, max):
+def calculate_percentage_score(value, min, max):
     try:
-        return round((value - min) / (max - min),2)
+        return round((value - min) / (max - min), 2)
+    except:
+        return None
+
+def calculate_z_score(value, mean, standard_deviation):
+    try:
+        return round((value - mean) / standard_deviation, 2)
     except:
         return None
 
@@ -306,6 +321,8 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
+    mean_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Avg('value'))['value__avg']
+    std_dev = Actual_value.objects.filter(measurement_name=measurement).aggregate(StdDev('value'))['value__stddev']
 
     if method_name == 'file':
         if timestamp_val and region_id:
@@ -328,14 +345,17 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
 
 
         for row in query_set.iterator():
-            try:
-                percentage_score = calcuate_percentage_score(row.value, min_val, max_val)
-            except:
-                percentage_score = None
+            percentage_score = calculate_percentage_score(row.value, min_val, max_val)
+            z_score = calculate_z_score(row.value, mean_val, std_dev)
 
             new_row = dict(row.join_region) if return_all_fields else dict(row.join_region_lite)
             new_row['percent_score'] = percentage_score
             new_row['method_name'] = method_name
+            new_row['z_score'] = z_score
+            new_row['min'] = min_val
+            new_row['max'] = max_val
+            new_row['mean'] = mean_val
+            new_row['std_dev'] = std_dev
             data.append(new_row)
     else:
 
@@ -379,14 +399,19 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
             for index, row in df_result.iterrows():
                 if not pd.isna(row['value']):
                     value = row['value']
-                    percentage_score = calcuate_percentage_score(value, min_val, max_val)
                 else:
                     value = None
-                    percentage_score = None
+                percentage_score = calculate_percentage_score(value, min_val, max_val)
+                z_score = calculate_z_score(row.value, mean_val, std_dev)
                 data.append(    {'region_id': row['region_id'],
                                  'timestamp': row['timestamp'],
                                  'value': value,
                                  'percent_score': percentage_score,
+                                 'z_score': z_score,
+                                 'min': min_val,
+                                 'max': max_val,
+                                 'mean': mean_val,
+                                 'std_dev': std_dev,
                                  'method_name': method_name,
                                  'extra_data': json.loads(row['extra_data'])
                                  })
