@@ -112,23 +112,23 @@ export class GapMap {
             "point (-2.2346505 53.4673973)":[
                 {"how_feeling":{
                     "value":0,
-                    "percent_score":null
+                    "z_score":null
                     },
                  "taken_meds_today":{
                     "value":0,
-                    "percent_score":null
+                    "z_score":null
                  },
                  "nose":{
                     "value":0,
-                    "percent_score":null
+                    "z_score":null
                  },
                  "eyes":{
                     "value":0,
-                    "percent_score":null
+                    "z_score":null
                  },
                  "breathing":{
                     "value":0,
-                    "percent_score":null
+                    "z_score":null
                  }
                 }
                ],
@@ -174,7 +174,8 @@ export class GapMap {
 
                     var geomData = this.userUploadedData[timeseries_val][geom][i][measurement];
                     if (geomData['value'] != null) {
-                        valColor = this.getGreenToRed(geomData['percent_score'] * 100).toString();
+                        var percentZ = ((geomData['z_score'] + 3) /6) *100;
+                        valColor = this.getGreenToRed(percentZ).toString();
                         locValue = geomData['value'].toString();
                     }
                     //alert(JSON.stringify(geom));  //"point (-0.0830567 51.4221912)"
@@ -204,8 +205,16 @@ export class GapMap {
                         var extraData = '<table class="table table-striped">';
                         extraData += '<tr><th>Measurement</th><td>' + measurement + '</td></tr>';
                         extraData += '<tr><th>Value</th><td>' + geomData.value + '</td></tr>';
-                        extraData += '<tr><th>Percentage Score</th><td>' +
-                            (geomData.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Z Score</th><td>' +
+                            (geomData['z_score']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Percent Score</th><td>' +
+                            (geomData['percent_score']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Min</th><td>' +
+                            (geomData['min']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Max</th><td>' +
+                            (geomData['max']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Standard Deviation</th><td>' +
+                            (geomData['std_dev']).toFixed(2).toString()  + '</td></tr>';
                         extraData += '</table>';
                         userDataMarker.bindPopup(extraData);
                     } else {
@@ -321,7 +330,13 @@ export class GapMap {
             {   "extra_data":"{"region":"AB"}",
                 "value":66,
                 "timestamp":"2017-01-01 00:00:00+00",
-                "percent_score":0.436241610738255,
+                "z_score": 0.436241610738255,
+                "percent_score": 0.33557046979865773,
+                 'z_score': 0.8,
+                 'min': 2,
+                 'max': 22,
+                 'mean': 12,
+                 'std_dev': 3.5
                 "site_id":757,
                 "geom":[-2.1031362,57.1453481],
                 "name": 'Aberdeen Union Street Roadside',
@@ -333,7 +348,7 @@ export class GapMap {
         for (var i=0; i<actualData.length; i++){
             var loc = actualData[i];
             /*if(i==0) {
-                alert(JSON.stringify(loc, null, 1));
+                alert(JSON.stringify(loc, null));
             };*/
 
             var latlng = [loc.geom[1], loc.geom[0]];
@@ -341,7 +356,7 @@ export class GapMap {
             var locValue = 'null';
 
             if (loc['value'] != null){
-                valColor = this.getGreenToRed(loc.percent_score * 100).toString();
+                valColor = this.getGreenToRed(((loc.z_score + 3) / 6) *100).toString();
                 locValue = loc.value.toString();
             }
             if (loc['ignore']) {
@@ -355,7 +370,6 @@ export class GapMap {
                 regions: loc.regions,
                 name: loc.name
             }
-
 
             var siteMarker = new L.Marker.SVGMarker(latlng,
                     {   iconOptions: {
@@ -381,6 +395,7 @@ export class GapMap {
                 ', ' + loc.geom[1].toFixed(2).toString() +  '</td></tr>';
             extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
             extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
+            extraData += '<tr><th>Z Score</th><td>' +  (loc.z_score*1).toString()  + '</td></tr>';
             extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
             for (var key in loc['extra_data']){
                 if(loc['extra_data'][key] != null) {
@@ -424,7 +439,12 @@ export class GapMap {
                     [-0.2533,51.7197],[-0.25616,51.71952]]]],
                  "extra_data":"{'rings':'1'}",
                  "timestamp":"2017-08-22 00:00:00+00",
-                 "percent_score": 0.33557046979865773
+                 "percent_score": 0.33557046979865773,
+                 'z_score': 0.8,
+                 'min': 2,
+                 'max': 22,
+                 'mean': 12,
+                 'std_dev': 3.5
              }
           ]
         */
@@ -434,7 +454,6 @@ export class GapMap {
             regions[key].bindTooltip('None',
                 {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
             )
-
         }
 
         // Update regions to show values
@@ -460,7 +479,7 @@ export class GapMap {
                 var regionValue = 'none';
 
             }else {
-                var valColor = this.getGreenToRed(region.percent_score * 100).toString();
+                var valColor = this.getGreenToRed(((region.z_score+3) /6) * 100).toString();
                 layer.setStyle({
                     'fillColor': valColor,
                     'fillOpacity': 0.2,
