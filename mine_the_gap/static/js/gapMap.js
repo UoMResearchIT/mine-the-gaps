@@ -3,6 +3,7 @@ import  {svgIcons}  from "./svgIcons.js";
 import  {iconShapes} from "./svgIcons.js";
 import  {iconColours} from "./svgIcons.js";
 var map = null;
+var oms = null;
 
 const leafColours = iconColours;
 const featureShapes = iconShapes;
@@ -74,6 +75,13 @@ export class GapMap {
             layers: [streets, sitesLayer, regionsLayer]
         });
         layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        oms = new OverlappingMarkerSpiderfier(map, {
+            legWeight: 0
+        });
+        oms.addListener('spiderfy', function(markers) {
+          map.closePopup();
+        });
 
 
         try {
@@ -185,7 +193,7 @@ export class GapMap {
                         // Get shape for main map icon
                         // Get svg for map
                         var svg = this.svgIcons.getSVGFromName(
-                            shapes[j % shapes.length], valColor, 'darkslategray', 0.4, .9);
+                            shapes[j % shapes.length], valColor, 'darkslategray', 0.6, .9);
                         // Get svg shape only, and add to dict for layers control
                         svgs[measurement] = this.svgIcons.getSVGFromName(
                             shapes[j % shapes.length], 'transparent', 'darkslategray', 1, .5);
@@ -222,6 +230,7 @@ export class GapMap {
                     }
                     // Add marker
                     measurementLayer.addLayer(userDataMarker);
+                    oms.addMarker(userDataMarker);
                 }
             }
         }
@@ -547,7 +556,7 @@ export class GapMap {
                             layer.on('mouseover', function () {
                                   this.setStyle({
                                     //'fillColor': '#ff3b24'
-                                      'weight': '5'
+                                      'weight': '2'
                                   });
                                   $('#region-data').html(
                                       '<p><b>Region: </b>' + feature.properties.popup_content.region_id + '</p>' +
