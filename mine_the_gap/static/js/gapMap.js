@@ -77,7 +77,10 @@ export class GapMap {
         layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 
         oms = new OverlappingMarkerSpiderfier(map, {
-            legWeight: 0
+            legWeight: 0,
+            keepSpiderfied: true,
+            nearbyDistance:5,
+            circleSpiralSwitchover: 12,
         });
         oms.addListener('spiderfy', function(markers) {
           map.closePopup();
@@ -193,7 +196,7 @@ export class GapMap {
                         // Get shape for main map icon
                         // Get svg for map
                         var svg = this.svgIcons.getSVGFromName(
-                            shapes[j % shapes.length], valColor, 'darkslategray', 0.6, .9);
+                            shapes[j % shapes.length], valColor, 'darkslategray', 0.8, .9);
                         // Get svg shape only, and add to dict for layers control
                         svgs[measurement] = this.svgIcons.getSVGFromName(
                             shapes[j % shapes.length], 'transparent', 'darkslategray', 1, .5);
@@ -207,7 +210,7 @@ export class GapMap {
                             icon: icon,
                             colour: valColor,
                             shape: shapes[j % shapes.length],
-                            title: (geomData['value']).toString()
+                            //title: (geomData['value']).toString()
                         });
 
                         var extraData = '<table class="table table-striped">';
@@ -459,11 +462,11 @@ export class GapMap {
         */
 
         // Clear each region's layer info
-        for (var key in regions) {
+        /*for (var key in regions) {
             regions[key].bindTooltip('None',
                 {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
             )
-        }
+        }*/
 
         // Update regions to show values
         for (var i=0; i<estimatedData.length; i++){
@@ -496,14 +499,50 @@ export class GapMap {
                 });
                 var regionValue = region.value.toString();
             }
-            var extraData = '';
+            /*[
+            {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
+                "region_id":"AL",
+                "value":74.5,
+                "geom":
+                    [[[[-0.25616,51.71952],[-0.26278,51.71111],[-0.30966,51.71255],[-0.34563,51.69573],
+                    [-0.36084,51.69769],[-0.36764,51.68499],[-0.37461,51.69197],[-0.36263,51.69805],
+                    [-0.38517,51.70467],[-0.38338,51.71398],[-0.40342,51.73366],[-0.40146,51.74171],
+                    [-0.41004,51.74744],[-0.41523,51.77464],[-0.5038,51.82062],[-0.46981,51.8514],
+                    [-0.44243,51.84925],[-0.42758,51.83386],[-0.37461,51.84013],[-0.35207,51.83529],
+                    [-0.33364,51.84818],[-0.31503,51.83762],[-0.28103,51.83511],[-0.27405,51.85014],
+                    [-0.23469,51.83333],[-0.22324,51.85981],[-0.18405,51.84979],[-0.13664,51.84138],
+                    [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
+                    [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
+                    [-0.2533,51.7197],[-0.25616,51.71952]]]],
+                 "extra_data":"{'rings':'1'}",
+                 "timestamp":"2017-08-22 00:00:00+00",
+                 "percent_score": 0.33557046979865773,
+                 'z_score': 0.8,
+                 'min': 2,
+                 'max': 22,
+                 'mean': 12,
+                 'std_dev': 3.5
+             }
+          ]
+        */
+            var extraData = '<table class="table table-striped">';
+            extraData += '<tr><th>Region ID</th><td>' + region.region_id + '</td></tr>';
+            extraData += '<tr><th>Timestamp</th><td>' + region.timestamp.toString() + '</td></tr>';
+            extraData += '<tr><th>Value</th><td>' + region.value + '</td></tr>';
+            extraData += '<tr><th>Z Score</th><td>' +  (region.z_score*1).toString()  + '</td></tr>';
+            extraData += '<tr><th>Percentage Score</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
             for (var key in region['extra_data']){
-                extraData += '<br>' + key + ': ' + region['extra_data'][key];
+                extraData += '<tr><th>' + key + '</th><td>' + region['extra_data'][key] + '</td></tr>';
             };
-            layer.bindTooltip(regionValue +
+            for (var key in region['region_extra_data']){
+                extraData += '<tr><th>' + key + '</th><td>' + region['region_extra_data'][key] + '</td></tr>';
+            };
+            extraData += '</table>';
+            layer.bindPopup(extraData);
+            /*layer.bindTooltip(regionValue +
                 extraData,
                 {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
-            )
+            )*/
         }
     }
 
