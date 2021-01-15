@@ -216,16 +216,21 @@ export class GapMap {
                         var extraData = '<table class="table table-striped">';
                         extraData += '<tr><th>Measurement</th><td>' + measurement + '</td></tr>';
                         extraData += '<tr><th>Value</th><td>' + geomData.value + '</td></tr>';
+
+                        extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
                         extraData += '<tr><th>Z Score</th><td>' +
                             (geomData['z_score']).toFixed(2).toString()  + '</td></tr>';
                         extraData += '<tr><th>Percent Score</th><td>' +
                             (geomData['percent_score']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Mean</th><td>' +
+                            (geomData['mean']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Standard Deviation</th><td>' +
+                            (geomData['std_dev']).toFixed(2).toString()  + '</td></tr>';
                         extraData += '<tr><th>Min</th><td>' +
                             (geomData['min']).toFixed(2).toString()  + '</td></tr>';
                         extraData += '<tr><th>Max</th><td>' +
                             (geomData['max']).toFixed(2).toString()  + '</td></tr>';
-                        extraData += '<tr><th>Standard Deviation</th><td>' +
-                            (geomData['std_dev']).toFixed(2).toString()  + '</td></tr>';
+
                         extraData += '</table>';
                         userDataMarker.bindPopup(extraData);
                     } else {
@@ -344,7 +349,6 @@ export class GapMap {
                 "timestamp":"2017-01-01 00:00:00+00",
                 "z_score": 0.436241610738255,
                 "percent_score": 0.33557046979865773,
-                 'z_score': 0.8,
                  'min': 2,
                  'max': 22,
                  'mean': 12,
@@ -407,8 +411,6 @@ export class GapMap {
                 ', ' + loc.geom[1].toFixed(2).toString() +  '</td></tr>';
             extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
             extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
-            extraData += '<tr><th>Z Score</th><td>' +  (loc.z_score*1).toString()  + '</td></tr>';
-            extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
             for (var key in loc['extra_data']){
                 if(loc['extra_data'][key] != null) {
                     extraData += '<tr><th>' + key + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
@@ -419,6 +421,15 @@ export class GapMap {
                     extraData += '<tr><th>' + key + '</th><td>' + loc['site_extra_data'][key] + '</td></tr>';
                 }
             };
+
+            extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
+            extraData += '<tr><th>Z Score</th><td>' +  (loc.z_score*1).toString()  + '</td></tr>';
+            extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Mean</th><td>' +  (loc.mean).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Standard Dev</th><td>' +  (loc.std_dev).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Min value</th><td>' +  (loc.min).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Max value</th><td>' +  (loc.max).toFixed(2).toString()  + '</td></tr>';
+
             extraData += '</table>';
 
             var popButton = document.createElement('input');
@@ -529,14 +540,20 @@ export class GapMap {
             extraData += '<tr><th>Region ID</th><td>' + region.region_id + '</td></tr>';
             extraData += '<tr><th>Timestamp</th><td>' + region.timestamp.toString() + '</td></tr>';
             extraData += '<tr><th>Value</th><td>' + region.value + '</td></tr>';
-            extraData += '<tr><th>Z Score</th><td>' +  (region.z_score*1).toString()  + '</td></tr>';
-            extraData += '<tr><th>Percentage Score</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
             for (var key in region['extra_data']){
                 extraData += '<tr><th>' + key + '</th><td>' + region['extra_data'][key] + '</td></tr>';
             };
             for (var key in region['region_extra_data']){
                 extraData += '<tr><th>' + key + '</th><td>' + region['region_extra_data'][key] + '</td></tr>';
             };
+            extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
+            extraData += '<tr><th>Z Score</th><td>' +  (region.z_score*1).toString()  + '</td></tr>';
+            extraData += '<tr><th>Percentage Score</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Mean</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Standard Dev</th><td>' +  (region.std_dev).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Min value</th><td>' +  (region.min).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Max value</th><td>' +  (region.max).toFixed(2).toString()  + '</td></tr>';
+
             extraData += '</table>';
             layer.bindPopup(extraData);
             /*layer.bindTooltip(regionValue +
