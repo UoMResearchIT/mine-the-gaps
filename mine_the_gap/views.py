@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from django.contrib.gis.geos import MultiPolygon, Polygon, Point, GEOSGeometry, fromstr
 from django.http import JsonResponse
@@ -402,7 +403,7 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
                 else:
                     value = None
                 percentage_score = calculate_percentage_score(value, min_val, max_val)
-                z_score = calculate_z_score(row.value, mean_val, std_dev)
+                z_score = calculate_z_score(value, mean_val, std_dev)
                 data.append(    {'region_id': row['region_id'],
                                  'timestamp': row['timestamp'],
                                  'value': value,
