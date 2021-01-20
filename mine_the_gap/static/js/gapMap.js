@@ -180,13 +180,13 @@ export class GapMap {
                         userMeasurementLayers[measurement] = measurementLayer;
                     }
 
-                    var valColor = 'grey';
+                    var valColor = 'gray';
                     var locValue = 'null';
 
                     var geomData = this.userUploadedData[timeseries_val][geom][i][measurement];
                     if (geomData['value'] != null) {
                         var percentZ = ((geomData['z_score'] + 3) /6) *100;
-                        valColor = this.getGreenToRed(percentZ).toString();
+                        valColor = this.getGreenToRed(percentZ);
                         locValue = geomData['value'].toString();
                     }
                     //alert(JSON.stringify(geom));  //"point (-0.0830567 51.4221912)"
@@ -215,13 +215,15 @@ export class GapMap {
 
                         var extraData = '<table class="table table-striped">';
                         extraData += '<tr><th>Measurement</th><td>' + measurement + '</td></tr>';
-                        extraData += '<tr><th>Value</th><td>' + geomData.value + '</td></tr>';
 
                         extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
-                        extraData += '<tr><th>Z Score</th><td>' +
-                            (geomData['z_score']).toFixed(2).toString()  + '</td></tr>';
-                        extraData += '<tr><th>Percent Score</th><td>' +
-                            (geomData['percent_score']).toFixed(2).toString()  + '</td></tr>';
+                        extraData += '<tr><th>Value</th><td><button class="score-button">' + geomData.value + '</button></td></tr>';
+                        extraData += '<tr><th>Z Score</th><td><button class="score-button" style="background-color:' +
+                            valColor + ';">' +
+                            (geomData['z_score']).toFixed(2).toString()  + '</button></td></tr>';
+                        extraData += '<tr><th>Percent Score</th><td><button class="score-button" style="background-color:' +
+                            this.getGreenToRed(geomData['percent_score']*100) + '">' +
+                            (geomData['percent_score']*100).toFixed(2).toString()  + '</button></td></tr>';
                         extraData += '<tr><th>Mean</th><td>' +
                             (geomData['mean']).toFixed(2).toString()  + '</td></tr>';
                         extraData += '<tr><th>Standard Deviation</th><td>' +
@@ -242,6 +244,7 @@ export class GapMap {
                 }
             }
         }
+
         // Add the new set of measurement layers to map and layer control
         for(measurement in userMeasurementLayers) {
             // Add to layer control

@@ -76,6 +76,7 @@ function uploadData(file){
         reader.onload = function(e) {
             try {
                 userUploadedData = processCSV(reader.result);
+                //alert(JSON.stringify(userUploadedData));
                 success = true;
             }catch {
                 success = false;
@@ -214,7 +215,7 @@ function processCSV(dataString) {
                     // Calculate percentage score
                     var min = allValues[headerKey]['min'];
                     var max = allValues[headerKey]['max'];
-                    var pScore = ((curVal - min) / (max - min)) * 100;
+                    var pScore = ((curVal - min) / (max - min));
 
                     // Calculate Z-score: (value - mean) / standard deviation
                     var standardDev = allValues[headerKey]['std_dev'];
