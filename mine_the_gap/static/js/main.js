@@ -655,12 +655,18 @@ function get_region_default(){
 function get_site_default(){
     return '<table class="table table-striped">' +
             '<tr><td>A tool for estimating regional measurements based on known values and visualising the results. </br>' +
-            'Site measurement data uses data from MEDMI and AURN, described in: <a href="https://zenodo.org/record/4315225#.X-9k_1P7RH5/" target = _blank>' +
-                'https://zenodo.org/record/4315225#.X-9k_1P7RH5 </a></br>' +
-            'Region estimations uses python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
+            '<b>Site measurement data</b> uses imputed data from MEDMI and AURN, described in: ' +
+        '       <a href="https://zenodo.org/record/4416028#.YAgOpPv7RhF" target = _blank>' +
+                'https://zenodo.org/record/4315225#.X-9k_1P7RH5</a></br>' +
+            'The <b>region estimation methods</b> (under \'Select estimation method\'): </br> ' +
+        'the \'input file\' contains estimated data downloadable from <a href="https://zenodo.org/record/4446820#.YAgPE_v7RhH" target="_blank">' +
+        'https://zenodo.org/record/4446820#.YAgPE_v7RhH</a> (file 2 \'imputed site data\')' +
+        '. This file was created using the python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
                 'https://pypi.org/project/region-estimators/ </a>' +
+        'and this library is also used for the available \'Diffusion\' and \'Distance\' estimation methods.' +
             '</td></tr>' +
-            '<tr><td colspan="2"><p>Click on a site to see site info and the option to see site and estimated data across <em>all</em> timestamps.</p></td></tr>' +
+            '<tr><td colspan="2"><p>Click on a site to see site info and the option to see site and estimated data across ' +
+        '       <em>all</em> timestamps.</p><p>Click on a region to see region info</p></td></tr>' +
             '<tr><td colspan="2"><p>If no sites exist for this timestamp, either: </p>' +
             '<p>(i) use slider to find another timestamp</p>' +
             '<p>(ii) use \'Select measurement\' option to change measurements.</p></td></tr>' +
