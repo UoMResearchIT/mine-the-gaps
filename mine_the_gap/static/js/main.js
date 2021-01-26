@@ -664,7 +664,7 @@ function get_site_default(){
         'https://zenodo.org/record/4446820#.YAgPE_v7RhH</a> (file 2 \'imputed site data\')' +
         '. This file was created using the python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
                 'https://pypi.org/project/region-estimators/ </a>' +
-        'and this library is also used for the available \'Diffusion\' and \'Distance\' estimation methods.' +
+        'and this library is also used for the available \'Concentric Regions\' and \'Distance\' estimation methods.' +
             '</td></tr>' +
             '<tr><td colspan="2"><p>Click on a site to see site info and the option to see site and estimated data across ' +
         '       <em>all</em> timestamps.</p><p>Click on a region to see region info</p></td></tr>' +
