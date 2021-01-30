@@ -392,7 +392,8 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
 
 
         try:
-            estimator = RegionEstimatorFactory.region_estimator(method_name, df_sites, df_regions, df_actuals)
+            estimator = RegionEstimatorFactory.region_estimator(method_name, df_sites, df_regions, df_actuals,
+                                                                max_processors=settings.MAX_NUM_PROCESSORS)
             df_result = estimator.get_estimations(measurement, region_id, timestamp_val)
         except Exception as err:
             print(str(err))
