@@ -130,9 +130,10 @@
                         </div>
                     </div>
                     <div id="collapseEstimationMethod" class="panel-collapse collapse">
-                        <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
-                        <input type="radio" name="estimation-method" value="concentric-regions"> Concentric Regions (rings)<br>
-                        <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
+                        <input type="radio" name="estimation-method" value="file" checked="checked">pre-loaded<br>
+                        {% for method_name in method_names %}
+                           <input type="radio" name="estimation-method" value={{ method_name }}> {{ method_name }}<br>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -170,8 +171,8 @@
                                                 <label>Measurement site data DOI</label>
                                             </td>
                                             <td colspan="2">
-                                              <a href="https://zenodo.org/record/4416028#.YAgOpPv7RhF" target="_blank">
-                                                        https://zenodo.org/record/4315225#.X-9k_1P7RH5</a>
+                                              <a href="https://zenodo.org/record/4416028" target="_blank">
+                                                        https://zenodo.org/record/4416028</a>
                                             </td>
                                         </tr>
                                         <tr id="actuals-download" class="download-file">
@@ -179,8 +180,8 @@
                                                 <label>Estimated data DOI</label>
                                             </td>
                                             <td colspan="2">
-                                                 <a href="https://zenodo.org/record/4457416#.YAvrD_v7RhE" target="_blank">
-                                                    https://zenodo.org/record/4457416#.YAvrD_v7RhE</a>
+                                                 <a href="https://zenodo.org/record/4475652" target="_blank">
+                                                    https://zenodo.org/record/4475652</a>
                                             </td>
                                         </tr>
 

@@ -59,6 +59,7 @@ def home_page(request):
                'center': get_center_latlng(),
                'filepaths': Filenames.objects.all(),
                'measurement_names': get_measurement_names(),
+               'method_names': RegionEstimatorFactory.get_available_methods(),
                'timestamp_range': get_timestamp_list()}
 
     return render(request, 'index.html', context)
