@@ -406,8 +406,15 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
                     value = None
                 percentage_score = calculate_percentage_score(value, min_val, max_val)
                 z_score = calculate_z_score(value, mean_val, std_dev)
-                data.append(    {'region_id': row['region_id'],
-                                 'timestamp': row['timestamp'],
+
+                # We get region_id and timestamp from index, check that index is in the expected order
+                # As had to use numeric indexes rather than labels.
+                assert df_result.index.names == ['measurement', 'region_id', 'timestamp'], \
+                    "RegionEstimator results index columns not as expected. \n Expected: \n{} \n Actual: \n{}".format(
+                        ['measurement', 'region_id', 'timestamp'], df_result.index.names
+                    )
+                data.append(    {'region_id': row.name[1],  # region_id and timestamp are in the index of RE result df
+                                 'timestamp': row.name[2],
                                  'value': value,
                                  'percent_score': percentage_score,
                                  'z_score': z_score,
