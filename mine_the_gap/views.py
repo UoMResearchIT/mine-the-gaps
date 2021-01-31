@@ -23,8 +23,7 @@ from geojson import Feature, FeatureCollection
 from shapely import wkt
 
 from mine_the_gap.forms import FileUploadForm
-from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value, \
-    Region_dynamic
+from mine_the_gap.models import Actual_data, Actual_value, Estimated_data, Region, Sensor, Filenames, Estimated_value
 from django.db.models import Max, Min, Avg, StdDev
 from region_estimators import RegionEstimatorFactory
 
@@ -62,8 +61,8 @@ def home_page(request):
                'method_names': RegionEstimatorFactory.get_available_methods(),
                'timestamp_range': get_timestamp_list()}
 
+    load_region_estimators()
     return render(request, 'index.html', context)
-
 
 
 
@@ -105,13 +104,12 @@ def get_actuals(request, measurement, timestamp_val=None, site_id=None):
     finally:
         return response
 
-def get_estimates(request, method_name, measurement, region_type='file', timestamp_val=None, region_id=None):
+def get_estimates(request, method_name, measurement, timestamp_val=None, region_id=None):
     try:
         data = estimates(
             request,
             method_name,
             measurement,
-            region_type=region_type,
             timestamp_val=timestamp_val,
             region_id=region_id,
             return_all_fields=False)
@@ -122,11 +120,11 @@ def get_estimates(request, method_name, measurement, region_type='file', timesta
         return response
 
 
-def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None, region_type='file'):
+def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_val=None,):
     try:
         data = {
             'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
-            'estimated_data': estimates(request, method_name, measurement, region_type=region_type, timestamp_val=timestamp_val, return_all_fields=True)
+            'estimated_data': estimates(request, method_name, measurement, timestamp_val=timestamp_val, return_all_fields=True)
         }
         response = JsonResponse(data, safe=False)
     except Exception as err:
@@ -136,11 +134,11 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
         return response
 
 
-def get_all_timeseries_at_region(request, method_name, measurement, region_id, site_id, region_type='file'):
+def get_all_timeseries_at_region(request, method_name, measurement, region_id, site_id):
     try:
         data = {
             'actual_data': actuals(request, measurement, site_id=site_id, return_all_fields=True),
-            'estimated_data': estimates(request, method_name, measurement, region_type=region_type, region_id=region_id, return_all_fields=True)
+            'estimated_data': estimates(request, method_name, measurement, region_id=region_id, return_all_fields=True)
         }
         response = JsonResponse(data, safe=False)
     except Exception as err:
@@ -159,13 +157,12 @@ def get_actuals_timeseries(request, measurement, site_id=None):
         return response
 
 
-def get_estimates_timeseries(request, method_name, measurement, region_type='file', region_id=None, ignore_site_id=None):
+def get_estimates_timeseries(request, method_name, measurement, region_id=None, ignore_site_id=None):
     try:
         data = estimates(
             request,
             method_name,
             measurement,
-            region_type=region_type,
             timestamp_val=None,
             region_id=region_id,
             return_all_fields=False,
@@ -309,8 +306,10 @@ def calculate_z_score(value, mean, standard_deviation):
     except:
         return None
 
+def load_region_estimators():
+    pass
 
-def estimates(request, method_name, measurement, region_type='file', timestamp_val=None,  region_id=None, return_all_fields=False,
+def estimates(request, method_name, measurement, timestamp_val=None, region_id=None, return_all_fields=False,
               ignore_site_id=None):
     data = []
     measurement = measurement.strip()
@@ -362,7 +361,7 @@ def estimates(request, method_name, measurement, region_type='file', timestamp_v
     else:
 
         sites = filter_sites(Sensor.objects.exclude(id=ignore_site_id), site_params)
-        regions = Region.objects.all() if region_type=='file' else Region_dynamic.objects.all()
+        regions = Region.objects.all()
 
         # Create pandas dataframes for input into region estimators.
         df_sites = pd.DataFrame.from_records(sites.values('id', 'geom', 'name'), index='id')
@@ -474,8 +473,6 @@ def filter_sites(sites, params):
     return sites
 
 
-
-
 def get_measurement_names():
     query_set = Actual_value.objects.distinct('measurement_name')
     result = []
@@ -484,75 +481,6 @@ def get_measurement_names():
         result.append(item.measurement_name)
 
     return result
-
-
-def get_hexagons(request, northwest_lat='60.861632', northwest_lng='-13.065419', southeast_lat='49.916746', southeast_lng='4.863539'):
-    try:
-        poly = [[[float(northwest_lng), float(northwest_lat)],
-                       [float(northwest_lng), float(southeast_lat)],
-                       [float(southeast_lng), float(southeast_lat)],
-                       [float(southeast_lng), float(northwest_lat)],
-                       [float(northwest_lng), float(northwest_lat)]]]
-    except ValueError as err:
-        return HttpResponseServerError('Unable to convert parameters to co-ordinates:' + str(err))
-
-    geo = {'type':'Polygon','coordinates': poly}
-
-    #set_hexagons = h3.polyfill(geo_json=row_sel["geometry"], res=9, geo_json_conformant=True)
-    hexagons = list(h3.polyfill(geo_json=geo, res=4))
-
-    #hexagons_rev = reverse_lat_lon(hexagons)
-
-    df_fill_hex = pd.DataFrame({"hex_id": hexagons})
-    df_fill_hex["value"] = 0
-    df_fill_hex['geometry'] = df_fill_hex.hex_id.apply(lambda x:
-                                                       {"type": "Polygon",
-                                                        "coordinates":
-                                                            [h3.h3_to_geo_boundary(h3_address=x, geo_json=False)]
-                                                        }
-                                                       )
-
-    Region_dynamic.objects.all().delete()
-
-    for i, row in df_fill_hex.iterrows():
-        #print(row['geometry']['coordinates'][0])
-        multipoly_geo = MultiPolygon()
-        poly = ()
-        for coord in row['geometry']['coordinates'][0]:
-            point = (coord[0], coord[1])
-            poly = poly + (point,)
-        poly = poly + ((row['geometry']['coordinates'][0][0][0], row['geometry']['coordinates'][0][0][1] ),)
-        poly_geo = Polygon(poly)
-        multipoly_geo.append(poly_geo)
-
-        region = Region_dynamic(region_id=i,
-                        geom=multipoly_geo,
-                        extra_data={'method': 'auto generated hexagons'}
-                        )
-        region.save()
-
-
-    geojson_hx = hexagons_dataframe_to_geojson(df_fill_hex)
-
-    return JsonResponse(geojson_hx, safe=False)
-
-
-def hexagons_dataframe_to_geojson(df_hex):
-    '''Produce the GeoJSON for a dataframe that has a geometry column in geojson format already, along with the columns hex_id and value '''
-
-    list_features = []
-
-    for i, row in df_hex.iterrows():
-        properties = {"popup_content": {
-            'region_id':i,
-            'extra_data':{'method': 'auto generated hexagons'}
-        }}
-        feature = Feature(geometry=row["geometry"], id=i, properties=properties)
-        list_features.append(feature)
-
-    feat_collection = FeatureCollection(list_features)
-
-    return feat_collection
 
 
 def get_timestamp_list():
