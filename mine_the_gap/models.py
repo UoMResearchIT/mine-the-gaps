@@ -24,22 +24,6 @@ class Region(gismodels.Model):
         return Region.objects.filter(geom__touches=self.geom)
 
 
-class Region_dynamic(gismodels.Model):
-    region_id = models.CharField(max_length=30, primary_key=True)
-    geom = gismodels.MultiPolygonField(null=False)
-    extra_data = JSONField(null=True)
-    estimation_method = models.CharField(max_length=20, null=True)
-
-    @property
-    def popup_content(self):
-        return {'region_id': self.region_id, 'extra_data': self.extra_data}
-
-    @property
-    def adjacent_regions(self):
-        return Region_dynamic.objects.filter(geom__touches=self.geom)
-
-
-
 class Estimated_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
     region = models.ForeignKey(Region, null=True, on_delete=models.CASCADE)

@@ -658,10 +658,10 @@ function get_site_default(){
             '<tr><td>A tool for estimating regional measurements based on known values and visualising the results. </br>' +
             '<b>Site measurement data</b> uses imputed data from MEDMI and AURN, described in: ' +
         '       <a href="https://zenodo.org/record/4416028#.YAgOpPv7RhF" target = _blank>' +
-                'https://zenodo.org/record/4315225#.X-9k_1P7RH5</a></br>' +
+                'https://zenodo.org/record/4315225</a></br>' +
             'The <b>region estimation methods</b> (under \'Select estimation method\'): </br> ' +
         'the \'input file\' contains estimated data downloadable from <a href="https://zenodo.org/record/4446820#.YAgPE_v7RhH" target="_blank">' +
-        'https://zenodo.org/record/4446820#.YAgPE_v7RhH</a> (file 2 \'imputed site data\')' +
+        'https://zenodo.org/record/4475652</a> (file 2 \'imputed site data\')' +
         '. This file was created using the python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
                 'https://pypi.org/project/region-estimators/ </a>' +
         'and this library is also used for the available \'Concentric Regions\' and \'Distance\' estimation methods.' +

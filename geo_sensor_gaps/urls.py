@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 
 from djgeojson.views import GeoJSONLayerView
 
-from mine_the_gap.models import Sensor, Region, Region_dynamic
+from mine_the_gap.models import Sensor, Region
 
 
 urlpatterns = [
@@ -33,13 +33,6 @@ urlpatterns = [
     path('site_fields', views.get_site_fields),
     path('all_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_all_data_at_timestamp),
     path('all_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:site_id>/', views.get_all_timeseries_at_region),
-    path('regions_hexagons_geojson/<str:northwest_lat>/<str:northwest_lng>/<str:southeast_lat>/<str:southeast_lng>/', views.get_hexagons),
-
-    # Dynamic regions requests - Web app only: not yet integrated into API docs
-    path('all_data_dynamic_regions/<slug:region_type>/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_all_data_at_timestamp),
-    path('estimated_data_dynamic_regions/<slug:region_type>/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_estimates),
-    path('estimated_timeseries_dynamic_regions/<slug:region_type>/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_site_id>/', views.get_estimates_timeseries),
-
 
     #####  API type calls returning json #####
 
@@ -48,7 +41,6 @@ urlpatterns = [
     # Get geoJson (only works on models with a geom field)
     url(r'^sites_metadata.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sites_metadata'),
     url(r'^regions_metadata.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='regions_metadata'),
-    url(r'^regions_dynamic_metadata.geojson$', GeoJSONLayerView.as_view(model=Region_dynamic, properties=['popup_content']), name='regions_dynamic_metadata'),
 
     ## Get actual and estimated data points ##
 
