@@ -348,9 +348,6 @@ def load_region_estimators(site_params=[]):
     # 'measurement_name' is currently a field, but each measurement name needs to be its own column of values.
     df_actuals = df_actuals.reset_index().groupby([ 'timestamp', 'site_id', 'measurement_name'])['value']\
         .aggregate('first').unstack().reset_index(level=[0, 1])
-    df_actuals.to_csv('../actuals_DEBUG.csv', index=False)
-    df_regions.to_csv('../regions_DEBUG.csv')
-    df_sites.to_csv('../sites_DEBUG.csv')
 
     estimators_dict = {}
     for method_name in RegionEstimatorFactory.get_available_methods():
