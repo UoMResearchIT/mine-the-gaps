@@ -27,6 +27,7 @@ from django.db.models import Max, Min, Avg, StdDev
 from region_estimators import RegionEstimatorFactory, EstimationData
 
 prev_site_params = []
+prev_measurement = None
 estimators_dict = {}
 
 @ensure_csrf_cookie
@@ -63,7 +64,6 @@ def home_page(request):
                'method_names': RegionEstimatorFactory.get_available_methods(),
                'timestamp_range': get_timestamp_list()}
 
-    load_region_estimators()
     return render(request, 'index.html', context)
 
 
@@ -307,8 +307,8 @@ def calculate_z_score(value, mean, standard_deviation):
     except:
         return None
 
-def load_region_estimators(site_params=[]):
-    global estimators_dict, prev_site_params
+def load_region_estimators(measurement, site_params=[]):
+    global estimators_dict, prev_site_params, prev_measurement
 
     ### Sites ###
     prev_site_params = site_params
@@ -316,6 +316,7 @@ def load_region_estimators(site_params=[]):
         sites = filter_sites(Sensor.objects.all(), site_params)
     else:
         sites = Sensor.objects.all()
+
     df_sites = pd.DataFrame.from_records(sites.values('id', 'geom', 'name'), index='id')
     df_sites['latitude'] = df_sites.apply(lambda row: row.geom.y, axis=1)
     df_sites['longitude'] = df_sites.apply(lambda row: row.geom.x, axis=1)
@@ -333,21 +334,31 @@ def load_region_estimators(site_params=[]):
     df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
     df_regions = df_regions.drop(columns=['geom'])
 
+    # ACTUALS OLD
+    #df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'site', 'timestamp'), index='id')
+    #df_actual_values = pd.DataFrame.from_records(
+    #    Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
+    #df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(
+    #    columns=['actual_data'])
+    #df_actuals = df_actuals.merge(df_sites, left_on='site', right_index=True).drop(
+    #    columns=['latitude', 'longitude', 'site'])
+    #df_actuals = df_actuals.rename(columns={"value": measurement, "name": "site_id"})
+    #df_actuals = df_actuals[['timestamp', 'site_id', measurement]]
+
     ### Actuals ###
+    prev_measurement = measurement
+
     df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'site', 'timestamp'), index='id')
-    df_actual_values = pd.DataFrame.from_records(Actual_value.objects.all().values(
-        'actual_data', 'measurement_name', 'value'))
+    df_actual_values = pd.DataFrame.from_records(
+        Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
     df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(
         columns=['actual_data'])
     # Merge with sites to get 'site_id' (string); (as opposed to 'site' (int), which is the Sensor model's ID field
     #  (but need to merge on 'site')
     df_actuals = df_actuals.merge(df_sites.reset_index(), on='site')
     df_actuals.drop(columns=['latitude', 'longitude', 'site'], inplace=True)
+    df_actuals = df_actuals.rename(columns={"value": measurement})
     df_sites.drop(columns=['site'], inplace=True)
-
-    # 'measurement_name' is currently a field, but each measurement name needs to be its own column of values.
-    df_actuals = df_actuals.reset_index().groupby([ 'timestamp', 'site_id', 'measurement_name'])['value']\
-        .aggregate('first').unstack().reset_index(level=[0, 1])
 
     estimators_dict = {}
     for method_name in RegionEstimatorFactory.get_available_methods():
@@ -359,7 +370,7 @@ def load_region_estimators(site_params=[]):
 
 def estimates(request, method_name, measurement, timestamp_val=None, region_id=None, return_all_fields=False,
               ignore_site_ids=[]):
-    global estimators_dict, prev_site_params
+    global estimators_dict, prev_site_params, prev_measurement
 
     data = []
     measurement = measurement.strip()
@@ -408,12 +419,16 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
             data.append(new_row)
     else:
         # Create pandas dataframes for input into region estimators.
-        if estimators_dict == {} or site_params != prev_site_params:
-            if estimators_dict == {}:
-                print('reloading due to estimators_dict is None')
-            else:
-                print('reloading due to site_params change')
-            load_region_estimators(site_params)
+        if estimators_dict == {}:
+            print('reloading due null estimators_dict')
+            load_region_estimators(measurement, site_params)
+        if site_params != prev_site_params:
+            print('reloading due to site_params change')
+            load_region_estimators(measurement, site_params)
+
+        if measurement != prev_measurement:
+            print('reloading due to measurement change')
+            load_region_estimators(measurement, site_params)
 
         # Due to using url requests, we had to use site IDs (ints) rather than site names,
         #  so converting ignore list to site names\q
