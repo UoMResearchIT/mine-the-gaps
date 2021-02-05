@@ -68,7 +68,7 @@ function uploadData(file){
     var success = false;
     userUploadedData = null;
     if(!validateFileSize(file)){
-        alert('File size exceeeds limit: ' + fileSizeLimit.toString() + ' MiB');
+        alert('File size exceeds limit: ' + fileSizeLimit.toString() + ' MiB');
         return;
     }
     if (file.type.match(csvType)) {

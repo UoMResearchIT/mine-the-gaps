@@ -190,6 +190,7 @@ export class GapMap {
                         locValue = geomData['value'].toString();
                     }
                     //alert(JSON.stringify(geom));  //"point (-0.0830567 51.4221912)"
+                    
                     var latlng = this.getGeomLatLng(geom);
 
                     if (latlng != null) {
