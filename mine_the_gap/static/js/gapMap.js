@@ -167,12 +167,14 @@ export class GapMap {
                             "arrowhead-down", "heart", "hexagon"]
 
         var svgs = {};
-
+        //alert(JSON.stringify(this.userUploadedData[timeseries_val]));
         for (var geom in this.userUploadedData[timeseries_val]){
             for(var i=0; i < this.userUploadedData[timeseries_val][geom].length; i++) {
                 var j = -1;
+                //alert(JSON.stringify(this.userUploadedData[timeseries_val][geom][i]));
                 for(var measurement in this.userUploadedData[timeseries_val][geom][i]) {
                     j++;
+                    //alert(JSON.stringify(this.userUploadedData[timeseries_val][geom][i]));
                     if(measurement in userMeasurementLayers){
                         measurementLayer = userMeasurementLayers[measurement];
                     }else {
@@ -189,55 +191,30 @@ export class GapMap {
                         valColor = this.getGreenToRed(percentZ);
                         locValue = geomData['value'].toString();
                     }
-                    //alert(JSON.stringify(geom));  //"point (-0.0830567 51.4221912)"
-                    var latlng = this.getGeomLatLng(geom);
+                    var poly = this.getLeafletPolygonFromWkt(geom);
+                    var latlng = this.getGeomLatLng(geom, poly);
 
-                    if (latlng != null) {
-                        // Get shape for main map icon
-                        // Get svg for map
-                        var svg = this.svgIcons.getSVGFromName(
-                            shapes[j % shapes.length], valColor, 'darkslategray', 0.8, .9);
-                        // Get svg shape only, and add to dict for layers control
-                        svgs[measurement] = this.svgIcons.getSVGFromName(
-                            shapes[j % shapes.length], 'transparent', 'darkslategray', 1, .5);
-                        var icon = L.divIcon({
-                            html: svg,
-                            iconSize: [13, 13],
-                            className: 'user-data-icon' // Specify something to get rid of the default class.
-                        });
-                        var userDataMarker = new this.colourShapeMarker(latlng,
-                        {
-                            icon: icon,
-                            colour: valColor,
-                            shape: shapes[j % shapes.length],
-                            //title: (geomData['value']).toString()
-                        });
+                    // Get shape for main map icon
+                    // Get svg for map
+                    var svg = this.svgIcons.getSVGFromName(
+                        shapes[j % shapes.length], valColor, 'darkslategray', 0.8, .9);
+                    // Get svg shape only, and add to dict for layers control
+                    svgs[measurement] = this.svgIcons.getSVGFromName(
+                        shapes[j % shapes.length], 'transparent', 'darkslategray', 1, .5);
+                    var icon = L.divIcon({
+                        html: svg,
+                        iconSize: [13, 13],
+                        className: 'user-data-icon' // Specify something to get rid of the default class.
+                    });
+                    var userDataMarker = new this.colourShapeMarker(latlng,
+                    {
+                        icon: icon,
+                        colour: valColor,
+                        shape: shapes[j % shapes.length],
+                        //title: (geomData['value']).toString()
+                    });
 
-                        var extraData = '<table class="table table-striped">';
-                        extraData += '<tr><th>Measurement</th><td>' + measurement + '</td></tr>';
-
-                        extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
-                        extraData += '<tr><th>Value</th><td><button class="score-button">' + geomData.value + '</button></td></tr>';
-                        extraData += '<tr><th>Z Score</th><td><button class="score-button" style="background-color:' +
-                            valColor + ';">' +
-                            (geomData['z_score']).toFixed(2).toString()  + '</button></td></tr>';
-                        extraData += '<tr><th>Percent Score</th><td><button class="score-button" style="background-color:' +
-                            this.getGreenToRed(geomData['percent_score']*100) + '">' +
-                            (geomData['percent_score']*100).toFixed(2).toString()  + '</button></td></tr>';
-                        extraData += '<tr><th>Mean</th><td>' +
-                            (geomData['mean']).toFixed(2).toString()  + '</td></tr>';
-                        extraData += '<tr><th>Standard Deviation</th><td>' +
-                            (geomData['std_dev']).toFixed(2).toString()  + '</td></tr>';
-                        extraData += '<tr><th>Min</th><td>' +
-                            (geomData['min']).toFixed(2).toString()  + '</td></tr>';
-                        extraData += '<tr><th>Max</th><td>' +
-                            (geomData['max']).toFixed(2).toString()  + '</td></tr>';
-
-                        extraData += '</table>';
-                        userDataMarker.bindPopup(extraData);
-                    } else {
-                        //if (isGeomPolygon(geom)) {}
-                    }
+                    userDataMarker.bindPopup(this.getExtraUserData(measurement, geomData, valColor));
                     // Add marker
                     measurementLayer.addLayer(userDataMarker);
                     oms.addMarker(userDataMarker);
@@ -259,22 +236,88 @@ export class GapMap {
         //alert('active overlays after: \n' + JSON.stringify(layerControl.getActiveOverlays()));
     }
 
+    getExtraUserData(measurement, geomData, valColor){
+        var extraData = '<table class="table table-striped">';
+        extraData += '<tr><th>Measurement</th><td>' + measurement + '</td></tr>';
+
+        extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
+        extraData += '<tr><th>Value</th><td><button class="score-button">' + geomData.value + '</button></td></tr>';
+        extraData += '<tr><th>Z Score</th><td><button class="score-button" style="background-color:' +
+            valColor + ';">' +
+            (geomData['z_score']).toFixed(2).toString()  + '</button></td></tr>';
+        extraData += '<tr><th>Percent Score</th><td><button class="score-button" style="background-color:' +
+            this.getGreenToRed(geomData['percent_score']*100) + '">' +
+            (geomData['percent_score']*100).toFixed(2).toString()  + '</button></td></tr>';
+        extraData += '<tr><th>Mean</th><td>' +
+            (geomData['mean']).toFixed(2).toString()  + '</td></tr>';
+        extraData += '<tr><th>Standard Deviation</th><td>' +
+            (geomData['std_dev']).toFixed(2).toString()  + '</td></tr>';
+        extraData += '<tr><th>Min</th><td>' +
+            (geomData['min']).toFixed(2).toString()  + '</td></tr>';
+        extraData += '<tr><th>Max</th><td>' +
+            (geomData['max']).toFixed(2).toString()  + '</td></tr>';
+
+        extraData += '</table>';
+        return extraData;
+    }
+
     getLayerControlItemHTML(heading, svg){
         return heading + '   ' + svg;
     }
 
-    getGeomLatLng(strGeom){
+    getLeafletPolygonFromWkt(strWktGeom){
+       /*  'POLYGON (-2.52753,53.80069 -2.48906,53.81088 ... -2.49067,53.82448 -2.50802,53.83755)'
+            to
+           [    [51.509, -0.08],
+                [51.503, -0.06],
+                [51.51, -0.047]
+            ]
+       */
+        //alert(strGeom);
+        if(strWktGeom.trim().trim('"').startsWith('POLYGON') == true){
+            //alert(JSON.stringify(Terraformer.WKT.parse(strWktGeom)));
+            return this.switchCoordinatesPoly(Terraformer.WKT.parse(strWktGeom)['coordinates']);
+        }else{
+            return null;
+        }
+    }
+
+    getGeomLatLng(strWktGeom, polygon){
         //"point (-0.0830567 51.4221912)"
         var result = null;
-        try {
-            if (strGeom.indexOf('point') === 0) {
-                var splitStr = strGeom.replace('(','').replace(')','').split(' ');
-                result = [splitStr[2], splitStr[1]];
-            }
+        if (strWktGeom.startsWith('POINT') === true) {
+            try{
+                //alert(JSON.stringify(strWktGeom));
+                result = this.switchCoordinates(Terraformer.WKT.parse(strWktGeom)['coordinates']);
+            }catch{}
+        }else{
+            result = this.getCenter(polygon)
         }
-        finally {
-            return result;
-        }
+        //alert(result);
+        return result;
+    }
+
+    switchCoordinates(toBeSwitched){
+        return [toBeSwitched[1], toBeSwitched[0]];
+    }
+
+    switchCoordinatesPoly(toBeSwitchedPoly){
+        var result = toBeSwitchedPoly[0].map (function (a){ return [a[1], a[0]] });
+        //alert(JSON.stringify(result));
+        return [result];
+    }
+
+    getCenter(polygonArr)
+    {
+        var arrCoords = polygonArr.flat();
+        var x = arrCoords.map (function (a){ return a[0] });
+        var y = arrCoords.map (function (a){ return a[1] });
+        var minX = Math.min.apply (null, x);
+        var maxX = Math.max.apply (null, x);
+        var minY = Math.min.apply (null, y);
+        var maxY = Math.max.apply (null, y);
+
+        return [(maxX + minX) / 2, (maxY + minY) / 2];
     }
 
     updateTimeseries(jsonParams, timeseries_idx=document.getElementById("timestamp-range").value,

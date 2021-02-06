@@ -68,7 +68,7 @@ function uploadData(file){
     var success = false;
     userUploadedData = null;
     if(!validateFileSize(file)){
-        alert('File size exceeeds limit: ' + fileSizeLimit.toString() + ' MiB');
+        alert('File size exceeds limit: ' + fileSizeLimit.toString() + ' MiB');
         return;
     }
     if (file.type.match(csvType)) {
@@ -104,7 +104,7 @@ function validateFileSize(file) {
 function processCSV(dataString) {
     var dictAll = {};
     var allValues = {};
-    var dataRows = dataString.toLowerCase().split(/\n/); // Convert to one string per line
+    var dataRows = dataString.split(/\n/); // Convert to one string per line
     var strHeaders = dataRows[0];
     var headers = strHeaders.split(',');
     if (headers[0] != 'timestamp'){
@@ -120,7 +120,9 @@ function processCSV(dataString) {
         throw "CSV file does not contain any value columns (after the 'timestamp' and 'geom' columns)";
     }
 
-    // Read lines into array
+    headers = headers.slice(2);
+
+    // Read file lines into array (lines)
     var lines = dataRows
         .map(function(lineStr) {
             return lineStr.split(",");   // Convert each line to array (,)
@@ -160,13 +162,26 @@ function processCSV(dataString) {
     }*/
 
     // Itererate through lines
-    for(var i=0; i<lines.length; i++){
-        var dictItem = {};
+
+    for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
+        // If line is empty, continue to next
+
+        if (line.join().trim() == '') {
+            continue
+        }
+
+        var dictItem = {};
         var timestamp = line[0];
-        var geom = line[1];
+        line.shift();
+        line = line.join(', ');
+        var [geom, line] = getGeom(line);
+        line = line.split(',')
+
+        //alert('headers: ' + JSON.stringify(headers));
+
         // Iterate through columns
-        for(var j=2; j<line.length; j++){
+        for (var j = 0; j < line.length; j++) {
             // Convert the string value read in from file into a float
             var fValue = parseFloat(line[j]);  // if not float, assigns null
 
@@ -174,20 +189,21 @@ function processCSV(dataString) {
             dictItem[headers[j]] = {'value': fValue};
 
             // Collect all the values, so we can set z-scores (after outer (lines) loop has completed).
-            if(!(headers[j] in allValues)){
-                allValues[headers[j]] = {'values':[]};
+            if (!(headers[j] in allValues)) {
+                allValues[headers[j]] = {'values': []};
             }
             allValues[headers[j]]['values'].push(fValue);
         }
 
         // Add or update the dictItem to dictAll
-        if(!(timestamp in dictAll)){
+        if (!(timestamp in dictAll)) {
             dictAll[timestamp] = {};
         }
-        if(!(geom in dictAll[timestamp])) {
+        if (!(geom in dictAll[timestamp])) {
             dictAll[timestamp][geom] = [];
         }
         dictAll[timestamp][geom].push(dictItem);
+        //alert('dictItem: ' + JSON.stringify(dictItem));
     }
 
     // Now we have processed all values for each values column, set the z-scores.
@@ -202,7 +218,6 @@ function processCSV(dataString) {
         valueSet['max'] = Math.max.apply(null, valueSet['values']);
     }
 
-
     // Iterate through timestamps
     for(var timestampKey in dictAll){
         // Iterate through locations
@@ -215,13 +230,17 @@ function processCSV(dataString) {
                     // Calculate percentage score
                     var min = allValues[headerKey]['min'];
                     var max = allValues[headerKey]['max'];
-                    var pScore = ((curVal - min) / (max - min));
-
-                    // Calculate Z-score: (value - mean) / standard deviation
                     var standardDev = allValues[headerKey]['std_dev'];
                     var mean = allValues[headerKey]['mean'];
-                    var zScore = (curVal - mean) / standardDev;
-
+                    // Calculate percentage score (where value falls in range of values - regardless of distribution)
+                    var pScore, zScore = 0;
+                    if(max-min !== 0){
+                        pScore = ((curVal - min) / (max - min));
+                    }
+                    // Calculate Z-score:
+                    if (standardDev !== 0){
+                        zScore = (curVal - mean) / standardDev;
+                    }
                     dictAll[timestampKey][geomKey][k][headerKey]['z_score'] = zScore;
                     dictAll[timestampKey][geomKey][k][headerKey]['percent_score'] = pScore;
                     dictAll[timestampKey][geomKey][k][headerKey]['min'] = min;
@@ -233,7 +252,29 @@ function processCSV(dataString) {
         }
     }
     // Return final dict
-    return dictAll;
+    return dictAll
+}
+
+function getGeom(str){
+    var match = null;
+    var newStr = str;
+
+    if(str.includes('POINT')){
+        try {
+            match = str.split(',')[0]
+        }catch{}
+    }else {
+        if(str.includes('POLYGON')) {
+            var matches = str.match(/"(.*?)"/);
+            match = matches ? matches[1] : null;
+        }
+    }
+    if(match !== null){
+        newStr = str.replace(match, '');
+        newStr = newStr.substr(newStr.indexOf(',') + 1);
+        match = match.replace('"', '');
+    }
+    return [match, newStr];
 }
 
 function getMeanAndStandardDeviation(colData) {

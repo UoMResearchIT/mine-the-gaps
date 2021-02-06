@@ -334,17 +334,6 @@ def load_region_estimators(measurement, site_params=[]):
     df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
     df_regions = df_regions.drop(columns=['geom'])
 
-    # ACTUALS OLD
-    #df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'site', 'timestamp'), index='id')
-    #df_actual_values = pd.DataFrame.from_records(
-    #    Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
-    #df_actuals = df_actual_values.merge(df_actual_data, left_on='actual_data', right_index=True).drop(
-    #    columns=['actual_data'])
-    #df_actuals = df_actuals.merge(df_sites, left_on='site', right_index=True).drop(
-    #    columns=['latitude', 'longitude', 'site'])
-    #df_actuals = df_actuals.rename(columns={"value": measurement, "name": "site_id"})
-    #df_actuals = df_actuals[['timestamp', 'site_id', measurement]]
-
     ### Actuals ###
     prev_measurement = measurement
 
@@ -422,16 +411,15 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
         if estimators_dict == {}:
             print('reloading due null estimators_dict')
             load_region_estimators(measurement, site_params)
-        if site_params != prev_site_params:
+        elif site_params != prev_site_params:
             print('reloading due to site_params change')
             load_region_estimators(measurement, site_params)
-
-        if measurement != prev_measurement:
+        elif measurement != prev_measurement:
             print('reloading due to measurement change')
             load_region_estimators(measurement, site_params)
 
         # Due to using url requests, we had to use site IDs (ints) rather than site names,
-        #  so converting ignore list to site names\q
+        #  so converting ignore list to site names
         for idx, site_id in enumerate(ignore_site_ids):
             ignore_site_ids[idx] = Sensor.objects.get(id=site_id).name
 
