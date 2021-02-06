@@ -44,6 +44,10 @@
     <!--script type='text/javascript' src={% static 'js/leaflet.markercluster.js' %}></script>
     <script type='text/javascript' src={% static 'js/leaflet.markercluster-src.js' %}></script-->
 
+    <!-- terraforma: Converts WKT polygons to co-ordinates format (preferred by Leaflet) -->
+    <script src="https://unpkg.com/terraformer@1.0.8"></script>
+    <script src="https://unpkg.com/terraformer-wkt-parser@1.1.2"></script>
+
     <script src="{% static 'js/svg-icon.js' %}"></script>
 
     <script type="module" src="{% static 'js/main.js' %}"></script>
