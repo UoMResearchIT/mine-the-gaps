@@ -1,10 +1,24 @@
 {% extends "base.html" %}
 {% load leaflet_tags static %}
 
-
 {% block body-class %}page-head{% endblock %}
 
 {% block content %}
+    <script type="text/javascript">
+        var abs_uri = '{{ request.build_absolute_uri }}'
+        var url = '{{ request.path }}';
+        var dataUrl = url + 'all_data';
+        var mapIconPath = "{% static 'image/leaflet' %}";
+        var siteDataUrl = '{% url "sites_metadata" %}';
+        var regionsFileUrl = '{% url "regions_metadata" %}';
+
+        var siteFieldsUrl = url + 'site_fields';
+
+        var siteTimeseriesUrl = url + 'site_timeseries';
+        var estimatedTimeseriesUrl = url + 'estimated_timeseries';
+
+    </script>
+
     {% block load_files %}
 
         {% if user.is_authenticated %}
@@ -90,14 +104,32 @@
                     </div>
                     <div id="collapseMeasurement" class="panel-collapse collapse">
                         <div class="panel-body">
-                            {% for measurement in measurement_names %}
-                                <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
-                            {% endfor %}
+                            <div id="measurement-radios"></div>
                         </div>
                     </div>
                 </div>
 
-                <div id="upload-data" class="panel-group">
+                <div id="estimation-method" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
+                            <div class="panel-title">Select estimation method <span class="chosen-option" id="estimation-method-label"></span></div>
+                        </div>
+                    </div>
+                    <div id="collapseEstimationMethod" class="panel-collapse collapse">
+                        <div id="method-radios"></div>
+                    </div>
+                </div>
+
+                <div id="site-field-data" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSites" aria-expanded="false" aria-controls="collapseFilterSites">
+                            <div class="panel-title"> Filter sites by... <span class="chosen-option" id="site-field-label"></span> </div>
+                        </div>
+                    </div>
+                    <div id="collapseFilterSites" class="panel-collapse collapse"></div>
+                </div>
+
+            <div id="upload-data" class="panel-group">
                     <div class="panel panel-default">
                         <div class="panel-heading" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
                             <div class="panel-title">Upload data and visualise<span class="chosen-option" id="upload-data-label"></span></div>
@@ -121,29 +153,6 @@
                             <input id="upload-data-button" type="file">
                         </div>
                     </div>
-                </div>
-
-                <div id="estimation-method" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationMethod" aria-expanded="false" aria-controls="collapseEstimationMethod">
-                            <div class="panel-title">Select estimation method <span class="chosen-option" id="estimation-method-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseEstimationMethod" class="panel-collapse collapse">
-                        <input type="radio" name="estimation-method" value="file" checked="checked"> pre-loaded<br>
-                        {% for method_name in method_names %}
-                           <input type="radio" name="estimation-method" value={{ method_name }}> {{ method_name }}<br>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div id="site-field-data" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSites" aria-expanded="false" aria-controls="collapseFilterSites">
-                            <div class="panel-title"> Filter sites by... <span class="chosen-option" id="site-field-label"></span> </div>
-                        </div>
-                    </div>
-                    <div id="collapseFilterSites" class="panel-collapse collapse"></div>
                 </div>
 
                 <div id="download-options" class="panel-group">
@@ -270,21 +279,7 @@
                 <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
                 <div id="mapid"></div>
 
-                <script type="text/javascript">
-                    var timestampRange = "{{timestamp_range|escapejs }}";
-                    var centerLatLng = "{{center|escapejs }}";
-                    var timestampList = timestampRange.replace('[','').replace(']','').replace(/'/g, '').split(',');
-                    var dataUrl = '{{ request.path }}' + 'all_data';
-                    var mapIconPath = "{% static 'image/leaflet' %}";
-                    var siteDataUrl = '{% url "sites_metadata" %}';
-                    var regionsFileUrl = '{% url "regions_metadata" %}';
 
-                    var siteFieldsUrl = '{{ request.path }}' + 'site_fields';
-
-                    var siteTimeseriesUrl = '{{ request.path }}' + 'site_timeseries';
-                    var estimatedTimeseriesUrl = '{{ request.path }}' + 'estimated_timeseries';
-
-                </script>
 
             </div>
             <div id="further-data" class="col-sm-3">
@@ -303,6 +298,8 @@
             </div>
         </div>
     </div>
+
+
 
 
 {% endblock %}

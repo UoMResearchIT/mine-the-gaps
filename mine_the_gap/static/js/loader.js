@@ -22,18 +22,23 @@ export class LoaderDisplay {
         // Draw new loader
         let divWaitingExplanation = document.createElement('div');
         divWaitingExplanation.className = 'ajax-waiting-explanation';
-        let divAjaxWaitText = document.createElement('div');
-        divAjaxWaitText.className = 'ajax-waiting-text' + strClassSuffix;
-        divAjaxWaitText.innerHTML = explanation;
+        this.divAjaxWaitText = document.createElement('div');
+        this.divAjaxWaitText.className = 'ajax-waiting-text' + strClassSuffix;
+        this.divAjaxWaitText.innerHTML = explanation;
         let divLoader = document.createElement('div');
         divLoader.className = 'ajax-call-loader' + strClassSuffix;
         divWaitingExplanation.appendChild(divLoader);
-        divWaitingExplanation.appendChild(divAjaxWaitText);
+        divWaitingExplanation.appendChild(this.divAjaxWaitText);
         loaderDiv.appendChild(divWaitingExplanation);
     }
 
     //  Stop loader graphic - finished waiting for something
     stopLoader(outerDivId){
         document.getElementById(outerDivId).innerHTML = '';
+    }
+
+    setMessage(messageHTML){
+        //alert(messageHTML);
+        this.divAjaxWaitText.innerHTML = messageHTML;
     }
 }
