@@ -33,7 +33,7 @@ $(document).ready(function(){
         $("div#select-files").toggle('slow');
     });
 
-    $('#region-data').html(get_region_default());
+    //$('#region-data').html(get_region_default());
     $('#site-data-instructions').html(get_site_default());
 
     $('#upload-data-button').change(function(){
@@ -783,11 +783,11 @@ function dragElement(elmnt) {
   }
 }
 
-function get_region_default(){
+/*function get_region_default(){
     return '<p><b>Region: </b>None</p>' +
     '<table class="table table-striped">' +
         '<tr><td colspan="2"><p>Hover over regions to see region data.</p></td></tr></table>';
-}
+}*/
 
 function get_site_default(){
     return '<table class="table table-striped">' +

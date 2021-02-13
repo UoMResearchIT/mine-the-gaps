@@ -657,10 +657,10 @@ export class GapMap {
                                     //'fillColor': '#ff3b24'
                                       'weight': '2'
                                   });
-                                  $('#region-data').html(
+                                  /*$('#region-data').html(
                                       '<p><b>Region: </b>' + feature.properties.popup_content.region_id + '</p>' +
                                       extraData
-                                  );
+                                  );*/
                             });
                             layer.on('mouseout', function () {
                               this.setStyle({

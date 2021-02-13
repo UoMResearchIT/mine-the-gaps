@@ -1,3 +1,8 @@
+div#site-charts {
+    overflow-y: scroll;
+    height: 300px;
+}
+
 .score-button {
   background-color: #ddd;
   border: none;
