@@ -1,3 +1,8 @@
+div#site-charts {
+    overflow-y: scroll;
+    height: 300px;
+}
+
 .score-button {
   background-color: #ddd;
   border: none;
@@ -302,18 +307,19 @@ table#api-instructions{
     left: 15%;
     z-index: 2000;
     width:400px;
+
 }
 
 
 .ajax-call-loader {
-  border: 16px solid #3e6b8c;
-  border-radius: 50%;
-  border-top: 16px solid #d1eeaa;
-  width: 100px;
-  height: 100px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-  float:left;
+    border: 16px solid #3e6b8c;
+    border-radius: 50%;
+    border-top: 16px solid #d1eeaa;
+    width: 100px;
+    height: 100px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+    float:left;
     border-style: groove;
 }
 
@@ -342,6 +348,8 @@ table#api-instructions{
     padding-left: 5%;
     padding-top: 60px;
     font-weight: bold;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
 }
 
 .ajax-waiting-text.size-1{

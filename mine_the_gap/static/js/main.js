@@ -8,10 +8,12 @@ var xhr = null;
 var curLoader;
 var gapMap;
 var userUploadedData = null;
+var timestampList = []
 
 
 $(document).ready(function(){
-    gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons);
+    doPoll();
+    initialise();
 
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
@@ -25,31 +27,14 @@ $(document).ready(function(){
         }
     });
 
-    $("div#select-files").show();
+    //$("div#select-files").show();
     // Upload files toggle button
     $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');
     });
 
-    $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-    $("#estimation-method input").change(function() {
-        $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        gapMap.dataUrl = dataUrl + '/' + this.value + '/';
-        gapMap.updateTimeseries(get_site_select_url_params());
-    });
-
-    $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
-    $("#measurement-names input").change(function() {
-        $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
-        gapMap.updateTimeseries(get_site_select_url_params());
-    });
-
-    $('#region-data').html(get_region_default());
+    //$('#region-data').html(get_region_default());
     $('#site-data-instructions').html(get_site_default());
-
-    // bounds must be set after only the first initialisation of map
-    initialise_slider();
-    initialise_site_fields();
 
     $('#upload-data-button').change(function(){
         uploadUserData(this);
@@ -61,6 +46,117 @@ $(document).ready(function(){
         uploadData(file);
     }
 });
+
+function initialise(){
+
+    var url = abs_uri + 'initialise/';
+    xhr = $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 60000,
+        async: true,
+        beforeSend: function () {
+            // Set up loader display
+            curLoader = new LoaderDisplay('loader-outer', '<p>Initialising...</p>');
+        },
+        success: function (data) {
+            //alert(JSON.stringify(data));
+            timestampList = data['timestamp_list'];
+            var centerLatLng = data['center'];
+            var measurementNames = data['measurement_names'];
+            var methodNames = data['method_names'];
+            // bounds must be set after only the first initialisation of map
+
+            initialiseParameters(centerLatLng, measurementNames, methodNames);
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem initialising the application: "
+                    + "url: " + url + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            curLoader.stopLoader('loader-outer');
+        }
+    })
+}
+
+function initialiseParameters(mapCenterLatLng, measurementNames, methodNames){
+    gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons, mapCenterLatLng);
+    initialiseTimeSlider();
+    initialiseMeasurements(measurementNames);
+    initialiseMethods(methodNames);
+    initialiseSiteFields();
+    gapMap.updateTimeseries(get_site_select_url_params(),
+        timestampList[document.getElementById("timestamp-range").value].trim(),
+        $("input[name='measurement']:checked").val())
+}
+
+function initialiseMeasurements(measurementNames){
+    var measurementDiv = document.getElementById("measurement-radios");
+    var checked = 'checked="checked"';
+
+    for(var i=0; i<measurementNames.length; i++){
+        var measurement = measurementNames[i];
+        if(i > 0){checked = ''}
+        var radioHtml = '<input type="radio" name="measurement" value="' + measurement + '" ' + checked + '">&nbsp;'
+            + measurement + '<br>'
+        measurementDiv.innerHTML += radioHtml;
+    }
+
+    $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
+    $("#measurement-names input").change(function() {
+        $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
+        gapMap.updateTimeseries(get_site_select_url_params(),
+            timestampList[document.getElementById("timestamp-range").value].trim(),
+            $("input[name='measurement']:checked").val());
+    });
+}
+
+function initialiseMethods(methodNames){
+    var methodsDiv = document.getElementById("method-radios");
+    var radioHtml = '<input type="radio" name="estimation-method" value="file" checked="checked">&nbsp;pre-loaded<br>';
+    methodsDiv.innerHTML = radioHtml;
+    for(var i=0; i<methodNames.length; i++){
+        var method = methodNames[i];
+        radioHtml = '<input type="radio" name="estimation-method" value="' + method + '" >'
+            + '&nbsp;' + method + '<br>'
+        methodsDiv.innerHTML += radioHtml;
+    }
+
+    $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
+    $("#estimation-method input").change(function() {
+        $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
+        gapMap.dataUrl = dataUrl + '/' + this.value + '/';
+        gapMap.updateTimeseries(get_site_select_url_params(),
+            timestampList[document.getElementById("timestamp-range").value].trim(),
+            $("input[name='measurement']:checked").val());
+    });
+}
+
+function doPoll(){
+    var url = abs_uri + 'progress/';
+    $.post(url, function(data) {
+        processProgress(data);
+        setTimeout(doPoll,10);
+    });
+}
+
+function processProgress(data){
+    if(Object.keys(data).length !== 0){
+        //var newMessage = 'Percent complete: ' + data['percent_complete'] + '%</br>' + 'Status: ' + data['status'];
+        var newMessage = '<p> Status: ' + data['status'] + '</p>';
+        curLoader.setMessage(newMessage);
+        if(gapMap){gapMap.updateLoader(newMessage)}
+    }
+}
 
 // Upload user data functions
 function uploadData(file){
@@ -303,7 +399,7 @@ function average(data) {
 
 // Map functions
 
-function initialise_site_fields(){
+function initialiseSiteFields(){
     /*
             Add Site fields (to UI site selection/filtering mechanism)
 
@@ -385,7 +481,9 @@ function initialise_site_fields(){
 
                 // Check if this edit boxes select/omit values have changed. If so update map.
                 if(newVal !== prevVal){
-                    gapMap.updateTimeseries(get_site_select_url_params(), document.getElementById("timestamp-range").value);
+                    gapMap.updateTimeseries(get_site_select_url_params(),
+                        document.getElementById("timestamp-range").value,
+                        $("input[name='measurement']:checked").val());
                 }
             }
         });
@@ -426,27 +524,24 @@ function check_site_select_params(paramString){
     return true;
 }
 
-
-
-function initialise_slider(value=0){
+function initialiseTimeSlider(value=0){
     var slider = document.getElementById("timestamp-range");
     var output = document.getElementById("current-time");
     slider.min = 0;
     slider.max = timestampList.length-1;
     slider.value = value;
     output.innerHTML = timestampList[value]; // Display the default slider value
-    gapMap.updateTimeseries(get_site_select_url_params(), value);
+    gapMap.updateTimeseries(get_site_select_url_params(), value, $("input[name='measurement']:checked").val());
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function() {
         output.innerHTML = timestampList[this.value];
     };
     slider.onchange = function() {
-        gapMap.updateTimeseries(get_site_select_url_params(), this.value);
+        gapMap.updateTimeseries(get_site_select_url_params(), timestampList[this.value],
+            $("input[name='measurement']:checked").val());
     };
 
 }
-
-
 
 // File downloads
 
@@ -688,11 +783,11 @@ function dragElement(elmnt) {
   }
 }
 
-function get_region_default(){
+/*function get_region_default(){
     return '<p><b>Region: </b>None</p>' +
     '<table class="table table-striped">' +
         '<tr><td colspan="2"><p>Hover over regions to see region data.</p></td></tr></table>';
-}
+}*/
 
 function get_site_default(){
     return '<table class="table table-striped">' +

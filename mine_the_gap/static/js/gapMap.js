@@ -32,7 +32,7 @@ var xhr = null;
 var regions = {};
 
 export class GapMap {
-    constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn) {
+    constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn, centerLatLng) {
         this.svgIcons = new svgIcons();
         this.domId = mapDomId;
         this.accessToken = accessToken;
@@ -53,6 +53,10 @@ export class GapMap {
               shape: 'square'
           }
         });
+    }
+
+    updateLoader(message){
+        if(this.curLoader){this.curLoader.setMessage(message)};
     }
 
     createMap(centerLatLng){
@@ -320,12 +324,7 @@ export class GapMap {
         return [(maxX + minX) / 2, (maxY + minY) / 2];
     }
 
-    updateTimeseries(jsonParams, timeseries_idx=document.getElementById("timestamp-range").value,
-                               measurement=$("input[name='measurement']:checked").val()){
-        if(timestampList.length < 1 || timestampList[0] == null || timestampList[0] == ''){
-            return;
-        }
-        var timeseries_val = timestampList[timeseries_idx].trim();
+    updateTimeseries(jsonParams, timeseries_val, measurement){
         var dataUrl = this.dataUrl + measurement + '/' + timeseries_val + '/';
 
         // 1. Update sites to show values
@@ -341,7 +340,6 @@ export class GapMap {
 
         //Update user uploaded data
         this.displayUserUploadedData();
-
         //alert(dataUrl);
 
         var self = this;
@@ -354,13 +352,12 @@ export class GapMap {
             timeout: 100000,
             beforeSend: function () {
                 // Stop previous loading
-                self.curLoader.stopLoader('loader-outer');
-                xhr.abort();
+                if(self.curLoader){self.curLoader.stopLoader('loader-outer')};
+                if(xhr){xhr.abort()};
                 // we are now awaiting browse results to load
                 self.resultsLoading = true;
                 // Set up loader display
-                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting site data...</p>',
-                    'fetch-data-loader');
+                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting site data...</p>');
             },
             success: function (data) {
                 //alert(JSON.stringify(data));
@@ -619,25 +616,15 @@ export class GapMap {
 
     updateMap(urlRegion=this.regionsFileUrl, mapType='street-map', zoomLevel=initZoom,
                         mapCenter=defaultInitCenter){
-
+        // Initialise map
         map.setView(mapCenter, zoomLevel);
-
-        /*
-                Initialise map
-
-         */
 
         function locateBounds () {
          // geolocate
         }
         (new L.Control.ResetView(this.bounds)).addTo(map);
 
-
-         /*
-                Add Regions to map
-
-         */
-
+        // Add Regions to map
         regionsLayer.clearLayers();
         var self = this;
         xhr = $.ajax({
@@ -645,8 +632,10 @@ export class GapMap {
             dataType: 'json',
             async: false,
             beforeSend: function () {
+                if(self.curLoader){self.curLoader.stopLoader('loader-outer');}
+                if(xhr){xhr.abort()};
                 // Set up loader display
-                self.curLoader = new LoaderDisplay('loader-outer', '<p>Setting up map and region data...</p>');
+                self.curLoader = new LoaderDisplay('loader-outer','<p>Setting up map and region data...</p>');
             },
             success: function(data) {
                 // Add GeoJSON layer
@@ -668,10 +657,10 @@ export class GapMap {
                                     //'fillColor': '#ff3b24'
                                       'weight': '2'
                                   });
-                                  $('#region-data').html(
+                                  /*$('#region-data').html(
                                       '<p><b>Region: </b>' + feature.properties.popup_content.region_id + '</p>' +
                                       extraData
-                                  );
+                                  );*/
                             });
                             layer.on('mouseout', function () {
                               this.setStyle({

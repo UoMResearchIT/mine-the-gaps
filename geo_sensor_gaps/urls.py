@@ -29,10 +29,12 @@ urlpatterns = [
     ##### Bespoke for web app #####
     path('', views.home_page),
     path('admin/', admin.site.urls),
-    url(r'^mine_the_gap/', include('mine_the_gap.urls')),
+    path('initialise/', views.initialise),
+    path('progress/', views.get_progress),
     path('site_fields', views.get_site_fields),
     path('all_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_all_data_at_timestamp),
     path('all_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:site_id>/', views.get_all_timeseries_at_region),
+
 
     #####  API type calls returning json #####
 

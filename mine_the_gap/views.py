@@ -29,9 +29,11 @@ from region_estimators import RegionEstimatorFactory, EstimationData
 prev_site_params = []
 prev_measurement = None
 estimators_dict = {}
+progress_json = {}
 
 @ensure_csrf_cookie
 def home_page(request):
+    global progress_json
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -56,16 +58,39 @@ def home_page(request):
         else:
             return render(request, 'index.html', {'form': form})
 
-    context = {'form': FileUploadForm(),  # On the front end, this is set up to only show if user is logged in.
-                                            # To do this use [main url]/admin
-               'center': get_center_latlng(),
-               'filepaths': Filenames.objects.all(),
-               'measurement_names': get_measurement_names(),
-               'method_names': RegionEstimatorFactory.get_available_methods(),
-               'timestamp_range': get_timestamp_list()}
-
+    context = {'form': FileUploadForm(),
+               'filepaths': Filenames.objects.all()}
     return render(request, 'index.html', context)
 
+def initialise(request):
+    global progress_json
+
+    progress_json = {'percent_complete': 0,
+                     'status': 'Getting center location'}
+    center_latlng = json.loads(get_center_latlng())
+    progress_json = {'percent_complete': 25,
+                     'status': 'Getting measurement names'}
+    measurement_names = get_measurement_names()
+    progress_json = {'percent_complete': 50,
+                     'status': 'Getting available methods'}
+    method_names = list(RegionEstimatorFactory.get_available_methods())
+    progress_json = {'percent_complete': 75,
+                     'status': 'Getting timestamp list'}
+    timestamp_list = get_timestamp_list()
+    progress_json = {'percent_complete': 100,
+                     'status': 'rendering page'}
+
+    context = {'center': center_latlng,
+               'measurement_names': measurement_names,
+               'method_names': method_names,
+               'timestamp_list': timestamp_list}
+    progress_json = {}
+
+    return JsonResponse(context)
+
+
+def get_progress(request):
+    return JsonResponse(progress_json)
 
 def get_site_fields(request):
     result = []
@@ -87,7 +112,7 @@ def get_site_fields(request):
                     else:
                         result.append(field_name)
 
-        #print(str(result))
+        # print(str(result))
         response = JsonResponse(result, safe=False)
     except Exception as err:
         response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
@@ -98,7 +123,7 @@ def get_site_fields(request):
 def get_actuals(request, measurement, timestamp_val=None, site_id=None):
     try:
         data = actuals(request, measurement, timestamp_val=timestamp_val, site_id=site_id, return_all_fields=False)
-        response =  JsonResponse(data, safe=False)
+        response = JsonResponse(data, safe=False)
     except Exception as err:
         response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
     finally:
@@ -113,7 +138,7 @@ def get_estimates(request, method_name, measurement, timestamp_val=None, region_
             timestamp_val=timestamp_val,
             region_id=region_id,
             return_all_fields=False)
-        response =  JsonResponse(data, safe=False)
+        response = JsonResponse(data, safe=False)
     except Exception as err:
         response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
     finally:
@@ -250,6 +275,8 @@ def get_json_response(stored_filename, new_filename, file_type):
 
 
 def actuals(request, measurement, timestamp_val=None, site_id=None, return_all_fields=True):
+    global progress_json
+
     data = []
     measurement = measurement.strip()
 
@@ -308,9 +335,14 @@ def calculate_z_score(value, mean, standard_deviation):
         return None
 
 def load_region_estimators(measurement, site_params=[]):
-    global estimators_dict, prev_site_params, prev_measurement
+    global estimators_dict, prev_site_params, prev_measurement, progress_json
+
+    progress_json = {'percent_complete': 0,
+                     'status': 'Loading region estimators'}
 
     ### Sites ###
+    progress_json = {'percent_complete': 0,
+                     'status': 'Loading region estimators: sites'}
     prev_site_params = site_params
     if site_params is not None:
         sites = filter_sites(Sensor.objects.all(), site_params)
@@ -328,6 +360,8 @@ def load_region_estimators(measurement, site_params=[]):
     df_sites.rename(columns={'id': 'site'}, inplace=True)
 
     ### Regions ###
+    progress_json = {'percent_complete': 5,
+                     'status': 'Loading region estimators: regions'}
     regions = Region.objects.all()
     df_regions = pd.DataFrame.from_records(regions.values('region_id', 'geom'), index='region_id')
     # convert regions geometry (multipolygone) into a universal format (wkt) for use in region_estimations package
@@ -335,8 +369,9 @@ def load_region_estimators(measurement, site_params=[]):
     df_regions = df_regions.drop(columns=['geom'])
 
     ### Actuals ###
+    progress_json = {'percent_complete': 10,
+                     'status': 'Loading region estimators: actuals'}
     prev_measurement = measurement
-
     df_actual_data = pd.DataFrame.from_records(Actual_data.objects.all().values('id', 'site', 'timestamp'), index='id')
     df_actual_values = pd.DataFrame.from_records(
         Actual_value.objects.filter(measurement_name=measurement).values('actual_data', 'value'))
@@ -350,24 +385,34 @@ def load_region_estimators(measurement, site_params=[]):
     df_sites.drop(columns=['site'], inplace=True)
 
     estimators_dict = {}
-    for method_name in RegionEstimatorFactory.get_available_methods():
+    available_methods = RegionEstimatorFactory.get_available_methods()
+    for idx, method_name in enumerate(available_methods):
+        progress_json = {'percent_complete': 10 + (idx / len(available_methods))*90,
+                         'status': 'Loading region estimators: ' + method_name}
         estimators_dict[method_name] = RegionEstimatorFactory.region_estimator(
             method_name,
             EstimationData(df_sites, df_regions, df_actuals, verbose=0),
             verbose=0,
             max_processors=settings.MAX_NUM_PROCESSORS)
 
+
 def estimates(request, method_name, measurement, timestamp_val=None, region_id=None, return_all_fields=False,
               ignore_site_ids=[]):
-    global estimators_dict, prev_site_params, prev_measurement
+    global estimators_dict, prev_site_params, prev_measurement, progress_json
 
     data = []
     measurement = measurement.strip()
+
+    progress_json = {'percent_complete': 0,
+                     'status': 'Getting estimates'}
 
     try:
         site_params = json.loads(request.body.decode("utf-8"))['selectors']
     except:
         site_params = []
+
+    progress_json = {'percent_complete': 0,
+                     'status': 'Getting min / max values'}
 
     min_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Min('value'))['value__min']
     max_val = Actual_value.objects.filter(measurement_name=measurement).aggregate(Max('value'))['value__max']
@@ -375,6 +420,8 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
     std_dev = Actual_value.objects.filter(measurement_name=measurement).aggregate(StdDev('value'))['value__stddev']
 
     if method_name == 'file':
+        progress_json = {'percent_complete': 0,
+                         'status': 'Getting pre-loaded data'}
         if timestamp_val and region_id:
             query_set = Estimated_value.objects.filter(measurement_name=measurement,
                                                        estimated_data__timestamp=str(timestamp_val),
@@ -407,6 +454,8 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
             new_row['std_dev'] = std_dev
             data.append(new_row)
     else:
+        progress_json = {'percent_complete': 5,
+                         'status': 'Calculating estimates'}
         # Create pandas dataframes for input into region estimators.
         if estimators_dict == {}:
             print('reloading due null estimators_dict')
@@ -425,11 +474,15 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
 
         try:
             #print('ignore site ids: {}'.format(ignore_site_ids))
+            progress_json = {'percent_complete': 10,
+                             'status': 'Calculating estimates: get estimations'}
             df_result = estimators_dict[method_name].get_estimations(measurement, region_id, timestamp_val,
                                                                      ignore_site_ids)
         except Exception as err:
             print(str(err))
         else:
+            progress_json = {'percent_complete': 90,
+                             'status': 'Calculating z-score and percentage scores'}
             for index, row in df_result.iterrows():
                 if not pd.isna(row['value']):
                     value = row['value']
@@ -551,6 +604,7 @@ def handle_uploaded_files(request):
     upload_estimated_data(request)
 
 def upload_actual_data(request):
+    global progress_json
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
@@ -574,6 +628,9 @@ def upload_actual_data(request):
         #print(str(field_titles))
 
         # Find the fields in the sites file
+        progress_json = {'percent_complete': 0,
+                         'status': 'Loading sites file'}
+
         for idx, title in enumerate(field_titles):
             title = title.strip().lower()
             if title == 'longitude':
@@ -604,8 +661,13 @@ def upload_actual_data(request):
             print('Error reading sites file:', err)
             return
 
+        progress_json = {'percent_complete': 0,
+                         'status': 'Loading actuals file'}
+
         file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
         reader = csv.reader(file_actual)
+        row_count = sum(1 for row in reader)
+
         # skip/get the headers
         field_titles = next(reader, None)
 
@@ -627,6 +689,8 @@ def upload_actual_data(request):
         # Read in the data
         try:
             for row in reader:
+                progress_json = {'percent_complete': (reader.line_num / row_count)*100,
+                                 'status': 'Loading actuals file'}
                 try:
                     site_id = row[site_id_idx]
 
@@ -675,6 +739,7 @@ def upload_actual_data(request):
         default_storage.save(filepath_actual.name, filepath_actual.file)
 
 def upload_estimated_data(request):
+    global progress_json
     try:
         filepath_estimated = request.FILES['estimated_data_file']
         filepath_region = request.FILES['region_metadata_file']
@@ -690,6 +755,9 @@ def upload_estimated_data(request):
         # skip/get the headers
         field_titles = next(reader, None)
         # print('field titles:', field_titles)
+
+        progress_json = {'percent_complete': 0,
+                         'status': 'Loading regions file'}
 
         try:
             for row in reader:
@@ -739,8 +807,12 @@ def upload_estimated_data(request):
             print('Error reading regions file:', err)
             return
 
+        progress_json = {'percent_complete': 0,
+                         'status': 'Loading estimates file'}
+
         file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
         reader = csv.reader(file_estimates)
+        row_count = sum(1 for row in reader)
         # skip/get the headers
         field_titles = next(reader, None)
         #print('field titles:', field_titles)
@@ -777,6 +849,8 @@ def upload_estimated_data(request):
 
         try:
             for row in reader:
+                progress_json = {'percent_complete': (reader.line_num / row_count) * 100,
+                                 'status': 'Loading estimates file'}
                 try:
                     region = Region.objects.get(region_id=str(row[region_idx]))
 
@@ -785,7 +859,6 @@ def upload_estimated_data(request):
                                                     region=region
                                                     )
                         estimated.save()
-
 
                         for idx in value_idxs:
                             name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
