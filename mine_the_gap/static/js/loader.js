@@ -1,7 +1,7 @@
 //  Create and show loader graphic - waiting for something
 
 export class LoaderDisplay {
-    constructor(outerDivId, explanation, newDivId='loader',  sizeOneToFive=3){
+    constructor(outerDivId, messageHTML, newDivId='loader',  sizeOneToFive=3){
         let outerDiv = document.getElementById(outerDivId);
         let loaderDiv = document.createElement('div');
         loaderDiv.id = newDivId;
@@ -24,7 +24,7 @@ export class LoaderDisplay {
         divWaitingExplanation.className = 'ajax-waiting-explanation';
         this.divAjaxWaitText = document.createElement('div');
         this.divAjaxWaitText.className = 'ajax-waiting-text' + strClassSuffix;
-        this.divAjaxWaitText.innerHTML = explanation;
+        this.divAjaxWaitText.innerHTML = messageHTML;
         let divLoader = document.createElement('div');
         divLoader.className = 'ajax-call-loader' + strClassSuffix;
         divWaitingExplanation.appendChild(divLoader);

@@ -145,14 +145,22 @@ function doPoll(){
     var url = abs_uri + 'progress/';
     $.post(url, function(data) {
         processProgress(data);
-        setTimeout(doPoll,10);
+        setTimeout(doPoll,1000);
     });
 }
 
 function processProgress(data){
     if(Object.keys(data).length !== 0){
-        //var newMessage = 'Percent complete: ' + data['percent_complete'] + '%</br>' + 'Status: ' + data['status'];
-        var newMessage = '<p> Status: ' + data['status'] + '</p>';
+        var newMessage = '';
+        if(data['percent_complete']) {
+            newMessage += 'Percent complete: ' + data['percent_complete'] + '%</br>';
+        }
+        if(data['status']) {
+            newMessage += data['status'] + '</br>';
+        }
+        if(data['sub_status']) {
+            newMessage += data['sub_status'] + '</br>';
+        }
         curLoader.setMessage(newMessage);
         if(gapMap){gapMap.updateLoader(newMessage)}
     }
