@@ -89,7 +89,8 @@ function initialise(){
 }
 
 function initialiseParameters(mapCenterLatLng, measurementNames, methodNames){
-    gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons, mapCenterLatLng);
+    gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons, mapCenterLatLng,
+        timestampList);
     initialiseTimeSlider();
     initialiseMeasurements(measurementNames);
     initialiseMethods(methodNames);

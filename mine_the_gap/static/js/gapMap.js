@@ -32,7 +32,7 @@ var xhr = null;
 var regions = {};
 
 export class GapMap {
-    constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn, centerLatLng) {
+    constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn, centerLatLng, timestampList) {
         this.svgIcons = new svgIcons();
         this.domId = mapDomId;
         this.accessToken = accessToken;
@@ -44,6 +44,7 @@ export class GapMap {
         this.onSensorClickFn = onSensorClickFn;
         this.dataUrl = dataUrl + '/file/';
         this.userUploadedData = null;
+        this.timestampList = timestampList
         this.createMap(centerLatLng);
         this.updateMap();
 
@@ -120,7 +121,7 @@ export class GapMap {
 
         // Get current timestamp
         var timeseries_idx = document.getElementById("timestamp-range").value;
-        var timeseries_val = timestampList[timeseries_idx].trim();
+        var timeseries_val = this.timestampList[timeseries_idx].trim();
 
         /*
         "2016-03-18":{
