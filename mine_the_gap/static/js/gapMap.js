@@ -412,6 +412,7 @@ export class GapMap {
 
             var latlng = [loc.geom[1], loc.geom[0]];
             var valColor = 'grey';
+            var fontColor = 'black'
             var locValue = 'null';
 
             if (loc['value'] != null){
@@ -419,7 +420,8 @@ export class GapMap {
                 locValue = loc.value.toString();
             }
             if (loc['ignore']) {
-                valColor = 'blue';
+                valColor = 'lightgrey';
+                fontColor = 'grey'
             }
 
             var bespokeOptions = {
@@ -433,6 +435,7 @@ export class GapMap {
             var siteMarker = new L.Marker.SVGMarker(latlng,
                     {   iconOptions: {
                             color: valColor,
+                            fontColor: fontColor,
                             iconSize: [30,40],
                             circleText: locValue,
                             circleRatio: 0.8,
