@@ -490,7 +490,7 @@ function initialiseSiteFields(){
                 // Check if this edit boxes select/omit values have changed. If so update map.
                 if(newVal !== prevVal){
                     gapMap.updateTimeseries(get_site_select_url_params(),
-                        document.getElementById("timestamp-range").value,
+                        timestampList[document.getElementById("timestamp-range").value].trim(),
                         $("input[name='measurement']:checked").val());
                 }
             }
