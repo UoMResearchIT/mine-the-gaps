@@ -350,7 +350,7 @@ export class GapMap {
         var self = this;
         xhrRegions = $.ajax({
             url: dataUrl,
-            data:JSON.stringify(jsonParams),
+            data: JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": this.csrftoken},
             dataType: 'json',
             method: 'POST',
@@ -524,22 +524,22 @@ export class GapMap {
              }
           ]
         */
-            var extraData = '<table class="table table-striped">';
+            var extraData = '<table class="table table-striped popup-table">';
             extraData += '<tr><th>Region ID</th><td>' + region.region_id + '</td></tr>';
             extraData += '<tr><th>Timestamp</th><td>' + region.timestamp.toString() + '</td></tr>';
-            for (var key in region['extra_data']){
-                extraData += '<tr><th>' + key + '</th><td>' + region['extra_data'][key] + '</td></tr>';
-            };
-            for (var key in region['region_extra_data']){
-                extraData += '<tr><th>' + key + '</th><td>' + region['region_extra_data'][key] + '</td></tr>';
-            };
-            extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
             extraData += '<tr><th>Value</th><td><button class="score-button">' + region.value + '</button></td></tr>';
             extraData += '<tr><th>Z Score</th><td><button class="score-button"  style="background-color:' +
                 valColor + ';">' +  (region.z_score*1).toString()  + '</button></td></tr>';
             extraData += '<tr><th>Percentage Score</th><td><button class="score-button"  style="background-color:' +
                 this.getGreenToRed(region.percent_score*100) + ';">' +  (region.percent_score*100).toFixed(2).toString()  +
                 '</button></td></tr>';
+            for (var key in region['extra_data']){
+                extraData += '<tr><th>' + key + '</th><td>' + region['extra_data'][key] + '</td></tr>';
+            };
+            for (var key in region['region_extra_data']){
+                extraData += '<tr><th>' + key + '</th><td>' + region['region_extra_data'][key] + '</td></tr>';
+            };
+
             extraData += '<tr><th>Mean</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
             extraData += '<tr><th>Standard Dev</th><td>' +  (region.std_dev).toFixed(2).toString()  + '</td></tr>';
             extraData += '<tr><th>Min value</th><td>' +  (region.min).toFixed(2).toString()  + '</td></tr>';
@@ -618,12 +618,20 @@ export class GapMap {
 
             // Add marker
 
-            var extraData = '<table class="table table-striped">';
+            var extraData = '<table class="table table-striped popup-table">';
             extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
+            extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
+            extraData += '<tr><th>Value</th><td><button class="score-button">' + loc.value + '</button></td></tr>';
+            extraData += '<tr><th>Z Score</th><td><button class="score-button" style="background-color:' +
+                valColor + ';">' +
+                (loc.z_score*1).toString()  + '</button></td></tr>';
+            extraData += '<tr><th>Percentage Score</th><td><button class="score-button" style="background-color:' +
+                this.getGreenToRed(loc.percent_score*100) + ';">' +
+                (loc.percent_score*100).toFixed(2).toString()  + '</button></td></tr>';
             extraData += '<tr><th>ID</th><td>' + loc.site_id + '</td></tr>';
             extraData += '<tr><th>Location</th><td>' + loc.geom[0].toFixed(2).toString() +
                 ', ' + loc.geom[1].toFixed(2).toString() +  '</td></tr>';
-            extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
+
             for (var key in loc['extra_data']){
                 if(loc['extra_data'][key] != null) {
                     extraData += '<tr><th>' + key + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
@@ -634,15 +642,6 @@ export class GapMap {
                     extraData += '<tr><th>' + key + '</th><td>' + loc['site_extra_data'][key] + '</td></tr>';
                 }
             };
-
-            extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
-            extraData += '<tr><th>Value</th><td><button class="score-button">' + loc.value + '</button></td></tr>';
-            extraData += '<tr><th>Z Score</th><td><button class="score-button" style="background-color:' +
-                valColor + ';">' +
-                (loc.z_score*1).toString()  + '</button></td></tr>';
-            extraData += '<tr><th>Percentage Score</th><td><button class="score-button" style="background-color:' +
-                this.getGreenToRed(loc.percent_score*100) + ';">' +
-                (loc.percent_score*100).toFixed(2).toString()  + '</button></td></tr>';
             extraData += '<tr><th>Mean</th><td>' +  (loc.mean).toFixed(2).toString()  + '</td></tr>';
             extraData += '<tr><th>Standard Dev</th><td>' +  (loc.std_dev).toFixed(2).toString()  + '</td></tr>';
             extraData += '<tr><th>Min value</th><td>' +  (loc.min).toFixed(2).toString()  + '</td></tr>';
@@ -658,7 +657,7 @@ export class GapMap {
             popButton.setAttribute("onclick",
                 "showTimelineComparisons('"+measurement+"','" +loc.site_id + "','" + loc.regions + "','" + loc.name + "')");
 
-            siteMarker.bindPopup(extraData + popButton.outerHTML);
+            siteMarker.bindPopup(popButton.outerHTML + extraData);
             sitesLayer.addLayer(siteMarker);
         }
     }
