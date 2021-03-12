@@ -730,14 +730,14 @@ function get_csv(url, filename='data.csv', jsonParams={}){
             curLoader.stopLoader('loader-outer');
         }
     })
-};
+}
 
 
 function getTimestampValue(data, timestamp) {
     for (var i=0; i<data.length; i++){
         if(data[i]['timestamp'].trim() == timestamp.trim()){
             //alert('timestamp: ' + timestamp + '; dataItem: ' + data[i]['timestamp']);
-            return data[i]['percent_score'];
+            return data[i]['z_score'];
         }
     }
     return null;
@@ -858,9 +858,14 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     canvasItem.id = "site-chart";
     var newChartTitle = document.createElement('div');
 
-    newChartTitle.innerHTML = '<p><b>Site Name: ' + siteName + '</b><br>' +
+    newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
         'Measurement: ' + measurement + '<br>' +
-        'Estimation Method: ' + estimationMethod + '</p>';
+        'Estimation Method: ' + estimationMethod + '<br>';
+    if(get_site_select_url_params()['selectors'].length > 0) {
+        newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' + JSON.stringify(get_site_select_url_params()['selectors']) + '</p>';
+    }else{
+        newChartTitle.innerHTML = newChartTitle.innerHTML + 'Filters: None';
+    }
 
     listItemDiv.appendChild(newChartTitle);
     listItemDiv.appendChild(canvasItem);
