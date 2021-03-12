@@ -638,11 +638,11 @@ def filter_sites(sites, params):
 
 
 def get_measurement_names():
-    query_set = Actual_value.objects.distinct('measurement_name')
+    query_set = Actual_value.objects.order_by('measurement_name').values('measurement_name').distinct()
     result = []
 
     for idx, item in enumerate(query_set):
-        result.append(item.measurement_name)
+        result.append(item['measurement_name'])
 
     return result
 
