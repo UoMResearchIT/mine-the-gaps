@@ -529,7 +529,7 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
                                          'sub_status': 'Calculating estimates'}
         # Create pandas dataframes for input into region estimators.
         if estimators_dict == {}:
-            print('reloading due null estimators_dict')
+            print('reloading due empty estimators_dict')
             load_region_estimators(measurement, site_params)
         elif site_params != prev_site_params:
             print('reloading due to site_params change')

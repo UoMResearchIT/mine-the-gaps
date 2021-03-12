@@ -859,7 +859,7 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var newChartTitle = document.createElement('div');
 
     newChartTitle.innerHTML = '<p><b>Site Name: ' + siteName + '</b><br>' +
-        'Measurment: ' + measurement + '<br>' +
+        'Measurement: ' + measurement + '<br>' +
         'Estimation Method: ' + estimationMethod + '</p>';
 
     listItemDiv.appendChild(newChartTitle);
@@ -990,11 +990,12 @@ function getActualTimeseries(measurement, siteId, listChart, modalChart){
 function getEstimatedTimeseries(measurement, method, regionId, ignoreSiteId, listChart, modalChart){
     //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_site_id>/
     var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSiteId + '/';
-
-    //alert(url_estimates);
+    var jsonParams = get_site_select_url_params()
+    //alert(JSON.stringify(jsonParams));
     var self = this;
     xhr = $.ajax({
         url: urlEstimates,
+        data: JSON.stringify(jsonParams),
         headers: {"X-CSRFToken": csrftoken},
         dataType: 'json',
         method: 'POST',

@@ -350,7 +350,7 @@ export class GapMap {
         var self = this;
         xhrRegions = $.ajax({
             url: dataUrl,
-            data:JSON.stringify(jsonParams),
+            data: JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": this.csrftoken},
             dataType: 'json',
             method: 'POST',
