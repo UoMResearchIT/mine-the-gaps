@@ -576,7 +576,7 @@ function download_csv(url, filename){
             if (!data.match(/^data:text\/csv/i)) {
                 data = 'data:text/csv;charset=utf-8,' + data;
             }
-            link = document.createElement('a');
+            var link = document.createElement('a');
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.click();
@@ -614,7 +614,7 @@ function download_geojson(url, filename){
                 ...but this doesn't allow error/success/complete operations.
             A bit concerning that this method appears to call the url twice :/
              */
-            link = document.createElement('a');
+            var link = document.createElement('a');
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.click();
@@ -656,7 +656,7 @@ function download_json(url, filename){
                 ...but this doesn't allow error/success/complete operations.
             A bit concerning that this method appears to call the url twice :/
              */
-            link = document.createElement('a');
+            var link = document.createElement('a');
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.click();
@@ -699,7 +699,7 @@ function get_csv(url, filename='data.csv', jsonParams={}){
                 data = 'data:text/csv;charset=utf-8,' + data;
             }
 
-            link = document.createElement('a');
+            var link = document.createElement('a');
             link.setAttribute('href', data);
             link.setAttribute('download', filename);
             link.click();

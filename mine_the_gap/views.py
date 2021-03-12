@@ -658,7 +658,7 @@ def handle_uploaded_files(request):
     upload_estimated_data(request)
 
 def upload_actual_data(request):
-    global progress_udate
+    global progress_update
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']

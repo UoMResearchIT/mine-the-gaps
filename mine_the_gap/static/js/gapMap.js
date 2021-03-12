@@ -123,7 +123,7 @@ export class GapMap {
         var timeseries_idx = document.getElementById("timestamp-range").value;
         var timeseries_val = this.timestampList[timeseries_idx].trim();
 
-        /*
+        /* Example input
         "2016-03-18":{
             "point (-2.2346505 53.4673973)":[
                 {"how_feeling":{
