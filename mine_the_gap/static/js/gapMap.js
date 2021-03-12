@@ -28,7 +28,9 @@ const mapUrlStreet = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 const mapUrlTopology = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
 const defaultInitCenter = ["54.2361", "-4.5481"];
 const initZoom = 6;
-var xhr = null;
+var xhrSites = null;
+var xhrRegions = null;
+var xhrUpdate = null;
 var regions = {};
 
 export class GapMap {
@@ -40,7 +42,9 @@ export class GapMap {
         this.regionsFileUrl = regionsFileUrl;
         this.csrftoken = csrfToken;
         this.resultsLoading = false; // Variable used to prevent multiple ajax requests queuing up and confusing UI.
-        this.curLoader = null;
+        this.curLoaderRegions = null;
+        this.curLoaderSites = null;
+        this.curLoaderUpdate = null;
         this.onSensorClickFn = onSensorClickFn;
         this.dataUrl = dataUrl + '/file/';
         this.userUploadedData = null;
@@ -123,7 +127,7 @@ export class GapMap {
         var timeseries_idx = document.getElementById("timestamp-range").value;
         var timeseries_val = this.timestampList[timeseries_idx].trim();
 
-        /*
+        /* Example input
         "2016-03-18":{
             "point (-2.2346505 53.4673973)":[
                 {"how_feeling":{
@@ -325,13 +329,17 @@ export class GapMap {
         return [(maxX + minX) / 2, (maxY + minY) / 2];
     }
 
-    updateTimeseries(jsonParams, timeseries_val, measurement){
-        var dataUrl = this.dataUrl + measurement + '/' + timeseries_val + '/';
+    updateTimeseries(jsonParams, method, timeseries_val, measurement){
+        //Update user uploaded data
+        this.displayUserUploadedData();
+        this.updateTimeseriesRegions(jsonParams, method, timeseries_val, measurement);
+        this.updateTimeseriesSites(jsonParams, timeseries_val, measurement);
+    }
 
-        // 1. Update sites to show values
+    updateTimeseriesRegions(jsonParams, method, timeseries_val, measurement){
+        var dataUrl = dataUrlRegions + '/' + method + '/' + measurement + '/' + timeseries_val + '/';
 
-        // Clear site and region data
-        sitesLayer.clearLayers();
+        // Clear region data
         for (var key in regions){
             regions[key].setStyle({
                 'fillColor': 'transparent',
@@ -339,12 +347,8 @@ export class GapMap {
               });
         }
 
-        //Update user uploaded data
-        this.displayUserUploadedData();
-        //alert(dataUrl);
-
         var self = this;
-        xhr = $.ajax({
+        xhrRegions = $.ajax({
             url: dataUrl,
             data:JSON.stringify(jsonParams),
             headers: { "X-CSRFToken": this.csrftoken},
@@ -353,20 +357,21 @@ export class GapMap {
             timeout: 100000,
             beforeSend: function () {
                 // Stop previous loading
-                if(self.curLoader){self.curLoader.stopLoader('loader-outer')};
-                if(xhr){xhr.abort()};
+                if(self.curLoaderRegions){self.curLoaderRegions.stopLoader('loader-outer-regions')};
+                if(xhrRegions){xhrRegions.abort()};
                 // we are now awaiting browse results to load
                 self.resultsLoading = true;
                 // Set up loader display
-                self.curLoader = new LoaderDisplay('loader-outer', '<p>Collecting site data...</p>');
+                self.curLoaderRegions = new LoaderDisplay('loader-outer-regions',
+                    '<p>Collecting region data...</p>');
             },
             success: function (data) {
                 //alert(JSON.stringify(data));
-                self.updateTimeseriesDisplay(data, measurement);
+                self.updateTimeseriesDisplayRegions(data);
             },
             error: function (xhr, status, error) {
                 if (xhr.statusText !== 'abort') {
-                    alert("An error occurred: "
+                    alert("An error occurred fetching regions: "
                         + "url: " + dataUrl + '; '
                         + "message: " + error + "; "
                         + "status: " + xhr.status + "; "
@@ -376,18 +381,180 @@ export class GapMap {
             },
             complete: function (request, status) {
                 // Clear Loader
-                self.curLoader.stopLoader('loader-outer');
+                self.curLoaderRegions.stopLoader('loader-outer-regions');
                 self.resultsLoading = false;
             }
         });
-
     }
 
-    updateTimeseriesDisplay(data, measurement){
-        var actualData = data['actual_data'];
+    updateTimeseriesSites(jsonParams, timeseries_val, measurement){
+        var dataUrl = dataUrlSites + '/' + measurement + '/' + timeseries_val + '/';
+
+        // Clear sites
+        sitesLayer.clearLayers();
+
+        var self = this;
+        xhrSites = $.ajax({
+            url: dataUrl,
+            data:JSON.stringify(jsonParams),
+            headers: { "X-CSRFToken": this.csrftoken},
+            dataType: 'json',
+            method: 'POST',
+            timeout: 100000,
+            beforeSend: function () {
+                // Stop previous loading
+                if(self.curLoaderSites){self.curLoaderSites.stopLoader('loader-outer')};
+                if(xhrSites){xhrSites.abort()};
+                // we are now awaiting browse results to load
+                self.resultsLoading = true;
+                // Set up loader display
+                self.curLoaderSites =
+                    new LoaderDisplay('loader-outer', '<p>Collecting site data...</p>');
+            },
+            success: function (data) {
+                //alert(JSON.stringify(data));
+                self.updateTimeseriesDisplaySites(data, measurement);
+            },
+            error: function (xhr, status, error) {
+                if (xhr.statusText !== 'abort') {
+                    alert("An error occurred loading sites: "
+                        + "url: " + dataUrl + '; '
+                        + "message: " + error + "; "
+                        + "status: " + xhr.status + "; "
+                        + "status-text: " + xhr.statusText + "; "
+                        + "error message: " + JSON.stringify(xhr));
+                }
+            },
+            complete: function (request, status) {
+                // Clear Loader
+                self.curLoaderSites.stopLoader('loader-outer');
+                self.resultsLoading = false;
+            }
+        });
+    }
+
+    updateTimeseriesDisplayRegions(data){
         var estimatedData = data['estimated_data'];
 
-        /*[
+        /*  Sample data
+        [
+            {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
+                "region_id":"AL",
+                "value":74.5,
+                "geom":
+                    [[[[-0.25616,51.71952],[-0.26278,51.71111],[-0.30966,51.71255],[-0.34563,51.69573],
+                    [-0.36084,51.69769],[-0.36764,51.68499],[-0.37461,51.69197],[-0.36263,51.69805],
+                    [-0.38517,51.70467],[-0.38338,51.71398],[-0.40342,51.73366],[-0.40146,51.74171],
+                    [-0.41004,51.74744],[-0.41523,51.77464],[-0.5038,51.82062],[-0.46981,51.8514],
+                    [-0.44243,51.84925],[-0.42758,51.83386],[-0.37461,51.84013],[-0.35207,51.83529],
+                    [-0.33364,51.84818],[-0.31503,51.83762],[-0.28103,51.83511],[-0.27405,51.85014],
+                    [-0.23469,51.83333],[-0.22324,51.85981],[-0.18405,51.84979],[-0.13664,51.84138],
+                    [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
+                    [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
+                    [-0.2533,51.7197],[-0.25616,51.71952]]]],
+                 "extra_data":"{'rings':'1'}",
+                 "timestamp":"2017-08-22",
+                 "method_name":"file",
+                 "percent_score": 0.33557046979865773,
+                 'z_score': 0.8,
+                 'min': 2,
+                 'max': 22,
+                 'mean': 12,
+                 'std_dev': 3.5
+             }
+          ]
+        */
+
+        // Update regions to show values
+        for (var i=0; i<estimatedData.length; i++){
+            var region = estimatedData[i];
+            /*if (i==0){
+                alert(JSON.stringify(region));
+            }*/
+
+            var layer = regions[region.region_id];
+            if (layer == null){
+                //alert(region.region_id);
+                //alert(JSON.stringify(region));
+                continue;
+            }
+
+            var valColor = 'gray'
+            if (region.value == null){
+                layer.setStyle({
+                            'fillColor': 'gray',
+                            'fillOpacity': 0.7,
+                            'weight': '1'
+                          });
+                var regionValue = 'none';
+
+            }else {
+                valColor = this.getGreenToRed(((region.z_score+3) /6) * 100).toString();
+                layer.setStyle({
+                    'fillColor': valColor,
+                    'fillOpacity': 0.2,
+                    'weight': '1'
+                });
+                var regionValue = region.value.toString();
+            }
+            /*  Sample input
+            [
+            {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
+                "region_id":"AL",
+                "value":74.5,
+                "geom":
+                    [[[[-0.25616,51.71952],[-0.26278,51.71111],[-0.30966,51.71255],[-0.34563,51.69573],
+                    [-0.36084,51.69769],[-0.36764,51.68499],[-0.37461,51.69197],[-0.36263,51.69805],
+                    [-0.38517,51.70467],[-0.38338,51.71398],[-0.40342,51.73366],[-0.40146,51.74171],
+                    [-0.41004,51.74744],[-0.41523,51.77464],[-0.5038,51.82062],[-0.46981,51.8514],
+                    [-0.44243,51.84925],[-0.42758,51.83386],[-0.37461,51.84013],[-0.35207,51.83529],
+                    [-0.33364,51.84818],[-0.31503,51.83762],[-0.28103,51.83511],[-0.27405,51.85014],
+                    [-0.23469,51.83333],[-0.22324,51.85981],[-0.18405,51.84979],[-0.13664,51.84138],
+                    [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
+                    [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
+                    [-0.2533,51.7197],[-0.25616,51.71952]]]],
+                 "extra_data":"{'rings':'1'}",
+                 "timestamp":"2017-08-22 00:00:00+00",
+                 "percent_score": 0.33557046979865773,
+                 'z_score': 0.8,
+                 'min': 2,
+                 'max': 22,
+                 'mean': 12,
+                 'std_dev': 3.5
+             }
+          ]
+        */
+            var extraData = '<table class="table table-striped">';
+            extraData += '<tr><th>Region ID</th><td>' + region.region_id + '</td></tr>';
+            extraData += '<tr><th>Timestamp</th><td>' + region.timestamp.toString() + '</td></tr>';
+            for (var key in region['extra_data']){
+                extraData += '<tr><th>' + key + '</th><td>' + region['extra_data'][key] + '</td></tr>';
+            };
+            for (var key in region['region_extra_data']){
+                extraData += '<tr><th>' + key + '</th><td>' + region['region_extra_data'][key] + '</td></tr>';
+            };
+            extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
+            extraData += '<tr><th>Value</th><td><button class="score-button">' + region.value + '</button></td></tr>';
+            extraData += '<tr><th>Z Score</th><td><button class="score-button"  style="background-color:' +
+                valColor + ';">' +  (region.z_score*1).toString()  + '</button></td></tr>';
+            extraData += '<tr><th>Percentage Score</th><td><button class="score-button"  style="background-color:' +
+                this.getGreenToRed(region.percent_score*100) + ';">' +  (region.percent_score*100).toFixed(2).toString()  +
+                '</button></td></tr>';
+            extraData += '<tr><th>Mean</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Standard Dev</th><td>' +  (region.std_dev).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Min value</th><td>' +  (region.min).toFixed(2).toString()  + '</td></tr>';
+            extraData += '<tr><th>Max value</th><td>' +  (region.max).toFixed(2).toString()  + '</td></tr>';
+
+            extraData += '</table>';
+            layer.bindPopup(extraData);
+        }
+    }
+
+    updateTimeseriesDisplaySites(data, measurement){
+        var actualData = data['actual_data'];
+
+        /* Sample actualData
+        [
             {   "extra_data":"{"region":"AB"}",
                 "value":66,
                 "timestamp":"2017-01-01 00:00:00+00",
@@ -493,128 +660,6 @@ export class GapMap {
 
             siteMarker.bindPopup(extraData + popButton.outerHTML);
             sitesLayer.addLayer(siteMarker);
-
-        }
-
-        /*[
-            {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
-                "region_id":"AL",
-                "value":74.5,
-                "geom":
-                    [[[[-0.25616,51.71952],[-0.26278,51.71111],[-0.30966,51.71255],[-0.34563,51.69573],
-                    [-0.36084,51.69769],[-0.36764,51.68499],[-0.37461,51.69197],[-0.36263,51.69805],
-                    [-0.38517,51.70467],[-0.38338,51.71398],[-0.40342,51.73366],[-0.40146,51.74171],
-                    [-0.41004,51.74744],[-0.41523,51.77464],[-0.5038,51.82062],[-0.46981,51.8514],
-                    [-0.44243,51.84925],[-0.42758,51.83386],[-0.37461,51.84013],[-0.35207,51.83529],
-                    [-0.33364,51.84818],[-0.31503,51.83762],[-0.28103,51.83511],[-0.27405,51.85014],
-                    [-0.23469,51.83333],[-0.22324,51.85981],[-0.18405,51.84979],[-0.13664,51.84138],
-                    [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
-                    [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
-                    [-0.2533,51.7197],[-0.25616,51.71952]]]],
-                 "extra_data":"{'rings':'1'}",
-                 "timestamp":"2017-08-22 00:00:00+00",
-                 "percent_score": 0.33557046979865773,
-                 'z_score': 0.8,
-                 'min': 2,
-                 'max': 22,
-                 'mean': 12,
-                 'std_dev': 3.5
-             }
-          ]
-        */
-
-        // Clear each region's layer info
-        /*for (var key in regions) {
-            regions[key].bindTooltip('None',
-                {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
-            )
-        }*/
-
-        // Update regions to show values
-        for (var i=0; i<estimatedData.length; i++){
-            var region = estimatedData[i];
-            /*if (i==0){
-                alert(JSON.stringify(region));
-            }*/
-
-            var layer = regions[region.region_id];
-            if (layer == null){
-                //alert(region.region_id);
-                //alert(JSON.stringify(region));
-                continue;
-            }
-
-            var valColor = 'gray'
-            if (region.value == null){
-                layer.setStyle({
-                            'fillColor': 'gray',
-                            'fillOpacity': 0.7,
-                            'weight': '1'
-                          });
-                var regionValue = 'none';
-
-            }else {
-                valColor = this.getGreenToRed(((region.z_score+3) /6) * 100).toString();
-                layer.setStyle({
-                    'fillColor': valColor,
-                    'fillOpacity': 0.2,
-                    'weight': '1'
-                });
-                var regionValue = region.value.toString();
-            }
-            /*[
-            {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
-                "region_id":"AL",
-                "value":74.5,
-                "geom":
-                    [[[[-0.25616,51.71952],[-0.26278,51.71111],[-0.30966,51.71255],[-0.34563,51.69573],
-                    [-0.36084,51.69769],[-0.36764,51.68499],[-0.37461,51.69197],[-0.36263,51.69805],
-                    [-0.38517,51.70467],[-0.38338,51.71398],[-0.40342,51.73366],[-0.40146,51.74171],
-                    [-0.41004,51.74744],[-0.41523,51.77464],[-0.5038,51.82062],[-0.46981,51.8514],
-                    [-0.44243,51.84925],[-0.42758,51.83386],[-0.37461,51.84013],[-0.35207,51.83529],
-                    [-0.33364,51.84818],[-0.31503,51.83762],[-0.28103,51.83511],[-0.27405,51.85014],
-                    [-0.23469,51.83333],[-0.22324,51.85981],[-0.18405,51.84979],[-0.13664,51.84138],
-                    [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
-                    [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
-                    [-0.2533,51.7197],[-0.25616,51.71952]]]],
-                 "extra_data":"{'rings':'1'}",
-                 "timestamp":"2017-08-22 00:00:00+00",
-                 "percent_score": 0.33557046979865773,
-                 'z_score': 0.8,
-                 'min': 2,
-                 'max': 22,
-                 'mean': 12,
-                 'std_dev': 3.5
-             }
-          ]
-        */
-            var extraData = '<table class="table table-striped">';
-            extraData += '<tr><th>Region ID</th><td>' + region.region_id + '</td></tr>';
-            extraData += '<tr><th>Timestamp</th><td>' + region.timestamp.toString() + '</td></tr>';
-            for (var key in region['extra_data']){
-                extraData += '<tr><th>' + key + '</th><td>' + region['extra_data'][key] + '</td></tr>';
-            };
-            for (var key in region['region_extra_data']){
-                extraData += '<tr><th>' + key + '</th><td>' + region['region_extra_data'][key] + '</td></tr>';
-            };
-            extraData += '<tr><th>Measurement Stats:</th><th colspan="2">(based on all timestamps/regions)</th></tr>';
-            extraData += '<tr><th>Value</th><td><button class="score-button">' + region.value + '</button></td></tr>';
-            extraData += '<tr><th>Z Score</th><td><button class="score-button"  style="background-color:' +
-                valColor + ';">' +  (region.z_score*1).toString()  + '</button></td></tr>';
-            extraData += '<tr><th>Percentage Score</th><td><button class="score-button"  style="background-color:' +
-                this.getGreenToRed(region.percent_score*100) + ';">' +  (region.percent_score*100).toFixed(2).toString()  +
-                '</button></td></tr>';
-            extraData += '<tr><th>Mean</th><td>' +  (region.percent_score*100).toFixed(2).toString()  + '</td></tr>';
-            extraData += '<tr><th>Standard Dev</th><td>' +  (region.std_dev).toFixed(2).toString()  + '</td></tr>';
-            extraData += '<tr><th>Min value</th><td>' +  (region.min).toFixed(2).toString()  + '</td></tr>';
-            extraData += '<tr><th>Max value</th><td>' +  (region.max).toFixed(2).toString()  + '</td></tr>';
-
-            extraData += '</table>';
-            layer.bindPopup(extraData);
-            /*layer.bindTooltip(regionValue +
-                extraData,
-                {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
-            )*/
         }
     }
 
@@ -631,15 +676,16 @@ export class GapMap {
         // Add Regions to map
         regionsLayer.clearLayers();
         var self = this;
-        xhr = $.ajax({
+        xhrUpdate = $.ajax({
             url: urlRegion,
             dataType: 'json',
             async: false,
             beforeSend: function () {
-                if(self.curLoader){self.curLoader.stopLoader('loader-outer');}
-                if(xhr){xhr.abort()};
+                if(self.curLoaderUpdate){self.curLoaderUpdate.stopLoader('loader-outer');}
+                if(xhrUpdate){xhrUpdate.abort()};
                 // Set up loader display
-                self.curLoader = new LoaderDisplay('loader-outer','<p>Setting up map and region data...</p>');
+                self.curLoaderUpdate =
+                    new LoaderDisplay('loader-outer','<p>Setting up map and region data...</p>');
             },
             success: function(data) {
                 // Add GeoJSON layer
@@ -690,7 +736,7 @@ export class GapMap {
             },
             complete: function (request, status) {
                 // Clear Loader
-                self.curLoader.stopLoader('loader-outer');
+                self.curLoaderUpdate.stopLoader('loader-outer');
             }
         });
     };

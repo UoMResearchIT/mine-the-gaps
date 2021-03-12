@@ -185,6 +185,31 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
     finally:
         return response
 
+def get_all_regions_at_timestamp(request, method_name, measurement=None, timestamp_val=None,):
+    try:
+        data = {
+            'estimated_data': estimates(request, method_name, measurement, timestamp_val=timestamp_val,
+                                        return_all_fields=True)
+        }
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+
+    finally:
+        return response
+
+def get_all_sites_at_timestamp(request, measurement=None, timestamp_val=None,):
+    try:
+        data = {
+            'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
+        }
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+
+    finally:
+        return response
+
 
 def get_all_timeseries_at_region(request, method_name, measurement, region_id, site_id):
     try:
@@ -658,7 +683,7 @@ def handle_uploaded_files(request):
     upload_estimated_data(request)
 
 def upload_actual_data(request):
-    global progress_udate
+    global progress_update
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']

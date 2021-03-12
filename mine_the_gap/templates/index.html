@@ -8,6 +8,8 @@
         var abs_uri = '{{ request.build_absolute_uri }}'
         var url = '{{ request.path }}';
         var dataUrl = url + 'all_data';
+        var dataUrlRegions = url + 'all_regions';
+        var dataUrlSites = url + 'all_sites';
         var mapIconPath = "{% static 'image/leaflet' %}";
         var siteDataUrl = '{% url "sites_metadata" %}';
         var regionsFileUrl = '{% url "regions_metadata" %}';
@@ -275,6 +277,7 @@
             </div>
             <div id="map" class="col-sm-6">
                 <div id="loader-outer"></div>
+                <div id="loader-outer-regions"></div>
 
                 <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
                 <div id="mapid"></div>
