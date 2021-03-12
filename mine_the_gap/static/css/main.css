@@ -1,6 +1,16 @@
 div#site-charts {
     overflow-y: scroll;
-    height: 300px;
+    height: 360px;
+}
+
+div#measurement-radios {
+    overflow-y: scroll;
+    height: 400px;
+}
+
+.leaflet-popup-content{
+    overflow-y: scroll;
+    height: 400px;
 }
 
 .score-button {
