@@ -33,6 +33,8 @@ urlpatterns = [
     path('progress/', views.get_progress),
     path('site_fields', views.get_site_fields),
     path('all_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_all_data_at_timestamp),
+    path('all_regions/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_all_regions_at_timestamp),
+    path('all_sites/<slug:measurement>/<slug:timestamp_val>/', views.get_all_sites_at_timestamp),
     path('all_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:site_id>/', views.get_all_timeseries_at_region),
 
 
@@ -50,7 +52,7 @@ urlpatterns = [
     path('site_data/<slug:measurement>/<slug:timestamp_val>/<int:site_id>/', views.get_actuals),
     path('estimated_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/<slug:region_id>/', views.get_estimates),
 
-    # Get data for particular measurement and timestamp  (and estimation method for estimated_data)  - ALL REGIONS
+    # Get data for particular measurement and timestamp  (and estimation method for estimated_data)  - ALL REGIONS/SITES
     path('site_data/<slug:measurement>/<slug:timestamp_val>/', views.get_actuals),
     path('estimated_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/', views.get_estimates),
 

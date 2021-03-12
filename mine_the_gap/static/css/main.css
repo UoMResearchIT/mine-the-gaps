@@ -299,15 +299,12 @@ table#api-instructions{
     Timer / spinner to show data loading.
 
  */
-
-
-#loader-outer{
+#loader-outer, #loader-outer-regions{
     position:fixed;
     top: 20%;
     left: 15%;
     z-index: 2000;
     width:400px;
-
 }
 
 

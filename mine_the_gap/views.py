@@ -185,6 +185,31 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
     finally:
         return response
 
+def get_all_regions_at_timestamp(request, method_name, measurement=None, timestamp_val=None,):
+    try:
+        data = {
+            'estimated_data': estimates(request, method_name, measurement, timestamp_val=timestamp_val,
+                                        return_all_fields=True)
+        }
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+
+    finally:
+        return response
+
+def get_all_sites_at_timestamp(request, measurement=None, timestamp_val=None,):
+    try:
+        data = {
+            'actual_data': actuals(request, measurement, timestamp_val=timestamp_val, return_all_fields=True),
+        }
+        response = JsonResponse(data, safe=False)
+    except Exception as err:
+        response = JsonResponse({'status': 'false', 'message': str(err)}, status=500)
+
+    finally:
+        return response
+
 
 def get_all_timeseries_at_region(request, method_name, measurement, region_id, site_id):
     try:

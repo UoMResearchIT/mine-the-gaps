@@ -96,6 +96,7 @@ function initialiseParameters(mapCenterLatLng, measurementNames, methodNames){
     initialiseMethods(methodNames);
     initialiseSiteFields();
     gapMap.updateTimeseries(get_site_select_url_params(),
+        $("input[name='estimation-method']:checked").val(),
         timestampList[document.getElementById("timestamp-range").value].trim(),
         $("input[name='measurement']:checked").val())
 }
@@ -116,6 +117,7 @@ function initialiseMeasurements(measurementNames){
     $("#measurement-names input").change(function() {
         $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
         gapMap.updateTimeseries(get_site_select_url_params(),
+            $("input[name='estimation-method']:checked").val(),
             timestampList[document.getElementById("timestamp-range").value].trim(),
             $("input[name='measurement']:checked").val());
     });
@@ -137,6 +139,7 @@ function initialiseMethods(methodNames){
         $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
         gapMap.dataUrl = dataUrl + '/' + this.value + '/';
         gapMap.updateTimeseries(get_site_select_url_params(),
+            $("input[name='estimation-method']:checked").val(),
             timestampList[document.getElementById("timestamp-range").value].trim(),
             $("input[name='measurement']:checked").val());
     });
@@ -491,6 +494,7 @@ function initialiseSiteFields(){
                 // Check if this edit boxes select/omit values have changed. If so update map.
                 if(newVal !== prevVal){
                     gapMap.updateTimeseries(get_site_select_url_params(),
+                        $("input[name='estimation-method']:checked").val(),
                         timestampList[document.getElementById("timestamp-range").value].trim(),
                         $("input[name='measurement']:checked").val());
                 }
@@ -523,6 +527,7 @@ function get_site_select_url_params(){
             result['selectors'].push(fieldDict);
         }
     });
+    result['method'] = $("input[name='estimation-method']:checked").val();
     result['csrfmiddlewaretoken'] = getCookie('csrftoken');
     return result;
 }
@@ -540,13 +545,18 @@ function initialiseTimeSlider(value=0){
     slider.max = timestampList.length-1;
     slider.value = value;
     output.innerHTML = timestampList[value]; // Display the default slider value
-    gapMap.updateTimeseries(get_site_select_url_params(), value, $("input[name='measurement']:checked").val());
+    gapMap.updateTimeseries(get_site_select_url_params(),
+        $("input[name='estimation-method']:checked").val(),
+        value,
+        $("input[name='measurement']:checked").val());
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function() {
         output.innerHTML = timestampList[this.value];
     };
     slider.onchange = function() {
-        gapMap.updateTimeseries(get_site_select_url_params(), timestampList[this.value],
+        gapMap.updateTimeseries(get_site_select_url_params(),
+            $("input[name='estimation-method']:checked").val(),
+            timestampList[this.value],
             $("input[name='measurement']:checked").val());
     };
 
