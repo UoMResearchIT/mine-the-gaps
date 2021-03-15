@@ -687,295 +687,294 @@ def upload_actual_data(request):
     try:
         filepath_site = request.FILES['site_metadata_file']
         filepath_actual = request.FILES['actual_data_file']
-    except Exception:
-        pass
-    else:
-        Actual_value.objects.all().delete()
-        Actual_data.objects.all().delete()
-        Sensor.objects.all().delete()
+    except Exception as err:
+        return
 
-        file_sites = TextIOWrapper(filepath_site.file, encoding=request.encoding)
-        reader = csv.reader(file_sites)
-        # skip/get the headers
-        field_titles = next(reader, None)
+    Actual_value.objects.all().delete()
+    Actual_data.objects.all().delete()
+    Sensor.objects.all().delete()
 
-        extra_field_idxs = []
-        site_id_idx = None
-        lat_idx = None
-        long_idx = None
+    file_sites = TextIOWrapper(filepath_site.file, encoding=request.encoding)
+    reader = csv.reader(file_sites)
+    # skip/get the headers
+    field_titles = next(reader, None)
 
-        #print(str(field_titles))
+    extra_field_idxs = []
+    site_id_idx = None
+    lat_idx = None
+    long_idx = None
 
-        # Find the fields in the sites file
-        progress_update.progress_json = {'percent_complete': None,
-                                         'status': 'Loading actuals',
-                                         'sub_status': 'Loading sites metadata file'}
+    # Find the fields in the sites file
+    progress_update.progress_json = {'percent_complete': None,
+                                     'status': 'Loading actuals',
+                                     'sub_status': 'Loading sites metadata file'}
 
-        for idx, title in enumerate(field_titles):
-            title = title.strip().lower()
-            if title == 'longitude':
-                long_idx = idx
-            elif title == 'latitude':
-                lat_idx = idx
-            elif title == 'site_id':
-                site_id_idx = idx
-            else:
-                extra_field_idxs.append(idx)
-        try:
-            for row in reader:
+    for idx, title in enumerate(field_titles):
+        title = title.strip().lower()
+        if title == 'longitude':
+            long_idx = idx
+        elif title == 'latitude':
+            lat_idx = idx
+        elif title == 'site_id':
+            site_id_idx = idx
+        else:
+            extra_field_idxs.append(idx)
+    try:
+        for row in reader:
+            try:
+                extra_data = {}
+                for idx in extra_field_idxs:
+                    item = field_titles[idx]
+                    extra_data[item] = row[idx]
+                point_loc = Point(x=float(row[long_idx]), y=float(row[lat_idx]))
+                site, created = Sensor.objects.get_or_create(
+                    geom=point_loc,
+                    name=row[site_id_idx],
+                    extra_data=extra_data)
+                site.save()
+            except Exception as err:
+                print('Error loading site:', err)
+                continue
+    except Exception as err:
+        print('Error reading sites file:', err)
+        return
+
+    progress_update.progress_json = {'percent_complete': None,
+                                     'status': 'Loading actuals',
+                                     'sub_status': 'Loading actuals data file'}
+
+    file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
+    reader = csv.reader(file_actual)
+    # skip/get the headers
+    field_titles = next(reader, None)
+    row_count = reader.line_num
+
+    value_idxs = []
+    timestamp_idx = None
+    site_id_idx = None
+
+    # Find the fields in the file
+    for idx, title in enumerate(field_titles):
+        title = title.strip().lower()
+        if title.startswith('val_'):
+            value_idxs.append(idx)
+        elif (title == 'time_stamp') or (title == 'timestamp'):
+            timestamp_idx = idx
+        elif title == 'site_id':
+            site_id_idx = idx
+
+    # Read in the data
+    try:
+        line_no = 0
+        for row in reader:
+            line_no += 1
+            progress_update.progress_json = {'percent_complete': (line_no / row_count)*100,
+                                             'status': 'Loading actuals',
+                                             'sub_status': 'Loading actuals data file'}
+            try:
+                site_id = row[site_id_idx]
+
                 try:
-                    extra_data = {}
-                    for idx in extra_field_idxs:
-                        item = field_titles[idx]
-                        extra_data[item] = row[idx]
-                    point_loc = Point(x=float(row[long_idx]), y=float(row[lat_idx]))
-                    site, created = Sensor.objects.get_or_create(
-                        geom=point_loc,
-                        name=row[site_id_idx],
-                        extra_data=extra_data)
-                    site.save()
+                    site = Sensor.objects.get(name=site_id)
                 except Exception as err:
-                    print('Error loading site:', err)
-                    continue
-        except Exception as err:
-            print('Error reading sites file:', err)
-            return
+                    print('Site', site_id, 'not returned for this actual datapoint, due to:', err)
+                else:
+                    if site:
+                        actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
+                                                site=site)
+                        actual.save()
 
-        progress_update.progress_json = {'percent_complete': None,
-                                         'status': 'Loading actuals',
-                                         'sub_status': 'Loading actuals data file'}
-
-        file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
-        reader = csv.reader(file_actual)
-        row_count = sum(1 for row in reader)
-
-        # skip/get the headers
-        field_titles = next(reader, None)
-
-        value_idxs = []
-        timestamp_idx = None
-        site_id_idx = None
-
-        # Find the fields in the file
-        for idx, title in enumerate(field_titles):
-            title = title.strip().lower()
-            if title.startswith('val_'):
-                value_idxs.append(idx)
-            elif (title == 'time_stamp') or (title == 'timestamp'):
-                timestamp_idx = idx
-            elif title == 'site_id':
-                site_id_idx = idx
-
-
-        # Read in the data
-        try:
-            for row in reader:
-                progress_update.progress_json = {'percent_complete': (reader.line_num / row_count)*100,
-                                                 'status': 'Loading actuals',
-                                                 'sub_status': 'Loading actuals data file'}
-                try:
-                    site_id = row[site_id_idx]
-
-                    try:
-                        site = Sensor.objects.get(name=site_id)
-                    except Exception as err:
-                        print('Site', site_id, 'not returned for this actual datapoint, due to:', err)
-                    else:
-                        if site:
-                            actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
-                                                    site=site)
-                            actual.save()
-
-                            #print('Value indexes: {}'.format(value_idxs))
-                            for idx in value_idxs:
-                                slug_val = slugify(str(row[idx]))
-                                if slug_val == 'missing':  #IMPORTANT: DO NOT TRY TO CATER FOR EMPTY STRINGS AS THESE SHOULD
-                                    fvalue = None
-                                elif slug_val == '':
-                                    continue
-                                else:
-                                    #print('Obtaining value ({}) in field {} as float.'.format(row[idx], field_titles[idx]))
-                                    try:
-                                        fvalue = float(row[idx])
-                                    except Exception as err:
-                                        continue
+                        #print('Value indexes: {}'.format(value_idxs))
+                        for idx in value_idxs:
+                            slug_val = slugify(str(row[idx]))
+                            if slug_val == 'missing':  #IMPORTANT: DO NOT TRY TO CATER FOR EMPTY STRINGS AS THESE SHOULD
+                                fvalue = None
+                            elif slug_val == '':
+                                continue
+                            else:
+                                #print('Obtaining value ({}) in field {} as float.'.format(row[idx], field_titles[idx]))
                                 try:
-                                    #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
-                                    name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
-                                    actual_value = Actual_value(    measurement_name=name,
-                                                                    value = fvalue,
-                                                                    actual_data = actual)
-                                    actual_value.save()
+                                    fvalue = float(row[idx])
                                 except Exception as err:
-                                    # value could not be added
-                                    print('Error adding value ({}) in field {} as float. {}'.format(fvalue, field_titles[idx], err))
+                                    continue
+                            try:
+                                #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
+                                name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
+                                actual_value = Actual_value(    measurement_name=name,
+                                                                value = fvalue,
+                                                                actual_data = actual)
+                                actual_value.save()
+                            except Exception as err:
+                                # value could not be added
+                                print('Error adding value ({}) in field {} as float. {}'.format(fvalue, field_titles[idx], err))
 
-                except Exception as err:
-                    print('Error loading actuals:', err)
-                    continue
-        except Exception as err:
-            print('Error reading actuals file:', err)
-            return
+            except Exception as err:
+                print('Error loading actuals:', err)
+                continue
+    except Exception as err:
+        print('Error reading actuals file:', err)
+        return
 
-        default_storage.save(filepath_site.name, filepath_site.file)
-        default_storage.save(filepath_actual.name, filepath_actual.file)
+    default_storage.save(filepath_site.name, filepath_site.file)
+    default_storage.save(filepath_actual.name, filepath_actual.file)
 
 def upload_estimated_data(request):
     global progress_update
     try:
         filepath_estimated = request.FILES['estimated_data_file']
         filepath_region = request.FILES['region_metadata_file']
-    except Exception:
-        pass
-    else:
-        Estimated_value.objects.all().delete()
-        Estimated_data.objects.all().delete()
-        Region.objects.all().delete()
+    except Exception as err:
+        return
 
-        file_regions = TextIOWrapper(filepath_region.file, encoding=request.encoding)
-        reader = csv.reader(file_regions)
-        # skip/get the headers
-        field_titles = next(reader, None)
-        # print('field titles:', field_titles)
+    Estimated_value.objects.all().delete()
+    Estimated_data.objects.all().delete()
+    Region.objects.all().delete()
 
-        progress_update.progress_json = {'percent_complete': None,
-                                         'status': 'Loading estimates',
-                                         'sub_status': 'Loading regions metadata file'}
+    file_regions = TextIOWrapper(filepath_region.file, encoding=request.encoding)
+    reader = csv.reader(file_regions)
+    # skip/get the headers
+    field_titles = next(reader, None)
+    # print('field titles:', field_titles)
 
-        try:
-            for row in reader:
+    progress_update.progress_json = {'percent_complete': None,
+                                     'status': 'Loading estimates',
+                                     'sub_status': 'Loading regions metadata file'}
+
+    try:
+        for row in reader:
+            try:
+                extra_data = {}
+                for idx, item in enumerate(field_titles[2:]):
+                    extra_data[item] = row[idx + 2]
+                # Initialise polys
+                multipoly_geo = MultiPolygon()
+                poly = ()
+
+                # Split the row
+                poly_split = row[1].split(' ')[1:]
+
+                # make first_point
+                point_split = poly_split[0].strip().split(',')
                 try:
-                    extra_data = {}
-                    for idx, item in enumerate(field_titles[2:]):
-                        extra_data[item] = row[idx + 2]
-                    # Initialise polys
-                    multipoly_geo = MultiPolygon()
-                    poly = ()
-
-                    # Split the row
-                    poly_split = row[1].split(' ')[1:]
-
-                    # make first_point
-                    point_split = poly_split[0].strip().split(',')
-                    try:
-                        first_point = (float(point_split[0]), float(point_split[1]))
-                    except:
-                        continue
-
-                    start = True
-                    for point_str in poly_split:
-                        point_split = point_str.strip().split(',')
-                        point = (float(point_split[0]), float(point_split[1]))
-                        poly = poly + (point,)
-                        if start != True and point == first_point:
-                            # Restart as enclosed circle found
-                            # Make an enclosed circle
-                            poly_geo = Polygon(poly)
-                            multipoly_geo.append(poly_geo)
-                            poly = ()
-                            start = True
-                        else:
-                            start = False
-
-                    region = Region(region_id=str(row[0]),
-                                    geom=multipoly_geo,
-                                    extra_data=extra_data
-                                    )
-                    region.save()
-                except Exception as err1:
-                    #print('Region file error. ', err1)
-                    #print('Region file error. Row: ', row[0])
+                    first_point = (float(point_split[0]), float(point_split[1]))
+                except:
                     continue
-        except Exception as err:
-            print('Error reading regions file:', err)
-            return
 
-        progress_update.progress_json = {'percent_complete': None,
-                                         'status': 'Loading estimates',
-                                         'sub_status': 'Loading estimates data file'}
+                start = True
+                for point_str in poly_split:
+                    point_split = point_str.strip().split(',')
+                    point = (float(point_split[0]), float(point_split[1]))
+                    poly = poly + (point,)
+                    if start != True and point == first_point:
+                        # Restart as enclosed circle found
+                        # Make an enclosed circle
+                        poly_geo = Polygon(poly)
+                        multipoly_geo.append(poly_geo)
+                        poly = ()
+                        start = True
+                    else:
+                        start = False
 
-        file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
-        reader = csv.reader(file_estimates)
-        row_count = sum(1 for row in reader)
-        # skip/get the headers
-        field_titles = next(reader, None)
-        #print('field titles:', field_titles)
+                region = Region(region_id=str(row[0]),
+                                geom=multipoly_geo,
+                                extra_data=extra_data
+                                )
+                region.save()
+            except Exception as err1:
+                #print('Region file error. ', err1)
+                #print('Region file error. Row: ', row[0])
+                continue
+    except Exception as err:
+        print('Error reading regions file:', err)
+        return
 
-        value_idxs = []
-        extra_field_idxs = []
-        timestamp_idx = 0
-        region_idx = ''
+    progress_update.progress_json = {'percent_complete': None,
+                                     'status': 'Loading estimates',
+                                     'sub_status': 'Loading estimates data file'}
 
-        # Find the fields in the file
-        for idx, title in enumerate(field_titles):
-            title = title.strip().lower()
-            if title.startswith('val_'):
-                value_idxs.append(idx)
-            elif (title == 'time_stamp') or (title == 'timestamp'):
-                timestamp_idx = idx
-            elif (title == 'region') or (title=='region_id'):
-                region_idx = idx
-            elif title.startswith('extra_'):
-                extra_field_idxs.append(idx)
+    file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
+    reader = csv.reader(file_estimates)
+    # skip/get the headers
+    field_titles = next(reader, None)
+    row_count = reader.line_num
 
-        extra_data_idxs = {}
-        for extra_idx in extra_field_idxs:
-            # 'extra_rings_Platanus_max'
-            field_name = field_titles[extra_idx].replace('extra_', '', 1)
-            # 'rings_Platanus_max'
-            extra_data_field = field_name.split('_')[0]  # 'rings'
-            measurement_name = slugify(field_name.replace(extra_data_field + '_', '', 1), lowercase=True, separator='_')
-            # 'Platanus_max'
-            if measurement_name not in extra_data_idxs:
-                extra_data_idxs[measurement_name] = {}
-            extra_data_idxs[measurement_name][extra_data_field] = extra_idx
+    value_idxs = []
+    extra_field_idxs = []
+    timestamp_idx = 0
+    region_idx = ''
 
+    # Find the fields in the file
+    for idx, title in enumerate(field_titles):
+        title = title.strip().lower()
+        if title.startswith('val_'):
+            value_idxs.append(idx)
+        elif (title == 'time_stamp') or (title == 'timestamp'):
+            timestamp_idx = idx
+        elif (title == 'region') or (title=='region_id'):
+            region_idx = idx
+        elif title.startswith('extra_'):
+            extra_field_idxs.append(idx)
 
-        try:
-            for row in reader:
-                progress_update.progress_json = {'percent_complete': (reader.line_num / row_count) * 100,
-                                                 'status': 'Loading estimates',
-                                                 'sub_status': 'Loading estimates data file'}
-                try:
-                    region = Region.objects.get(region_id=str(row[region_idx]))
-
-                    if region:
-                        estimated = Estimated_data( timestamp=slugify(row[timestamp_idx]),
-                                                    region=region
-                                                    )
-                        estimated.save()
-
-                        for idx in value_idxs:
-                            name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
-
-                            # Get extra data fields
-                            extra_idxs = extra_data_idxs[name]
-                            extra_data = {}
-                            for extra_data_name, extra_data_idx in extra_idxs.items():
-                                extra_data[extra_data_name] = row[extra_data_idx]
-
-                            # Check that the name has a matching site measurement
-                            #  and add to model if it has.
-                            #if name in site_measurements:
-                            try:
-                                fvalue = float(row[idx])
-                            except:
-                                fvalue = None
-
-                            actual_value = Estimated_value( measurement_name=name,
-                                                            value = fvalue,
-                                                            estimated_data = estimated,
-                                                            extra_data=extra_data,
-                            )
-                            actual_value.save()
+    extra_data_idxs = {}
+    for extra_idx in extra_field_idxs:
+        # 'extra_rings_Platanus_max'
+        field_name = field_titles[extra_idx].replace('extra_', '', 1)
+        # 'rings_Platanus_max'
+        extra_data_field = field_name.split('_')[0]  # 'rings'
+        measurement_name = slugify(field_name.replace(extra_data_field + '_', '', 1), lowercase=True, separator='_')
+        # 'Platanus_max'
+        if measurement_name not in extra_data_idxs:
+            extra_data_idxs[measurement_name] = {}
+        extra_data_idxs[measurement_name][extra_data_field] = extra_idx
 
 
-                except Exception as err:
-                    print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
-                    continue
-        except Exception as err:
-            print('Error reading estimated file:', err)
-            return
+    try:
+        line_no = 0
+        for row in reader:
+            line_no += 1
+            progress_update.progress_json = {'percent_complete': (line_no / row_count) * 100,
+                                             'status': 'Loading estimates',
+                                             'sub_status': 'Loading estimates data file'}
+            try:
+                region = Region.objects.get(region_id=str(row[region_idx]))
 
-        default_storage.save(filepath_region.name, filepath_region.file)
-        default_storage.save(filepath_estimated.name, filepath_estimated.file)
+                if region:
+                    estimated = Estimated_data( timestamp=slugify(row[timestamp_idx]),
+                                                region=region
+                                                )
+                    estimated.save()
+
+                    for idx in value_idxs:
+                        name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
+
+                        # Get extra data fields
+                        extra_idxs = extra_data_idxs[name]
+                        extra_data = {}
+                        for extra_data_name, extra_data_idx in extra_idxs.items():
+                            extra_data[extra_data_name] = row[extra_data_idx]
+
+                        # Check that the name has a matching site measurement
+                        #  and add to model if it has.
+                        #if name in site_measurements:
+                        try:
+                            fvalue = float(row[idx])
+                        except:
+                            fvalue = None
+
+                        actual_value = Estimated_value( measurement_name=name,
+                                                        value = fvalue,
+                                                        estimated_data = estimated,
+                                                        extra_data=extra_data,
+                        )
+                        actual_value.save()
+
+
+            except Exception as err:
+                print('Estimate file error: ', err, 'Region_ID:' + str(row[1]))
+                continue
+    except Exception as err:
+        print('Error reading estimated file:', err)
+        return
+
+    default_storage.save(filepath_region.name, filepath_region.file)
+    default_storage.save(filepath_estimated.name, filepath_estimated.file)

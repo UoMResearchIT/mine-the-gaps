@@ -21,59 +21,6 @@
 
     </script>
 
-    {% block load_files %}
-
-        {% if user.is_authenticated %}
-            <div id="load-files" class="container">
-                <div class="row">
-                    <div class="col-sm-2">
-                        <button id="btn-select-files">Select data files</button>
-                    </div>
-                </div>
-                <div class="row" id="select-files">
-
-                    {% with filepaths|first as filepath %}
-                        <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                            <div id="upload-fields" class='col-sm-12'>
-                                {% csrf_token %}
-                                <table class="table table-striped">
-                                    <tr>
-                                      <th scope="col"></th>
-                                        <th scope="col">Timestamped data</th>
-                                        <th scope="col">Metadata</th>
-                                    </tr>
-                                    <tr>
-                                        {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
-                                        <th scope="row">Actual data</th>
-                                        <td><span class="current-filename">Site data file: (current: {{ filepath.actual_data_filename|safe }})</span>
-                                            {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
-                                        <td><span class="current-filename">Site metadata file: (current: {{ filepath.site_metadata_filename|safe }})</span>
-                                            {% if form.site_metadata_file %}<br>{{ form.site_metadata_file }}{% endif %}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Estimated data</th>
-                                        <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
-                                            {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
-                                        <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
-                                            {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
-                                    </tr>
-                                </table>
-                                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-                            </div>
-                            {% if form.errors %}
-                                {% for error in form.non_field_errors %}
-                                    <div class="alert alert-danger">
-                                        <strong>{{ error|escape }}</strong>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </form>
-                    {% endwith %}
-                </div>
-            </div>
-        {% endif %}
-    {% endblock %}
-
     <div id="map-main-info" class="container-fluid">
         <div class="row" id="main">
 
@@ -131,7 +78,7 @@
                     <div id="collapseFilterSites" class="panel-collapse collapse"></div>
                 </div>
 
-            <div id="upload-data" class="panel-group">
+                <div id="upload-data" class="panel-group">
                     <div class="panel panel-default">
                         <div class="panel-heading" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
                             <div class="panel-title">Upload data and visualise<span class="chosen-option" id="upload-data-label"></span></div>
@@ -200,7 +147,7 @@
                                     <table id="api-instructions" class="table table-condensed">
                                         <tr><td colspan="4"></td> </tr>
                                         <tr id="api-call-instructions" class="download-instructions">
-                                            <td colspan="4"><em><b>Obtain data using REST API:</b>
+                                            <td colspan="4"><em><b>Obtain data using REST API:</b></em>
                                             <em>Prefix all calls with: <br>
                                                 <code>minethegaps.manchester.ac.uk</code></em></td>
                                         </tr>
@@ -274,6 +221,78 @@
                         </div>
                     </div>
                 </div>
+                {% if user.is_authenticated %}
+                    <div id="upload-options" class="panel-group">
+                        <div class="panel panel-default" data-toggle="modal" data-target="#modalUpload">
+                            <div class="panel-heading">
+                                <div class="panel-title">Upload environment data</div>
+                            </div>
+                        </div>
+                        <div id="modalUpload" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Upload environment data</h4>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <div id="load-files" class="container">
+                                            <div class="row" id="select-files">
+
+                                                {% with filepaths|first as filepath %}
+                                                    <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                                                        <div id="upload-fields" class='col-sm-12'>
+                                                            {% csrf_token %}
+                                                            <table class="table table-striped">
+                                                                <tr>
+                                                                  <th scope="col"></th>
+                                                                    <th scope="col">Timestamped data</th>
+                                                                    <th scope="col">Metadata</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
+                                                                    <th scope="row">Actual data</th>
+                                                                    <td><span class="current-filename">Site data file: (current: {{ filepath.actual_data_filename|safe }})</span>
+                                                                        {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
+                                                                    <td><span class="current-filename">Site metadata file: (current: {{ filepath.site_metadata_filename|safe }})</span>
+                                                                        {% if form.site_metadata_file %}<br>{{ form.site_metadata_file }}{% endif %}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Estimated data</th>
+                                                                    <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
+                                                                        {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
+                                                                    <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
+                                                                        {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
+                                                                </tr>
+                                                            </table>
+                                                            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                                                        </div>
+                                                        {% if form.errors %}
+                                                            {% for error in form.non_field_errors %}
+                                                                <div class="alert alert-danger">
+                                                                    <strong>{{ error|escape }}</strong>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </form>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+
             </div>
             <div id="map" class="col-sm-6">
                 <div id="loader-outer"></div>
