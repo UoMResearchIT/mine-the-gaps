@@ -78,6 +78,15 @@ pre {
   width: 80%; /* Could be more or less, depending on screen size */
 }
 
+#download-options .modal-content{
+    width:700px;
+}
+
+#upload-options .modal-content{
+    width:1200px;
+    margin-left:-250px
+}
+
 /* The Close Button */
 .close {
   color: #aaa;
@@ -103,9 +112,7 @@ pre {
 
 }
 
-#download-options .modal-content{
-    width:700px;
-}
+
 
 table#download-buttons{
     margin:0;
