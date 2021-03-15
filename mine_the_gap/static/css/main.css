@@ -1,3 +1,13 @@
+div#login{
+    font-size: 12px;
+    font-style: italic;
+    text-align: right;
+}
+
+.row.admin{
+    height:0px;
+}
+
 div#site-charts {
     overflow-y: scroll;
     height: 360px;
