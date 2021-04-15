@@ -815,7 +815,7 @@ function get_site_default(){
         '       <a href="https://zenodo.org/record/4416028" target = _blank>' +
                 'https://zenodo.org/record/4416028</a></br>' +
             'The <b>region estimation methods</b> (under \'Select estimation method\'): </br> ' +
-        'the \'input file\' contains estimated data downloadable from <a href="https://zenodo.org/record/4475652" target="_blank">' +
+        'the \'pre-loaded\' data contains estimated data downloadable from <a href="https://zenodo.org/record/4475652" target="_blank">' +
         'https://zenodo.org/record/4475652</a> (file 2 \'imputed site data\')' +
         '. This file was created using the python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
                 'https://pypi.org/project/region-estimators/ </a>' +
