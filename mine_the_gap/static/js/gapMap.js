@@ -15,17 +15,20 @@ const regionsLayer = new L.LayerGroup();
 var userMeasurementLayers = {};
 var layerControl = null;
 const accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
+const accessTokenTF = '96ca6ca48a7940b89609ca2799863c5b'
 //const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
 //                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
 //               ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
                 ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
-                ', Topology © <a href="https://opentopomap.org">OpenTopoMap</a>';
-const mapId = 'mapbox.streets';
-//const mapUrlStreet = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-const mapUrlStreet = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                ', Topology © <a href="https://opentopomap.org">OpenTopoMap</a>' +
+                ', Thunderforest © <a href="https://thunderforest.com">Thunderforest</a>';
 
+const mapId = 'mapbox.streets';
+const mapIdTF = '';
+const mapUrlStreet = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const mapUrlTopology = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+const mapUrlLandscape = 'https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey='+accessTokenTF
 const defaultInitCenter = ["54.2361", "-4.5481"];
 const initZoom = 6;
 var xhrSites = null;
@@ -38,6 +41,7 @@ export class GapMap {
         this.svgIcons = new svgIcons();
         this.domId = mapDomId;
         this.accessToken = accessToken;
+        this.accessTokenTF = accessTokenTF;
         this.bounds = null;
         this.regionsFileUrl = regionsFileUrl;
         this.csrftoken = csrfToken;
@@ -69,10 +73,12 @@ export class GapMap {
 
         var streets   = L.tileLayer(mapUrlStreet, {id: mapId, accessToken: accessToken, attribution: attribution});
         var topology = L.tileLayer(mapUrlTopology, {id: mapId, accessToken: accessToken, attribution: attribution});
+        var landscape = L.tileLayer(mapUrlLandscape, {id: mapId, accessTokenTF: accessTokenTF, attribution: attribution});
 
         var baseMaps = {
             "streets": streets,
-            "topology": topology
+            "topology": topology,
+            "landscape": landscape
         };
 
         var overlayMaps = {
