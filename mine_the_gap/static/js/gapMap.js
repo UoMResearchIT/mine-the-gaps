@@ -29,7 +29,8 @@ const mapIdTF = '';
 const mapUrlStreet = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const mapUrlTopology = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
 const mapUrlLandscape = 'https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey='+accessTokenTF
-const defaultInitCenter = ["54.2361", "-4.5481"];
+const UK_center = ["54.2361", "-4.5481"]
+const defaultInitCenter = UK_center;
 const initZoom = 6;
 var xhrSites = null;
 var xhrRegions = null;
@@ -54,7 +55,7 @@ export class GapMap {
         this.userUploadedData = null;
         this.timestampList = timestampList
         this.createMap(centerLatLng);
-        this.updateMap();
+        this.updateMap(this.regionsFileUrl, 'street-map', initZoom,centerLatLng);
 
         this.colourShapeMarker = L.Marker.extend({
           options: {
@@ -65,7 +66,7 @@ export class GapMap {
     }
 
     updateLoader(message){
-        if(this.curLoader){this.curLoader.setMessage(message)};
+        if(this.curLoaderUpdate){this.curLoaderUpdate.setMessage(message)};
     }
 
     createMap(centerLatLng){
@@ -110,7 +111,7 @@ export class GapMap {
         }
 
         map.setView(initCenter, initZoom);
-        map.options.minZoom = 5;
+        map.options.minZoom = 2;
         map.options.maxZoom = 14;
         // bounds must be set after only the first initialisation of map
         this.bounds = map.getBounds();
