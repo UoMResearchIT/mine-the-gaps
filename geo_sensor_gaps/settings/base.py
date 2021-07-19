@@ -129,3 +129,5 @@ MEDIA_URL = '/media/'
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

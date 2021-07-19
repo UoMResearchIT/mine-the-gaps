@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.contrib.gis.db import models as gismodels
-
 
 class Filenames(models.Model):
     actual_data_filename = models.CharField(max_length=50, null=True)
@@ -90,7 +89,6 @@ class Sensor(gismodels.Model):
         for region in regions:
             result.append(region.region_id)
         return result
-
 
 
 class Actual_data(gismodels.Model):
