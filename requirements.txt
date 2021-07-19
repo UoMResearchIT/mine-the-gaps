@@ -33,7 +33,7 @@ pyproj==2.4.2.post1
 python-dateutil==2.8.1
 pytz==2019.3
 redis==3.3.11
-regex==2019.12.9
+regex==regex-2021.7.6
 region-estimators==1.1.5
 Shapely==1.6.4.post2
 six==1.14.0
