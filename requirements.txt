@@ -16,7 +16,7 @@ django-pandas==0.6.1
 django-range-slider==0.2.4
 django-redis==5.0.0
 djangorestframework==3.11.2
-Fiona==1.8.13
+Fiona==1.8.20
 fstring==1.7.4
 geojson==2.5.0
 geopandas==0.6.2
