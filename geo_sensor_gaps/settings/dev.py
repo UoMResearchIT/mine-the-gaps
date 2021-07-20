@@ -6,7 +6,6 @@ from .base import *
 DEBUG = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-SECRET_KEY = os.environ.get('SECRET_KEY')
 
 try:
     from .local import *
