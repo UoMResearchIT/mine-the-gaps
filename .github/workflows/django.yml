@@ -27,6 +27,7 @@ jobs:
         pip install -r requirements.txt
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         # $CONDA/bin/conda env update --file env_geo_web_app.yml --name base
+        # pip install django-geojson django-redis  django-range-slider region-estimators
     - name: Run Tests
       run: |
         python manage.py test
