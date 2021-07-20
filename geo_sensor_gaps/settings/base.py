@@ -131,3 +131,5 @@ MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL = '/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
