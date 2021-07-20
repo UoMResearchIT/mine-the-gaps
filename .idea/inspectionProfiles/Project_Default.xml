@@ -4,7 +4,7 @@
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredPackages">
         <value>
-          <list size="33">
+          <list size="43">
             <item index="0" class="java.lang.String" itemvalue="djangorestframework" />
             <item index="1" class="java.lang.String" itemvalue="typed-ast" />
             <item index="2" class="java.lang.String" itemvalue="jsonfield" />
@@ -38,6 +38,16 @@
             <item index="30" class="java.lang.String" itemvalue="typing" />
             <item index="31" class="java.lang.String" itemvalue="slugify" />
             <item index="32" class="java.lang.String" itemvalue="django_range_slider" />
+            <item index="33" class="java.lang.String" itemvalue="pandas" />
+            <item index="34" class="java.lang.String" itemvalue="csvs" />
+            <item index="35" class="java.lang.String" itemvalue="cligj" />
+            <item index="36" class="java.lang.String" itemvalue="geopandas" />
+            <item index="37" class="java.lang.String" itemvalue="cmake" />
+            <item index="38" class="java.lang.String" itemvalue="python-dateutil" />
+            <item index="39" class="java.lang.String" itemvalue="Click" />
+            <item index="40" class="java.lang.String" itemvalue="pyproj" />
+            <item index="41" class="java.lang.String" itemvalue="pytz" />
+            <item index="42" class="java.lang.String" itemvalue="Mako" />
           </list>
         </value>
       </option>
