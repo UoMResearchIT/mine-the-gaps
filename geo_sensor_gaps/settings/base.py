@@ -17,7 +17,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        
+        'NAME': 'geo_sensor_gaps',
+        'USER': 'geo_sensor_gaps_user',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
