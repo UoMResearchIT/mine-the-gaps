@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import JSONField
 from django.contrib.gis.db import models as gismodels
 
+
 class Filenames(models.Model):
     actual_data_filename = models.CharField(max_length=50, null=True)
     site_metadata_filename = models.CharField(max_length=50, null=True)
