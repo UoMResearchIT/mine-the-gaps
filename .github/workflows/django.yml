@@ -23,11 +23,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        # $CONDA/bin/conda env update --file env_geo_web_app.yml --name base
-        # pip install django-geojson django-redis  django-range-slider region-estimators
     - name: Run Tests
       run: |
         python manage.py test
