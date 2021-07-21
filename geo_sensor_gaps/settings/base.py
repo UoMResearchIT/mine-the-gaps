@@ -12,6 +12,20 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 from __future__ import absolute_import, unicode_literals
 import os
 
+if os.environ.get('SECRET_KEY') is not None:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'geo_sensor_gaps',
+        'USER': 'geo_sensor_gaps_user',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -129,3 +143,5 @@ MEDIA_URL = '/media/'
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

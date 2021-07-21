@@ -1,11 +1,9 @@
 from django.shortcuts import render
-from django.contrib.gis.geos import MultiPolygon, Polygon, Point, GEOSGeometry, fromstr
+from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.contrib.auth.decorators import login_required
-from django.forms import ValidationError
 
 from django.core.files import temp as tempfile
 from django.conf import settings
@@ -17,8 +15,6 @@ import json
 import pandas as pd
 import os
 from io import TextIOWrapper
-from h3 import h3
-from geojson import Feature, FeatureCollection
 from shapely import wkt
 
 from mine_the_gap.forms import FileUploadForm
@@ -529,7 +525,7 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
                                          'sub_status': 'Calculating estimates'}
         # Create pandas dataframes for input into region estimators.
         if estimators_dict == {}:
-            print('reloading due empty estimators_dict')
+            print('reloading due to empty estimators_dict')
             load_region_estimators(measurement, site_params)
         elif site_params != prev_site_params:
             print('reloading due to site_params change')
@@ -834,7 +830,7 @@ def upload_estimated_data(request):
     reader = csv.reader(file_regions)
     # skip/get the headers
     field_titles = next(reader, None)
-    # print('field titles:', field_titles)
+    #print('field titles:', field_titles)
 
     progress_update.progress_json = {'percent_complete': None,
                                      'status': 'Loading estimates',
@@ -879,6 +875,8 @@ def upload_estimated_data(request):
                                 geom=multipoly_geo,
                                 extra_data=extra_data
                                 )
+
+                print("Saving a region")
                 region.save()
             except Exception as err1:
                 #print('Region file error. ', err1)
@@ -896,6 +894,7 @@ def upload_estimated_data(request):
     reader = csv.reader(file_estimates)
     # skip/get the headers
     field_titles = next(reader, None)
+    print('field titles:', field_titles)
     row_count = reader.line_num
 
     value_idxs = []
@@ -948,10 +947,13 @@ def upload_estimated_data(request):
                         name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
 
                         # Get extra data fields
-                        extra_idxs = extra_data_idxs[name]
                         extra_data = {}
-                        for extra_data_name, extra_data_idx in extra_idxs.items():
-                            extra_data[extra_data_name] = row[extra_data_idx]
+                        try:
+                            extra_idxs = extra_data_idxs[name]
+                            for extra_data_name, extra_data_idx in extra_idxs.items():
+                                extra_data[extra_data_name] = row[extra_data_idx]
+                        except:
+                            pass
 
                         # Check that the name has a matching site measurement
                         #  and add to model if it has.
