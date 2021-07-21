@@ -18,9 +18,7 @@ django-redis==5.0.0
 djangorestframework==3.11.2
 Fiona==1.8.20
 fstring==1.7.4
-geojson==2.5.0
 geopandas==0.6.2
-h3==3.4.3
 jsonfield==2.0.2
 lazy-object-proxy==1.4.3
 Mako==1.1.0

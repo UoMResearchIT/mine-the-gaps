@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.gis.geos import MultiPolygon, Polygon
 
-from mine_the_gap.models import Filenames, Region, Sensor, Estimated_data, Estimated_value, Actual_data, Actual_value
+from mine_the_gap.models import Region
 
 
 class RegionModelTests(TestCase):

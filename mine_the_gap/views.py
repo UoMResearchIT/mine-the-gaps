@@ -1,11 +1,9 @@
 from django.shortcuts import render
-from django.contrib.gis.geos import MultiPolygon, Polygon, Point, GEOSGeometry, fromstr
+from django.contrib.gis.geos import MultiPolygon, Polygon, Point
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.contrib.auth.decorators import login_required
-from django.forms import ValidationError
 
 from django.core.files import temp as tempfile
 from django.conf import settings
@@ -17,8 +15,6 @@ import json
 import pandas as pd
 import os
 from io import TextIOWrapper
-from h3 import h3
-from geojson import Feature, FeatureCollection
 from shapely import wkt
 
 from mine_the_gap.forms import FileUploadForm
