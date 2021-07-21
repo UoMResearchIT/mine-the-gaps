@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.gis.geos import MultiPolygon, Polygon
 
-from .models import Filenames, Region, Sensor, Estimated_data, Estimated_value, Actual_data, Actual_value
+from mine_the_gap.models import Filenames, Region, Sensor, Estimated_data, Estimated_value, Actual_data, Actual_value
 
 
 class RegionModelTests(TestCase):
@@ -17,5 +17,5 @@ class RegionModelTests(TestCase):
         region = Region(
             region_id='AB',
             geom=mp,
-            extra_data={'extra_field':'test_value'})
+            extra_data={'extra_field': 'test_value'})
         self.assertIs(region.extra_data['extra_field'], 'test_value')

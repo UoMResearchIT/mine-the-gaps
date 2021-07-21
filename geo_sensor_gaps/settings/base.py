@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 from __future__ import absolute_import, unicode_literals
 import os
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+if os.environ.get('SECRET_KEY') is not None:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DATABASES = {
     'default': {

@@ -31,4 +31,4 @@ jobs:
       env:
         SECRET_KEY: 'o1&d@hlb!xs6aphl9dnbb6#7cp(^js9d&)+fs!)b9u6)prn9@j'
       run: |
-        python manage.py test
+        python manage.py test mine_the_gap.tests.test_non_db_tests
