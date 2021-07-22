@@ -1,18 +1,30 @@
 [![Django CI](https://github.com/UoMResearchIT/geo_sensor_gaps/actions/workflows/django.yml/badge.svg)](https://github.com/UoMResearchIT/geo_sensor_gaps/actions/workflows/django.yml)
 
-# geo_sensor_gaps
+The sections below are:
+- [About](#about)
+- [Example screenshots](#example-screenshots)
+- [Test locally](#test-locally)
+- [Deployment](#deployment)  
+- [User instructions](#user-instructions)  
+  - [Admin users](#admin-users)
+  - [General users](#general-users)
+- [Acknowledgements](#acknowledgements)  
+- [Copyright and Licensing](#copyright--licensing)
+
+<!-- toc -->
+
+## About
 A Django web application that shows sensor data on a map and compares with regional estimates.
-All data is loaded into the web app by the (admin) user at runtime, via 4 CSV files comprised of 2 data files and 2 metadata files:
-* actuals.csv
-* sensors.csv
-* estimates.csv
-* regions.csv
+All data is loaded into the web app model/DB by the (admin) user at runtime, from 4 CSV files 
+which must comprise 2 data files and 2 metadata files. 
+Examples are provided in the `/examples` folder. See the Data files section below.
+ 
 
 General users of this web app can also upload their own data locally (with a browser/session), 
 again via a CSV file upload, so that their own data can be compared alongside the 
 actuals/estimates data pre-loaded.
 
-# Web application example screenshots
+# Example screenshots
 
 ## Example with daily UK AQ data 
 ![alt text](images/mine-the-gaps_general_screenshot.png)
@@ -21,7 +33,8 @@ actuals/estimates data pre-loaded.
 ![Arizona_Chloride](images/mine-the-gaps_screenshot_US_Arizona_Chloride.png)
 
 
-# How to set up a test version running on a development (test) server
+# Test locally
+How to set up a test version running on a development (test) server. 
 The following notes are to get this web app running on *your own machine*, using Django's 
 development server which runs on your machine's localhost.
 
@@ -143,27 +156,54 @@ Quit the server with CONTROL-C.
 Using your browser, navigate to http://127.0.0.1:8000/ (or the link shown in your output) and this should 
 open up the web-application.
 
-# How to set admin users
+## How to set admin users
 This web application only allows admins (aka superusers) to upload the sensor and estimations data.
 See the Django documents on how to do this:
 https://docs.djangoproject.com/en/3.2/topics/auth/default/
 
+# Deployment
+See the Django dccumentation for deploying Django applications: 
+https://docs.djangoproject.com/en/3.2/howto/deployment/
 
-# Admin user instructions
-## How to load data and use the web application
-To begin with, we will load in the 4 sample data files provided, from the `/sample_data` folder, included 
-in this repository.
+# User instructions
+
+## Admin users
+
+### Required data files (and sample input files)
+Sample data files are provided in the `/sample_data` folder:
+
+* An actual sensor values data file with all timeseries data-points
+  * e.g: /examples/actuals_USA_Chloride_pm25.csv
+  * Mandatory fields (in order): timestamp, site_id, and at least one field with header prefix 'val_'
+* A sensors metadata file
+  * e.g. /examples/sensors_arizona.csv
+  * Mandatory fields (in order): site_id, latitude, longitude
+  * Optional fields: any that you want to show in web app.
+    e.g. State Code, County Code, Site Number, Elevation, Land Use
+* A file containing estimated data-points for regions - all zeros for this dummy file
+  * e.g. /examples/estimates_zeros.csv
+  * Mandatory fields (in order): timestamp, region_id, and at least one field with header prefix 'val_'
+* A regions metadata file
+  * e.g. /examples/regions_arizona_counties.csv
+  * Mandatory fields (in order): region, geometry
+  * Optional fields: any that you want to show in web app.
+    e.g. state_id, state_name, population, county 
+
+### How to load data to the web application
+To begin with, we will load in the 4 sample data files provided, from the `/sample_data` folder, 
+included in this repository (see above section for required file descriptions).
 
 To do this: 
 
-* Run the web app on the development server (see above) and open browser / web application.
+* Run the web app on the development server (see above) and open a browser to start the 
+  web application.
 
-* Click on the  `admin login` button at the top right-hand corner of the web application.
+* Log in by clicking on the `admin login` button at the top right-hand corner of 
+  the web application and using the credentials generated in the previous step.
 
-* Use the credentials generated in the previous step to log in.
-
-* On the main page, a new button `Upload environment data` will appear on the left-hand side. Click on this.
-A pop-up will appear and you are asked for 4 csv files. 
+* On the main page, a new button `Upload environment data` will appear on the left-hand side. 
+  Click on this and a pop-up will appear, asking you for 4 csv files. 
+  To get started, we will use the 4 example files provided:
   
     * For the `Actual data`, `Timestamped data`, select the `actuals_USA_Chloride_pm25.csv` file.
     * For the `Actual data`, `Metadata`, select the `sensors_arizona.csv` file.
@@ -175,12 +215,15 @@ see how the upload is progressing, open another browser tab pointing to the loca
   
 * Once run, check that the map is pointing to the USA state of Arizona, to see the loaded data.
 
-## How to update acknowlegements and `Data sources` panels for your project
-The project panel in the top right-hand corner contains information relating to the repository owners' 
+### How to update the web-app's acknowlegements and `Data sources` panels for your project
+Currently this can only be done by accessing the HTML file directly. The project panel in the top 
+right-hand corner contains information relating to the repository owners' 
 project. This can be changed in the `/templates/index.html` file. Update the contents of the 2 HTML divs:
  `<div id="site-acknowledgements">` and  `<div id="site-data">`.
 
-# General User instructions
+## General users
+
+### Getting started
 Click on a site to see site info and also the option to view site and estimated data across all timestamps.
 
 Click on a region to see region info.
@@ -194,20 +237,37 @@ make measurements for the current timestamp (e.g. pollen sensors in winter month
 
 Todo: fill out these sections
 
-## Navigate data using time line
+### Navigate data using time line
 
-## Select measurement
+### Select measurement
 
-## Select estimation method
+### Select estimation method
 The choice of estimation methods are directly linked to the `region-estimators` 
 (https://github.com/UoMResearchIT/region-estimators) python package, and the 
 available estimation classes available within that.
 
-## Filter sites
+### Filter sites
 
-## Upload your own data locally via CSV file
+### Upload your own data locally via CSV file
 
-## Download data and API
+### Download data and API
+
+# Acknowledgements
+This web application is part of the project "Understanding the relationship between human health 
+and the environment' funded by the Alan Turing Institute
+
+
+# Copyright & Licensing
+
+## Authors
+Ann Gledson, Douglas Lowe, David Topping and Caroline Jay
+
+This software has been developed by Ann Gledson from the 
+[Research IT](https://research-it.manchester.ac.uk/) 
+group at the [University of Manchester](https://www.manchester.ac.uk/).
+
+(c) 2020-2021 University of Manchester.
+Licensed under the MIT license, see the file LICENSE (or https://www.mit.edu/~amini/LICENSE.md) for details.
 
 
 
