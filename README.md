@@ -4,6 +4,7 @@ The sections below are:
 - [About](#about)
 - [Example screenshots](#example-screenshots)
 - [Test locally](#test-locally)
+- [Deployment](#deployment)  
 - [User instructions](#user-instructions)  
   - [Admin users](#admin-users)
   - [General users](#general-users)
@@ -160,6 +161,9 @@ This web application only allows admins (aka superusers) to upload the sensor an
 See the Django documents on how to do this:
 https://docs.djangoproject.com/en/3.2/topics/auth/default/
 
+# Deployment
+See the Django dccumentation for deploying Django applications: 
+https://docs.djangoproject.com/en/3.2/howto/deployment/
 
 # User instructions
 
