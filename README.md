@@ -181,6 +181,17 @@ project. This can be changed in the `/templates/index.html` file. Update the con
  `<div id="site-acknowledgements">` and  `<div id="site-data">`.
 
 # General User instructions
+Click on a site to see site info and also the option to view site and estimated data across all timestamps.
+
+Click on a region to see region info.
+
+If no sites exist for this timestamp (map may be grayed out), this may be because the sensor doesn't
+make measurements for the current timestamp (e.g. pollen sensors in winter months). Either:
+
+1. use slider to find another timestamp
+1. use 'Select measurement' option to change measurements.
+
+
 Todo: fill out these sections
 
 ## Navigate data using time line
