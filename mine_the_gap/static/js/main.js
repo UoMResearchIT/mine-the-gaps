@@ -33,9 +33,6 @@ $(document).ready(function(){
         $("div#select-files").toggle('slow');
     });
 
-    //$('#region-data').html(get_region_default());
-    $('#site-data-instructions').html(get_site_default());
-
     $('#upload-data-button').change(function(){
         uploadUserData(this);
     })
@@ -808,26 +805,6 @@ function dragElement(elmnt) {
         '<tr><td colspan="2"><p>Hover over regions to see region data.</p></td></tr></table>';
 }*/
 
-function get_site_default(){
-    return '<table class="table table-striped">' +
-            '<tr><td>A tool for estimating regional measurements based on known values and visualising the results. </br>' +
-            '<b>Site measurement data</b> uses imputed data from MEDMI and AURN, described in: ' +
-        '       <a href="https://zenodo.org/record/4416028" target = _blank>' +
-                'https://zenodo.org/record/4416028</a></br>' +
-            'The <b>region estimation methods</b> (under \'Select estimation method\'): </br> ' +
-        'the \'pre-loaded\' data contains estimated data downloadable from <a href="https://zenodo.org/record/4475652" target="_blank">' +
-        'https://zenodo.org/record/4475652</a> (file 2 \'imputed site data\')' +
-        '. This file was created using the python library: <a href="https://pypi.org/project/region-estimators/" target = _blank>' +
-                'https://pypi.org/project/region-estimators/ </a>' +
-        'and this library is also used for the available \'Concentric Regions\' and \'Distance\' estimation methods.' +
-            '</td></tr>' +
-            '<tr><td colspan="2"><p>Click on a site to see site info and the option to see site and estimated data across ' +
-        '       <em>all</em> timestamps.</p><p>Click on a region to see region info</p></td></tr>' +
-            '<tr><td colspan="2"><p>If no sites exist for this timestamp, either: </p>' +
-            '<p>(i) use slider to find another timestamp</p>' +
-            '<p>(ii) use \'Select measurement\' option to change measurements.</p></td></tr>' +
-        '</table>';
-}
 
 function cloneCanvas(oldCanvas) {
 

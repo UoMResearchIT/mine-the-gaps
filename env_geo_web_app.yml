@@ -9,7 +9,6 @@ dependencies:
   - djangorestframework
   - slugify
   - pandas
-  - h3-py
   - geojson
   - shapely
   - geopandas
