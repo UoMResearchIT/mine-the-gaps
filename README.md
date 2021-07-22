@@ -1,6 +1,15 @@
 [![Django CI](https://github.com/UoMResearchIT/geo_sensor_gaps/actions/workflows/django.yml/badge.svg)](https://github.com/UoMResearchIT/geo_sensor_gaps/actions/workflows/django.yml)
 
-# geo_sensor_gaps
+The sections below are:
+- [About](#about)
+- [Example screenshots](#example-screenshots)
+- [Test locally](#test-locally)
+- [User instructions](#user-instructions)  
+- [Copyright and Licensing](#copyright--licensing)
+
+<!-- toc -->
+
+## About
 A Django web application that shows sensor data on a map and compares with regional estimates.
 All data is loaded into the web app by the (admin) user at runtime, via 4 CSV files comprised of 2 data files and 2 metadata files:
 * actuals.csv
@@ -12,7 +21,7 @@ General users of this web app can also upload their own data locally (with a bro
 again via a CSV file upload, so that their own data can be compared alongside the 
 actuals/estimates data pre-loaded.
 
-# Web application example screenshots
+# Example screenshots
 
 ## Example with daily UK AQ data 
 ![alt text](images/mine-the-gaps_general_screenshot.png)
@@ -21,7 +30,8 @@ actuals/estimates data pre-loaded.
 ![Arizona_Chloride](images/mine-the-gaps_screenshot_US_Arizona_Chloride.png)
 
 
-# How to set up a test version running on a development (test) server
+# Test locally
+How to set up a test version running on a development (test) server. 
 The following notes are to get this web app running on *your own machine*, using Django's 
 development server which runs on your machine's localhost.
 
@@ -143,14 +153,17 @@ Quit the server with CONTROL-C.
 Using your browser, navigate to http://127.0.0.1:8000/ (or the link shown in your output) and this should 
 open up the web-application.
 
-# How to set admin users
+## How to set admin users
 This web application only allows admins (aka superusers) to upload the sensor and estimations data.
 See the Django documents on how to do this:
 https://docs.djangoproject.com/en/3.2/topics/auth/default/
 
 
-# Admin user instructions
-## How to load data and use the web application
+# User instructions
+
+## Admin users
+
+### How to load data and use the web application
 To begin with, we will load in the 4 sample data files provided, from the `/sample_data` folder, included 
 in this repository.
 
@@ -175,12 +188,15 @@ see how the upload is progressing, open another browser tab pointing to the loca
   
 * Once run, check that the map is pointing to the USA state of Arizona, to see the loaded data.
 
-## How to update acknowlegements and `Data sources` panels for your project
-The project panel in the top right-hand corner contains information relating to the repository owners' 
+### How to update acknowlegements and `Data sources` panels for your project
+Currently this can only be done by accessing the HTML file directly. The project panel in the top 
+right-hand corner contains information relating to the repository owners' 
 project. This can be changed in the `/templates/index.html` file. Update the contents of the 2 HTML divs:
  `<div id="site-acknowledgements">` and  `<div id="site-data">`.
 
-# General User instructions
+## General users
+
+### Getting started
 Click on a site to see site info and also the option to view site and estimated data across all timestamps.
 
 Click on a region to see region info.
@@ -194,20 +210,33 @@ make measurements for the current timestamp (e.g. pollen sensors in winter month
 
 Todo: fill out these sections
 
-## Navigate data using time line
+### Navigate data using time line
 
-## Select measurement
+### Select measurement
 
-## Select estimation method
+### Select estimation method
 The choice of estimation methods are directly linked to the `region-estimators` 
 (https://github.com/UoMResearchIT/region-estimators) python package, and the 
 available estimation classes available within that.
 
-## Filter sites
+### Filter sites
 
-## Upload your own data locally via CSV file
+### Upload your own data locally via CSV file
 
-## Download data and API
+### Download data and API
+
+
+# Copyright & Licensing
+
+## Authors
+Ann Gledson, Douglas Lowe, David Topping and Caroline Jay
+
+This software has been developed by Ann gledson from the 
+[Research IT](https://research-it.manchester.ac.uk/) 
+group at the [University of Manchester](https://www.manchester.ac.uk/).
+
+(c) 2020-2021 University of Manchester.
+Licensed under the MIT license, see the file LICENSE (or https://www.mit.edu/~amini/LICENSE.md) for details.
 
 
 
