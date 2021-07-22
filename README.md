@@ -5,6 +5,8 @@ The sections below are:
 - [Example screenshots](#example-screenshots)
 - [Test locally](#test-locally)
 - [User instructions](#user-instructions)  
+  - [Admin users](#admin-users)
+  - [General users](#general-users)
 - [Acknowledgements](#acknowledgements)  
 - [Copyright and Licensing](#copyright--licensing)
 
@@ -163,7 +165,9 @@ https://docs.djangoproject.com/en/3.2/topics/auth/default/
 
 ## Admin users
 
-### Sample data files
+### Required data files (and sample input files)
+Sample data files are provided in the `/sample_data` folder:
+
 * An actual sensor values data file with all timeseries data-points
   * e.g: /examples/actuals_USA_Chloride_pm25.csv
   * Mandatory fields (in order): timestamp, site_id, and at least one field with header prefix 'val_'
@@ -181,7 +185,7 @@ https://docs.djangoproject.com/en/3.2/topics/auth/default/
   * Optional fields: any that you want to show in web app.
     e.g. state_id, state_name, population, county 
 
-### How to load data and use the web application
+### How to load data to the web application
 To begin with, we will load in the 4 sample data files provided, from the `/sample_data` folder, 
 included in this repository (see above section for required file descriptions).
 
