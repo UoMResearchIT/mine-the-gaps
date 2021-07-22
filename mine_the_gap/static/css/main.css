@@ -42,19 +42,38 @@ div#measurement-radios {
     margin-bottom: 15px;
 }
 
-#acknowledgements img{
-    width: 150px;
+#site-acknowledgements img{
+    width: 120px;
     padding-right: 20px;
     padding-left: 20px;
     padding-bottom: 10px;
 }
 
-#acknowledgements p {
+#site-acknowledgements{
     padding: 10px;
     font-style: italic;
     color: #6d4090;
     background: #f9f9f9;
     text-align: justify;
+    margin-bottom: 10px;
+}
+
+#site-data {
+    padding: 10px;
+    font-style: italic;
+    color: #6d4090;
+    background: #f9f9f9;
+    text-align: justify;
+    margin-bottom: 10px;
+}
+
+#site-about, #site-instructions {
+    padding: 10px;
+    font-style: italic;
+    color: #101111;
+    background: #f9f9f9;
+    text-align: justify;
+    margin-bottom: 10px;
 }
 
 pre {
