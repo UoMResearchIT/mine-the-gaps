@@ -75,9 +75,8 @@ To activate your new virtual environment run:
 
 Ensure that your newly created virtual environment is activated (see above), and then run:
 
-    `cd [code-directory]/geo_sensor_gaps` [Rpalce [code-directory] with the path of the project files folder that
-                                            contains requirements.txt]
-    `pip install -r requirements.txt`
+    cd [code-directory] [Replace [code-directory] with the path of the project folder that contains requirements.txt]
+    pip install -r requirements.txt
 
 ## Install the PostGIS (Spatial PostreSQL database)
 As this web app requires geographical functionality, we can't rely only on Django's default
@@ -94,7 +93,7 @@ https://docs.djangoproject.com/en/3.2/ref/contrib/gis/install/postgis/
 ## Add a local Django settings file on your machine
 
 Using the `geo_sensor_gaps/settings/local.template` file as a template, 
-creata a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
+create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
 `local.template` and `base.py`)
 
 Fill in the `MAX_NUM_PROCESSORS` value with an integer representing the maximum number of processors
@@ -130,14 +129,12 @@ https://docs.djangoproject.com/en/3.2/intro/install/
 ## Run the development server
 Ensure that the new virtual environment is activated and run:
 
- `cd [code-directory]/geo_sensor_gaps` [Repalce [code-directory] with the path of the project files 
-                                        folder that contains requirements.txt]
+ `cd [code-directory]` [Replace [code-directory] with the path of the project folder that contains requirements.txt]
 
 optional test:
   `python manage.py test`
 
 and
-
   `python manage.py runserver`
 
 The output to the last command should be similar to:
