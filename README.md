@@ -54,8 +54,11 @@ or:
  Then extract this zip file.
 
 ## Install dependencies
+  
+  These instructions are based on the Ubuntu OS. They will need to be adapted to run on other Linux distributions,
+  Windows and other OSs.
 
-  Runs on python versions 3.7, 3.8 and 3.9
+  This web app is tested on python versions 3.7, 3.8 and 3.9
 
         sudo apt-get update
         sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
@@ -75,9 +78,8 @@ To activate your new virtual environment run:
 
 Ensure that your newly created virtual environment is activated (see above), and then run:
 
-    `cd [code-directory]/geo_sensor_gaps` [Rpalce [code-directory] with the path of the project files folder that
-                                            contains requirements.txt]
-    `pip install -r requirements.txt`
+    cd [code-directory] [Replace [code-directory] with the path of the project folder that contains requirements.txt]
+    pip install -r requirements.txt
 
 ## Install the PostGIS (Spatial PostreSQL database)
 As this web app requires geographical functionality, we can't rely only on Django's default
@@ -94,7 +96,7 @@ https://docs.djangoproject.com/en/3.2/ref/contrib/gis/install/postgis/
 ## Add a local Django settings file on your machine
 
 Using the `geo_sensor_gaps/settings/local.template` file as a template, 
-creata a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
+create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
 `local.template` and `base.py`)
 
 Fill in the `MAX_NUM_PROCESSORS` value with an integer representing the maximum number of processors
@@ -130,14 +132,12 @@ https://docs.djangoproject.com/en/3.2/intro/install/
 ## Run the development server
 Ensure that the new virtual environment is activated and run:
 
- `cd [code-directory]/geo_sensor_gaps` [Repalce [code-directory] with the path of the project files 
-                                        folder that contains requirements.txt]
+ `cd [code-directory]` [Replace [code-directory] with the path of the project folder that contains requirements.txt]
 
 optional test:
   `python manage.py test`
 
 and
-
   `python manage.py runserver`
 
 The output to the last command should be similar to:
@@ -163,14 +163,14 @@ See the Django documents on how to do this:
 https://docs.djangoproject.com/en/3.2/topics/auth/default/
 
 # Deployment
-See the Django dccumentation for deploying Django applications: 
+See the Django documentation for deploying Django applications: 
 https://docs.djangoproject.com/en/3.2/howto/deployment/
 
 # User instructions
 
 ## Admin users
 
-### Required data files (and sample input files)
+### Descriptions of required data files (using sample data files as example)
 Sample data files are provided in the `/sample_data` folder:
 
 * An actual sensor values data file with all timeseries data-points
@@ -179,16 +179,16 @@ Sample data files are provided in the `/sample_data` folder:
 * A sensors metadata file
   * e.g. /examples/sensors_arizona.csv
   * Mandatory fields (in order): site_id, latitude, longitude
-  * Optional fields: any that you want to show in web app.
-    e.g. State Code, County Code, Site Number, Elevation, Land Use
-* A file containing estimated data-points for regions - all zeros for this dummy file
+  * Optional fields: any field(s) that you want to show in web app for each sensor.
+      e.g. State Code, County Code, Site Number, Elevation, Land Use
+* A file containing estimated data-points for regions (all zeros in the dummy example file)
   * e.g. /examples/estimates_zeros.csv
   * Mandatory fields (in order): timestamp, region_id, and at least one field with header prefix 'val_'
 * A regions metadata file
   * e.g. /examples/regions_arizona_counties.csv
   * Mandatory fields (in order): region, geometry
-  * Optional fields: any that you want to show in web app.
-    e.g. state_id, state_name, population, county 
+  * Optional fields: any fields that you want to show in web app for each region.
+      e.g. state_id, state_name, population, county 
 
 ### How to load data to the web application
 To begin with, we will load in the 4 sample data files provided, from the `/sample_data` folder, 
@@ -212,15 +212,18 @@ To do this:
     * For the `Estimated data`, `Metadata`, select the `regions_arizona_counties` file.
     
 * Click the `Upload` button and *DO NOT* refresh the browser until the data is loaded. If you want to
-see how the upload is progressing, open another browser tab pointing to the localhost link.
+  see how the upload is progressing, open another browser tab pointing to the localhost link and refresh that tab.
   
-* Once run, check that the map is pointing to the USA state of Arizona, to see the loaded data.
+* Once run, the map should be pointing to the centre-most sensor (USA state of Arizona in our example), and
+  you should see the loaded sensor and region data.
 
-### How to update the web-app's acknowlegements and `Data sources` panels for your project
-Currently this can only be done by accessing the HTML file directly. The project panel in the top 
-right-hand corner contains information relating to the repository owners' 
-project. This can be changed in the `/templates/index.html` file. Update the contents of the 2 HTML divs:
- `<div id="site-acknowledgements">` and  `<div id="site-data">`.
+### How to update the web-app's project info, for your own project
+By default, the project panel in the top right-hand corner of the web app contains information relating to the 
+repository owners' project. In addition the top section of the `Download data` pop-up box points to project related
+data links. 
+
+Currently, these can only be changed by accessing HTML files directly. Replace the HTML in the files held in the 
+`/templates/flexible_content/` folder with your desired content.
 
 ## General users
 
@@ -235,23 +238,58 @@ make measurements for the current timestamp (e.g. pollen sensors in winter month
 1. use slider to find another timestamp
 1. use 'Select measurement' option to change measurements.
 
-
-Todo: fill out these sections
-
 ### Navigate data using time line
+Click on the `Timestamp` slider bar to change to a different timestamp. 
 
 ### Select measurement
+Click on the `Select measurement` button to switch to displaying / estimating a new measurement. 
+Note that if you are using the web app with the sample data loaded, only one measurement is currently available.
 
 ### Select estimation method
 The choice of estimation methods are directly linked to the `region-estimators` 
 (https://github.com/UoMResearchIT/region-estimators) python package, and the 
 available estimation classes available within that.
 
+If the `pre-loaded` option is selected, this will use data in the estimated, timestamped data that was loaded
+by the admin user. (If the example files were used, this data will contain all zeros.)
+
+For other options (e.g. `concentric-regions' or `distance-simple`) see the 
+https://github.com/UoMResearchIT/region-estimators repo for details.
+
+Note that some estimation methods may take a while to run, particularly when running a time-series graphs.
+
+### Run a time-series graph 
+Time-series graphs can be generated for a sensor, that compares the actual sensor measurement readings with estimated
+sensor values, calculated if that sensor did not exist. 
+
+Click on a sensor to view sensor metadata and click on the `Get timeseries` button. 
+
+Note that some estimation methods might take longer to run than others. 
+
+Also note that if using `pre-loaded` estimation method, even if you have loaded your own non-zero estimated data file, 
+this comparison won't fully make sense as the estimations are not calculated at runtime, so the
+`Estimated values` will have been calculated with that sensor's data being present.
+
 ### Filter sites
+Click on the `Filter sites by...` button to filter sites by selecting or omitting values. Note that the fields that
+can be used for filtering are the optional fields loaded in from the sensors metadata file. 
+
+Once sites are filtered in/out, only the select sites will be used in estimation calculations.
+
+Currently, only 'Select values' and 'Omit values' are implemented, which is not useful if the field contains a large 
+or uncountable set of values (ie continuous values), e.g. `Elevation`.  Improving the filtering is future work.
+
 
 ### Upload your own data locally via CSV file
+This web app allows you to compare your own timeseries, geo data with the pre-loaded sensor and estimations data. 
+Again, this is loaded as a CSV file.
+
+Click on the `Upload data and visualise` button and full instructions on the CSV file format, headers etc is 
+displayed, along with a `Choose file` button to select your file.
 
 ### Download data and API
+Click on the `Download data` button. Full instructions on downloading data and/or using the API are shown in the
+pop-up box.
 
 # Acknowledgements
 This web application is part of the project "Understanding the relationship between human health 
