@@ -120,36 +120,19 @@
                                     <h4 class="modal-title">Download Data</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <table id="download-buttons" class="table table-condensed modal-dialog">
-                                        <tr id="file-download-instructions" class="download-instructions">
-                                            <td colspan="4"><em><b>Download original files used to initialise the map:</b></em></td>
-                                        </tr>
-                                        <tr id="sites-download" class="download-file">
-                                            <td>
-                                                <label>Measurement site data DOI</label>
-                                            </td>
-                                            <td colspan="2">
-                                              <a href="https://zenodo.org/record/4416028" target="_blank">
-                                                        https://zenodo.org/record/4416028</a>
-                                            </td>
-                                        </tr>
-                                        <tr id="actuals-download" class="download-file">
-                                            <td>
-                                                <label>Estimated data DOI</label>
-                                            </td>
-                                            <td colspan="2">
-                                                 <a href="https://zenodo.org/record/4475652" target="_blank">
-                                                    https://zenodo.org/record/4475652</a>
-                                            </td>
-                                        </tr>
+                                     <!-- Where the flexible download content gets loaded in. -->
+                                    {% include "flexible_content/flexible_download_content.html" %}
 
-                                    </table>
                                     <table id="api-instructions" class="table table-condensed">
                                         <tr><td colspan="4"></td> </tr>
                                         <tr id="api-call-instructions" class="download-instructions">
                                             <td colspan="4"><em><b>Obtain data using REST API:</b></em>
                                             <em>Prefix all calls with: <br>
-                                                <code>minethegaps.manchester.ac.uk</code></em></td>
+                                                The url of this web app
+                                                (e.g. <code>localhost:8000</code> or
+                                                <code>minethegaps.manchester.ac.uk</code>)<br>
+                                                Check the browser address bar if you're not sure.
+                                            </em></td>
                                         </tr>
 
                                         <tr><td colspan="4"></td> </tr>
@@ -290,32 +273,12 @@
                 <div id="mapid"></div>
 
             </div>
+
+
             <div id="further-data" class="col-sm-3">
-                <div id="site-acknowledgements">
-                    <img src="../static/image/UoM_white_background.png">
-                    <img src="../static/image/Turing_logo.png">
-                    <img src="../static/image/epsrc.jpg">
-                    <p>This web application is part of the project "Understanding the relationship between
-                        human health and the environment" funded by the Alan Turing Institute </p>
-                </div>
-                <div id="site-data">
-                    <h5><b>Data sources:</b></h5>
-                    <p><b>Site measurement data</b> uses imputed data from MEDMI and AURN, described in:
-                    <a href="https://zenodo.org/record/4416028" target = _blank>
-                        'https://zenodo.org/record/4416028</a> (2016-2019 data)
-                        (file 3: imputed data)
-                        and in <a href="https://zenodo.org/record/4740965" target = _blank>
-                        'https://zenodo.org/record/4740965</a> (2020 data)
-                        The <b>region estimation methods</b> (under 'Select estimation method'):
-                        the 'pre-loaded' data contains estimated data downloadable from
-                        <a href="https://zenodo.org/record/4475652" target="_blank">
-                            https://zenodo.org/record/4475652</a>
-                        (file 3: imputed data) (2016-2019 data)
-                        and in <a href="https://zenodo.org/record/5113200" target="_blank">
-                            https://zenodo.org/record/5113200</a>
-                        (file 1: original data) (2020 data)
-                    </p>
-                </div>
+
+                <!-- Where the flexible project content gets loaded in. -->
+                {% include "flexible_content/flexible_project_content.html" %}
 
                 <div id="site-about">
                     <h5><b>About:</b></h5>
@@ -342,9 +305,6 @@
             </div>
         </div>
     </div>
-
-
-
 
 {% endblock %}
 

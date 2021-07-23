@@ -141,9 +141,7 @@ pre {
 
 }
 
-
-
-table#download-buttons{
+table.flexible-download-content{
     margin:0;
 }
 table#api-instructions{
