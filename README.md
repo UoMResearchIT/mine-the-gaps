@@ -237,9 +237,6 @@ make measurements for the current timestamp (e.g. pollen sensors in winter month
 1. use slider to find another timestamp
 1. use 'Select measurement' option to change measurements.
 
-
-Todo: fill out these sections
-
 ### Navigate data using time line
 Click on the `Timestamp` slider bar to change to a different timestamp. 
 
