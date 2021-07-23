@@ -26,7 +26,8 @@ actuals/estimates data pre-loaded.
 
 # Example screenshots
 
-## Example with daily UK AQ data 
+## Example with daily UK AQ data
+(currently running on our web app deployment: see http://minethegaps.manchester.ac.uk/)
 ![alt text](images/mine-the-gaps_general_screenshot.png)
 
 ## Example with yearly Arizona Chloride PM2.5 LC data
