@@ -54,8 +54,11 @@ or:
  Then extract this zip file.
 
 ## Install dependencies
+  
+  These instructions are based on the Ubuntu OS. They will need to be adapted to run on other Linux distributions,
+  Windows and other OSs.
 
-  Runs on python versions 3.7, 3.8 and 3.9
+  This web app is tested on python versions 3.7, 3.8 and 3.9
 
         sudo apt-get update
         sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
