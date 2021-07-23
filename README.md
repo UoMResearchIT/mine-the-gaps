@@ -217,12 +217,13 @@ To do this:
 * Once run, the map should be pointing to the centre-most sensor (USA state of Arizona in our example), and
   you should see the loaded sensor and region data.
 
-### How to update the web-app's acknowlegements and `Data sources` panels for your project
+### How to update the web-app's project info, for your own project
 By default, the project panel in the top right-hand corner of the web app contains information relating to the 
-repository owners' project. 
+repository owners' project. In addition the top section of the `Download data` pop-up box points to project related
+data links. 
 
-Currently, this can only be changed by accessing a HTML file directly. Replace the HTML in the 
-`/templates/flexible_project_content.html` file with your desired content.
+Currently, these can only be changed by accessing HTML files directly. Replace the HTML in the files held in the 
+`/templates/flexible_content/` folder with your desired content.
 
 ## General users
 
