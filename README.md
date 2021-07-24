@@ -8,7 +8,7 @@ The sections below are:
 - [User instructions](#user-instructions)  
   - [Admin users](#admin-users)
   - [General users](#general-users)
-- [Acknowledgements](#acknowledgements)  
+- [Research](#research)  
 - [Copyright and Licensing](#copyright--licensing)
 
 <!-- toc -->
@@ -248,7 +248,7 @@ Note that if you are using the web app with the sample data loaded, only one mea
 ### Select estimation method
 The choice of estimation methods are directly linked to the `region-estimators` 
 (https://github.com/UoMResearchIT/region-estimators) python package, and the 
-available estimation classes available within that.
+available estimation classes within that.
 
 If the `pre-loaded` option is selected, this will use data in the estimated, timestamped data that was loaded
 by the admin user. (If the example files were used, this data will contain all zeros.)
