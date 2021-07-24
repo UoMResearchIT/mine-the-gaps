@@ -44,9 +44,9 @@ div#measurement-radios {
 
 #site-acknowledgements img{
     width: 120px;
-    padding-right: 20px;
-    padding-left: 20px;
-    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
 }
 
 #site-acknowledgements{
@@ -56,24 +56,13 @@ div#measurement-radios {
     background: #f9f9f9;
     text-align: justify;
     margin-bottom: 10px;
-}
-
-#site-data {
-    padding: 10px;
-    font-style: italic;
-    color: #6d4090;
-    background: #f9f9f9;
-    text-align: justify;
-    margin-bottom: 10px;
-}
-
-#site-about, #site-instructions {
-    padding: 10px;
-    font-style: italic;
-    color: #101111;
-    background: #f9f9f9;
-    text-align: justify;
-    margin-bottom: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 pre {

@@ -278,27 +278,10 @@
             <div id="further-data" class="col-sm-3">
 
                 <!-- Where the flexible project content gets loaded in. -->
-                {% include "flexible_content/flexible_project_content.html" %}
-
-                <div id="site-about">
-                    <h5><b>About:</b></h5>
-                    <p>A tool for estimating regional measurements based on known values and visualising the results.
-                    The estimation methods (see 'Select estimation method': all options except 'pre-loaded') are
-                        the estimation methods (classes) available in the python library:
-                        <a href="https://pypi.org/project/region-estimators/" target = _blank>
-                            https://pypi.org/project/region-estimators/</a> ('concentric-regions' and 'distance-simple'
-                        at time of writing)</p>
-                </div>
-                <div id="site-instructions">
-                    <h5><b>Initial instructions:</b></h5>
-                        <p>
-                            Click on a site to see site info and also the option to view site and estimated data across
-                            <em>all</em> timestamps.</p>
-                        <p>Click on a region to see region info.
-                                If no sites exist for this timestamp, either: <br>
-                        (i) use slider to find another timestamp<br>
-                        (ii) use 'Select measurement' option to change measurements.</p>
-                </div>
+                {% include "flexible_content/acknowledgement_content.html" %}
+                {% include "flexible_content/data_sources_content.html" %}
+                {% include "flexible_content/about_content.html" %}
+                {% include "flexible_content/instructions_content.html" %}
 
                 <div id="site-charts"></div>
 

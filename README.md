@@ -219,7 +219,7 @@ To do this:
 
 ### How to update the web-app's project info, for your own project
 By default, the project panel in the top right-hand corner of the web app contains information relating to the 
-repository owners' project. In addition the top section of the `Download data` pop-up box points to project related
+repository owners' project. In addition, the top section of the `Download data` pop-up box points to project related
 data links. 
 
 Currently, these can only be changed by accessing HTML files directly. Replace the HTML in the files held in the 
