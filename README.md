@@ -291,22 +291,24 @@ displayed, along with a `Choose file` button to select your file.
 Click on the `Download data` button. Full instructions on downloading data and/or using the API are shown in the
 pop-up box.
 
-# Acknowledgements
+# Research
+
+## Acknowledgement
 This web application is part of the project "Understanding the relationship between human health 
 and the environment' funded by the Alan Turing Institute
 
-
-# Copyright & Licensing
-
 ## Authors
 Ann Gledson, Douglas Lowe, David Topping and Caroline Jay
+
+
+# Copyright & Licensing
 
 This software has been developed by Ann Gledson from the 
 [Research IT](https://research-it.manchester.ac.uk/) 
 group at the [University of Manchester](https://www.manchester.ac.uk/).
 
 (c) 2020-2021 University of Manchester.
-Licensed under the MIT license, see the file LICENSE (or https://www.mit.edu/~amini/LICENSE.md) for details.
+Licensed under the MIT license, see the file LICENSE for details.
 
 
 
