@@ -3,7 +3,7 @@
 The sections below are:
 - [About](#about)
 - [Example screenshots](#example-screenshots)
-- [Test locally](#test-locally)
+- [Install and test locally](#install-and-test-locally)
 - [Deployment](#deployment)  
 - [User instructions](#user-instructions)  
   - [Admin users](#admin-users)
@@ -34,9 +34,9 @@ actuals/estimates data pre-loaded.
 ![Arizona_Chloride](images/mine-the-gaps_screenshot_US_Arizona_Chloride.png)
 
 
-# Test locally
+# Install and test locally
 How to set up a test version running on a development (test) server. 
-The following notes are to get this web app running on *your own machine*, using Django's 
+The following instructions are to get this web app running on *your own machine*, using Django's 
 development server which runs on your machine's localhost.
 
 ## Clone this repository 
@@ -125,7 +125,7 @@ DATABASES = {
 Ensure your new virtual environment is activated, and then you can check Django is installed using the following
 online set-up instructions.
 
-[Note that Django has already been installed in the previous step]
+*Note that Django has already been installed in the previous step*
 https://docs.djangoproject.com/en/3.2/intro/install/
 
 
@@ -243,7 +243,8 @@ Click on the `Timestamp` slider bar to change to a different timestamp.
 
 ### Select measurement
 Click on the `Select measurement` button to switch to displaying / estimating a new measurement. 
-Note that if you are using the web app with the sample data loaded, only one measurement is currently available.
+*Note that if you are using the web app with the sample data loaded, only one measurement is currently 
+available.*
 
 ### Select estimation method
 The choice of estimation methods are directly linked to the `region-estimators` 
@@ -256,7 +257,7 @@ by the admin user. (If the example files were used, this data will contain all z
 For other options (e.g. `concentric-regions' or `distance-simple`) see the 
 https://github.com/UoMResearchIT/region-estimators repo for details.
 
-Note that some estimation methods may take a while to run, particularly when running a time-series graphs.
+*Note that some estimation methods may take a while to run, particularly when running a time-series graphs.*
 
 ### Run a time-series graph 
 Time-series graphs can be generated for a sensor, that compares the actual sensor measurement readings with estimated
@@ -264,15 +265,16 @@ sensor values, calculated if that sensor did not exist.
 
 Click on a sensor to view sensor metadata and click on the `Get timeseries` button. 
 
-Note that some estimation methods might take longer to run than others. 
+*Note that some estimation methods might take longer to run than others.*
 
-Also note that if using `pre-loaded` estimation method, even if you have loaded your own non-zero estimated data file, 
+*Note also that if using `pre-loaded` estimation method, even if you have loaded your own non-zero estimated data file, 
 this comparison won't fully make sense as the estimations are not calculated at runtime, so the
-`Estimated values` will have been calculated with that sensor's data being present.
+`Estimated values` will have been calculated with that sensor's data being present.*
 
 ### Filter sites
-Click on the `Filter sites by...` button to filter sites by selecting or omitting values. Note that the fields that
-can be used for filtering are the optional fields loaded in from the sensors metadata file. 
+Click on the `Filter sites by...` button to filter sites by selecting or omitting values. 
+*Note that the fields that can be used for filtering are the optional fields loaded in from the sensors 
+metadata file.* 
 
 Once sites are filtered in/out, only the select sites will be used in estimation calculations.
 
