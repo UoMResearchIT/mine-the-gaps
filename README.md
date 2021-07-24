@@ -300,7 +300,7 @@ This web application is part of the project "Understanding the relationship betw
 and the environment' funded by the Alan Turing Institute
 
 ## Authors
-Ann Gledson, Douglas Lowe, David Topping and Caroline Jay
+Ann Gledson, Douglas Lowe, Manuele Reani, David Topping and Caroline Jay
 
 
 # Copyright & Licensing
