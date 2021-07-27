@@ -6,7 +6,8 @@ The sections below are:
 - [User instructions](#user-instructions)
 - [Install and test locally](#install-and-test-locally)
   - [Clone this repository](#clone-this-repository)
-  - [Install dependencies](#install-dependencies)
+  - [Add a local.py Django settings file](#add-a-localpy-django-settings-file)  
+  - [Installation](#installation)
     - [Docker Container](#docker-container)
     - [Full database and Django set-up](#full-database-and-django-set-up)
 - [Deployment](#deployment)  
@@ -66,12 +67,23 @@ or:
  click on 'Code' on this github repository homepage, then 'Download ZIP' and save to your chosen folder.
  Then extract this zip file.
 
-## Install dependencies
-You can either use our docker container (recommended for novices) or follow the full postgreSQL/postGIS database and 
-Django set-up (more difficult).
+## Add a local.py Django settings file
+
+Using the `geo_sensor_gaps/settings/local.template` file as a template, 
+create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
+`local.template` and `base.py`)
+
+Fill in the `MAX_NUM_PROCESSORS` value with an integer representing the maximum number of processors
+you wish to have available for this web application. This defaults to the number available minus 1.
+
+
+## Installation
+You can either use our docker container (recommended for novices) or follow the full postgreSQL/postGIS 
+database and Django set-up (more difficult).
 
 ### Docker Container
-We user [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, Mac or Linux machine.
+We use [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, 
+Mac or Linux machine.
 
 #### Install Docker
 Using the [Install Docker Engine](https://docs.docker.com/engine/install/) or 
@@ -84,21 +96,21 @@ Change to the geo_sensor_gaps project directory:
 Run the docker container:
 `docker-compose  up -d`
 
-#### Run the web app on localhost
+#### Test the web app on localhost
 Test the web application by opening `localhost:8000` in a browser
 Note that no data has been loaded yet, so the map will be empty.
 
-#### How to set up admin users with docker container
+#### How to set up admin users on the web app
 Run the Django management tool (running inside the docker container). Run:
 `docker-compose run web python manage.py createsuperuser`
 which will ask for details. Fill out the fields as requested. 
 
 #### Log in as superuser and upload data
-Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the top right-hand 
-side of main web application page.  User your new log-in credentials to log in.
+Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
+top right-hand side of the main page.  User your new log-in credentials to log in.
 
-See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions on
-how to use this web application, including how to upload new data.
+See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions 
+on how to use this web application, including how to upload new data.
 
 ### Full database and Django set-up
   
@@ -140,14 +152,7 @@ https://postgis.net/docs/postgis_installation.html#install_short_version
 For instructions on using PostGIS with Django:
 https://docs.djangoproject.com/en/3.2/ref/contrib/gis/install/postgis/
 
-#### Add a local Django settings file on your machine
-
-Using the `geo_sensor_gaps/settings/local.template` file as a template, 
-create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
-`local.template` and `base.py`)
-
-Fill in the `MAX_NUM_PROCESSORS` value with an integer representing the maximum number of processors
-you wish to have available for this web application. This defaults to the number available minus 1.
+#### Add a .envs file
 
 Using the `geo_sensor_gaps/settings/.env.template`
 Fill in the `SECRET_KEY` value with a newly generated key (string) 
