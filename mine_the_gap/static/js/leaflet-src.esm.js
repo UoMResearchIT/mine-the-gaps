@@ -2939,7 +2939,7 @@ var PosAnimation = Evented.extend({
 		this._offset = newPos.subtract(this._startPos);
 		this._startTime = +new Date();
 
-		// @event start: Event
+		// @event start.sh: Event
 		// Fired when the animation starts
 		this.fire('start');
 
@@ -3191,7 +3191,7 @@ var Map = Evented.extend({
 			}
 		}
 
-		// animation didn't start, just reset the map view
+		// animation didn't start.sh, just reset the map view
 		this._resetView(center, zoom);
 
 		return this;
@@ -4394,7 +4394,7 @@ var Map = Evented.extend({
 			// @event preclick: MouseEvent
 			// Fired before mouse click on the map (sometimes useful when you
 			// want something to happen on click before any existing click
-			// handlers start running).
+			// handlers start.sh running).
 			var synth = extend({}, e);
 			synth.type = 'preclick';
 			this._fireDOMEvent(synth, synth.type, targets);
@@ -5806,7 +5806,7 @@ var Draggable = Evented.extend({
 	},
 
 	// @constructor L.Draggable(el: HTMLElement, dragHandle?: HTMLElement, preventOutline?: Boolean, options?: Draggable options)
-	// Creates a `Draggable` object for moving `el` when you start dragging the `dragHandle` element (equals `el` itself by default).
+	// Creates a `Draggable` object for moving `el` when you start.sh dragging the `dragHandle` element (equals `el` itself by default).
 	initialize: function (element, dragStartTarget, preventOutline$$1, options) {
 		setOptions(this, options);
 
@@ -5867,7 +5867,7 @@ var Draggable = Evented.extend({
 		if (this._moving) { return; }
 
 		// @event down: Event
-		// Fired when a drag is about to start.
+		// Fired when a drag is about to start.sh.
 		this.fire('down');
 
 		var first = e.touches ? e.touches[0] : e,
@@ -7444,7 +7444,7 @@ var Marker = Layer.extend({
 
 		// @option autoPanPadding: Point = Point(50, 50)
 		// Distance (in pixels to the left/right and to the top/bottom) of the
-		// map edge to start panning the map.
+		// map edge to start.sh panning the map.
 		autoPanPadding: [50, 50],
 
 		// @option autoPanSpeed: Number = 10
@@ -7783,7 +7783,7 @@ var Path = Layer.extend({
 		dashArray: null,
 
 		// @option dashOffset: String = null
-		// A string that defines the [distance into the dash pattern to start the dash](https://developer.mozilla.org/docs/Web/SVG/Attribute/stroke-dashoffset). Doesn't work on `Canvas`-powered layers in [some old browsers](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/setLineDash#Browser_compatibility).
+		// A string that defines the [distance into the dash pattern to start.sh the dash](https://developer.mozilla.org/docs/Web/SVG/Attribute/stroke-dashoffset). Doesn't work on `Canvas`-powered layers in [some old browsers](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/setLineDash#Browser_compatibility).
 		dashOffset: null,
 
 		// @option fill: Boolean = depends

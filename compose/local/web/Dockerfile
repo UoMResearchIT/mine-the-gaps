@@ -1,0 +1,63 @@
+FROM python:3.8-slim-buster
+
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV POSTGIS_MAJOR 3
+ENV POSTGIS_VERSION 3.1.2+dfsg-1~exp2.pgdg100+1
+
+# Install system packages required by Wagtail and Django.
+RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    libmariadbclient-dev \
+    libjpeg62-turbo-dev \
+    zlib1g-dev \
+    libwebp-dev \
+    libproj-dev \
+    libgeos-dev \
+    gdal-bin \
+    libgdal-dev \
+    libsqlite3-mod-spatialite \
+    && apt-cache showpkg postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
+      && apt-get install -y --no-install-recommends \
+           postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_VERSION \
+           postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts=$POSTGIS_VERSION \
+    && rm -rf /var/lib/apt/lists/*
+
+# Requirements are installed here to ensure they will be cached.
+COPY ./requirements.txt /requirements.txt
+RUN python -m pip install --upgrade pip
+RUN pip install -r /requirements.txt
+
+# NEW POSTGIS PART
+#FROM postgres:12
+
+#LABEL maintainer="PostGIS Project - https://postgis.net"
+
+#ENV POSTGIS_MAJOR 3
+#ENV POSTGIS_VERSION 3.1.2+dfsg-1~exp2.pgdg100+1
+
+#RUN apt-get update \
+#      && apt-cache showpkg postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
+#      && apt-get install -y --no-install-recommends \
+#           postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_VERSION \
+#           postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts=$POSTGIS_VERSION \
+#      && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /docker-entrypoint-initdb.d
+COPY ./initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
+COPY ./update-postgis.sh /usr/local/bin
+# END NEW POSTGIS PART
+
+COPY ./compose/local/web/entrypoint /entrypoint
+RUN sed -i 's/\r$//g' /entrypoint
+RUN chmod +x /entrypoint
+
+COPY ./compose/local/web/start /start
+RUN sed -i 's/\r$//g' /start
+RUN chmod +x /start
+
+WORKDIR /app
+
+ENTRYPOINT ["/entrypoint"]
+
