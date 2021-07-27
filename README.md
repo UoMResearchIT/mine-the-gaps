@@ -97,8 +97,8 @@ Run the docker container:
 `docker-compose  up -d`
 
 #### Test the web app on localhost
-Test the web application by opening `localhost:8000` in a browser
-Note that no data has been loaded yet, so the map will be empty.
+Test the web application by opening `localhost:8000` in a browser.
+*Note that no data has been loaded yet, so the map will be empty.*
 
 #### How to set up admin users on the web app
 Run the Django management tool (running inside the docker container). Run:
