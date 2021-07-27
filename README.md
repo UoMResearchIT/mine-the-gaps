@@ -3,9 +3,10 @@
 The sections below are:
 - [About](#about)
 - [Example screenshots](#example-screenshots)
+- [User instructions](#user-instructions)
 - [Install and test locally](#install-and-test-locally)
 - [Deployment](#deployment)  
-- [User instructions](#user-instructions)
+
 - [Research](#research)  
 - [Copyright and Licensing](#copyright--licensing)
 
@@ -30,10 +31,16 @@ estimation methods (classes) available in the python library: https://pypi.org/p
 
 ## Example with daily UK AQ data
 (currently running on our web app deployment: see http://minethegaps.manchester.ac.uk/)
-![alt text](images/mine-the-gaps_general_screenshot.png)
+![mine-the-gaps](images/mine-the-gaps_general_screenshot.png)
 
 ## Example with yearly Arizona Chloride PM2.5 LC data
 ![Arizona_Chloride](images/mine-the-gaps_screenshot_US_Arizona_Chloride.png)
+
+# User instructions
+
+See our [user instructions readme](README_instructions.md) for general and admin user instructions on
+how to use this web application. 
+(User our example deployment: [mine-the-gaps](http://minethegaps.manchester.ac.uk/))
 
 
 # Install and test locally
@@ -167,10 +174,6 @@ https://docs.djangoproject.com/en/3.2/topics/auth/default/
 # Deployment
 See the Django documentation for deploying Django applications: 
 https://docs.djangoproject.com/en/3.2/howto/deployment/
-
-# User instructions
-
-See our [user instructions readme](README_instructions.md) for general and admin user instructions.
 
 # Research
 
