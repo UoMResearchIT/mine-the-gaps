@@ -12,11 +12,11 @@ import psycopg2
 
 try:
     psycopg2.connect(
-        dbname="${SQL_DATABASE}",
-        user="${SQL_USER}",
-        password="${SQL_PASSWORD}",
-        host="${SQL_HOST}",
-        port="${SQL_PORT}",
+        dbname="${GEO_SENSOR_GAPS_SQL_DATABASE}",
+        user="${GEO_SENSOR_GAPS_SQL_USER}",
+        password="${GEO_SENSOR_GAPS_SQL_PASSWORD}",
+        host="${GEO_SENSOR_GAPS_SQL_HOST}",
+        port="${GEO_SENSOR_GAPS_SQL_PORT}",
     )
 except psycopg2.OperationalError:
     sys.exit(-1)

@@ -752,7 +752,7 @@ function slugify(string) {
     .replace(/&/g, '-and-') // Replace & with 'and'
     .replace(/[^\w\-]+/g, '') // Remove all non-word characters
     .replace(/\-\-+/g, '-') // Replace multiple - with single -
-    .replace(/^-+/, '') // Trim - from start.sh of text
+    .replace(/^-+/, '') // Trim - from start of text
     .replace(/-+$/, '') // Trim - from end of text
 }
 
@@ -827,7 +827,7 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
     var listItem = document.createElement('a');
-    listItem.className = "list-group-item list-group-item-action flex-column align-items-start.sh site-chart";
+    listItem.className = "list-group-item list-group-item-action flex-column align-items-start site-chart";
     listItem.href = '#';
     var listItemDiv = document.createElement('div');
     listItemDiv.className = 'd-flex w-100 justify-content-between';

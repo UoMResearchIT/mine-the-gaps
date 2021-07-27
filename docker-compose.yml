@@ -1,3 +1,11 @@
+# Install docker and docker-compose
+
+# Create a docker group
+# $sudo groupadd docker
+# $sudo usermod -aG docker $USER
+# Activate group changes (logging out then back in also works)
+# $newgrp docker
+
 version: "3.9"
 
 services:
@@ -6,7 +14,7 @@ services:
       context: .
       dockerfile: ./compose/local/web/Dockerfile
     image: geo_sensor_gap_web
-    command: /start.sh.sh
+    command: /start
     volumes:
       - .:/app
     ports:
@@ -17,7 +25,7 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgis/postgis
     volumes:
       - postgres_data:/var/lib/postgresql
     environment:

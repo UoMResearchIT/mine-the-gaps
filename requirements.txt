@@ -9,6 +9,7 @@ cmake==3.18.4.post1
 csvs==0.1.1
 Django>=3.2.4
 django-contrib-postgres==0.0.1
+django-environ==0.4.5
 django-floppyforms==1.8.0
 django-geojson==2.12.0
 django-leaflet==0.26.0

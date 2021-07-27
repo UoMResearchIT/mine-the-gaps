@@ -49,6 +49,7 @@ class ProgressUpdate(object):
 
 progress_update = ProgressUpdate()
 
+
 def get_progress(request):
     return JsonResponse(progress_update.progress_json)
 
@@ -82,6 +83,7 @@ def home_page(request):
     context = {'form': FileUploadForm(),
                'filepaths': Filenames.objects.all()}
     return render(request, 'index.html', context)
+
 
 def initialise(request):
     global progress_update
@@ -180,6 +182,7 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
 
     finally:
         return response
+
 
 def get_all_regions_at_timestamp(request, method_name, measurement=None, timestamp_val=None,):
     try:
@@ -330,6 +333,11 @@ def actuals(request, measurement, timestamp_val=None, site_id=None, return_all_f
 
     data = []
     measurement = measurement.strip()
+    if len(measurement) == 0:
+        progress_update.progress_json = {'percent_complete': None,
+                                         'status': None,
+                                         'sub_status': None}
+        return data
 
     try:
         site_params = json.loads(request.body.decode("utf-8"))['selectors']
@@ -377,6 +385,10 @@ def actuals(request, measurement, timestamp_val=None, site_id=None, return_all_f
         new_row['mean'] = mean_val
         new_row['std_dev'] = std_dev
         data.append(new_row)
+
+    progress_update.progress_json = {'percent_complete': None,
+                                     'status': None,
+                                     'sub_status': None}
 
     return data
 
@@ -469,7 +481,18 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
                                      'sub_status': 'Initialising variables'}
 
     data = []
+    method_name = method_name.strip()
+    if method_name == 'undefined':
+        progress_update.progress_json = {'percent_complete': None,
+                                         'status': None,
+                                         'sub_status': None}
+        return data
     measurement = measurement.strip()
+    if len(measurement) == 0:
+        progress_update.progress_json = {'percent_complete': None,
+                                         'status': None,
+                                         'sub_status': None}
+        return data
     try:
         site_params = json.loads(request.body.decode("utf-8"))['selectors']
     except:
@@ -653,6 +676,7 @@ def get_timestamp_list():
 
     return result
 
+
 def get_center_latlng():
     x_average = 0
     y_average = 0
@@ -666,7 +690,7 @@ def get_center_latlng():
     if found:
         return json.dumps([str(y_average), str(x_average)])
     else:
-        return ["54.2361", "-4.5481"]  # UK default
+        return json.dumps(["54.2361", "-4.5481"])  # UK default
 
 
 def handle_uploaded_files(request):
