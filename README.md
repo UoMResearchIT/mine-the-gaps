@@ -111,22 +111,21 @@ create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same f
 Fill in the `MAX_NUM_PROCESSORS` value with an integer representing the maximum number of processors
 you wish to have available for this web application. This defaults to the number available minus 1.
 
-Fill in the `SECRET_KEY` value with a newly generate key (string) 
+Using the `geo_sensor_gaps/settings/.env.template`
+Fill in the `SECRET_KEY` value with a newly generated key (string) 
 (e.g try this online key generator https://djecrety.ir/)
 
-Fill in the `DATABASES` value with the following, replacing the NAME, USER and PASSWORD values with 
+Fill in the other database log-in values with your own: Replace the NAME, USER and PASSWORD values with 
 those set up when you created your  PostGIS database in previous step.
 
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'insert_your_DB_name',
-        'USER': 'insert_your_db_user_name',
-        'PASSWORD': 'insert_your_password',
-        'HOST': 'localhost',
-        'PORT': '', }
-}
+```text
+GEO_SENSOR_GAPS_DEBUG=True
+GEO_SENSOR_GAPS_SECRET_KEY=[INSERT_YOUR_SECRET_KEY]
+GEO_SENSOR_GAPS_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+GEO_SENSOR_GAPS_SQL_DATABASE=geo_sensor_gaps [OR REPLACE WITH YOUR DB NAME]
+GEO_SENSOR_GAPS_SQL_USER=geo_sensor_gaps_user [OR REPLACE WITH YOUR DB USER NAME]
+GEO_SENSOR_GAPS_SQL_PASSWORD=[INSERT_YOUR_DB_PASSWORD]
+GEO_SENSOR_GAPS_SQL_HOST=localhost
 ```
 
 
