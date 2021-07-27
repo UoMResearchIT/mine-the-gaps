@@ -283,9 +283,22 @@
                 {% include "flexible_content/about_content.html" %}
                 {% include "flexible_content/instructions_content.html" %}
 
-                <div id="site-charts"></div>
-
+                <div id="time-series" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-timeseries"
+                             aria-expanded="false" aria-controls="collapse-timeseries">
+                            <div class="panel-title">Time-series graphs</div>
+                        </div>
+                    </div>
+                    <div id="collapse-timeseries" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div id="site-charts"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+
         </div>
     </div>
 
