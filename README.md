@@ -45,7 +45,7 @@ how to use this web application.
 
 # Install and test locally
 How to set up a test version running on a development (test) server. 
-The following instructions are to get this web app running on *your own machine*, using Django's 
+The following instructions are to get this web app running on *your machine*, using Django's 
 development server which runs on your machine's localhost.
 
 ## Clone this repository 
@@ -63,6 +63,38 @@ or:
  Then extract this zip file.
 
 ## Install dependencies
+
+### Docker Container (recommended for novices)
+We user [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, Mac or Linux machine.
+
+#### Install Docker
+Using the [Install Docker Engine](https://docs.docker.com/engine/install/) or 
+[Install Docker Desktop](https://docs.docker.com/desktop/) instructions.
+
+#### Run the docker container
+Change to the geo_sensor_gaps project directory:
+`cd geo_sensor_gaps`
+
+Run the docker container:
+`docker-compose  up -d`
+
+#### Run the web app on localhost
+Test the web application by opening `localhost:8000` in a browser
+Note that no data has been loaded yet, so the map will be empty.
+
+#### How to set up admin users with docker container
+Run the Django management tool (running inside the docker container). Run:
+`docker-compose run web python manage.py createsuperuser`
+which will ask for details. Fill out the fields as requested. 
+
+#### Log in as superuser and upload data
+Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the top right-hand 
+side of main web application page.  User your new log-in credentials to log in.
+
+See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions on
+how to use this web application, including how to upload new data.
+
+### Full postgreSQL/postGIS database and Django set-up (more difficult)
   
   These instructions are based on the Ubuntu OS. They will need to be adapted to run on other Linux distributions,
   Windows and other OSs.
@@ -73,7 +105,7 @@ or:
         sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
         python -m pip install --upgrade pip
 
-## Virtual Environment
+#### Virtual Environment
 
 See https://docs.python.org/3/tutorial/venv.html for instruction on how to set up a virtual environment 
 (recommended). This virtual environment will hold the required version of Python, Django and other 
@@ -83,14 +115,14 @@ To activate your new virtual environment run:
 
 `source venv/bin/activate` [Replace 'venv' with the path to your new virtual environment]
       
-## Install Django and additional modules. 
+#### Install Django and additional modules. 
 
 Ensure that your newly created virtual environment is activated (see above), and then run:
 
     cd [code-directory] [Replace [code-directory] with the path of the project folder that contains requirements.txt]
     pip install -r requirements.txt
 
-## Install the PostGIS (Spatial PostreSQL database)
+#### Install the PostGIS (Spatial PostreSQL database)
 As this web app requires geographical functionality, we can't rely only on Django's default
 database set-up. We require a database that can hold and process geo-spatial data and 
 PostGIS is used for this purpose.
@@ -102,7 +134,7 @@ https://postgis.net/docs/postgis_installation.html#install_short_version
 For instructions on using PostGIS with Django:
 https://docs.djangoproject.com/en/3.2/ref/contrib/gis/install/postgis/
 
-## Add a local Django settings file on your machine
+#### Add a local Django settings file on your machine
 
 Using the `geo_sensor_gaps/settings/local.template` file as a template, 
 create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
@@ -128,8 +160,7 @@ GEO_SENSOR_GAPS_SQL_PASSWORD=[INSERT_YOUR_DB_PASSWORD]
 GEO_SENSOR_GAPS_SQL_HOST=localhost
 ```
 
-
-## Check Django installation
+#### Check Django installation
 Ensure your new virtual environment is activated, and then you can check Django is installed using the following
 online set-up instructions.
 
@@ -137,7 +168,7 @@ online set-up instructions.
 https://docs.djangoproject.com/en/3.2/intro/install/
 
 
-## Run the development server
+#### Run the development server
 Ensure that the new virtual environment is activated and run:
 
  `cd [code-directory]` [Replace [code-directory] with the path of the project folder that contains requirements.txt]
@@ -165,7 +196,7 @@ Quit the server with CONTROL-C.
 Using your browser, navigate to http://127.0.0.1:8000/ (or the link shown in your output) and this should 
 open up the web-application.
 
-## How to set admin users
+#### How to set admin users
 This web application only allows admins (aka superusers) to upload the sensor and estimations data.
 See the Django documents on how to do this:
 https://docs.djangoproject.com/en/3.2/topics/auth/default/
