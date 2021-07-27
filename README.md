@@ -5,6 +5,10 @@ The sections below are:
 - [Example screenshots](#example-screenshots)
 - [User instructions](#user-instructions)
 - [Install and test locally](#install-and-test-locally)
+  - [Clone this repository](#clone-this-repository)
+  - [Install dependencies](#install-dependencies)
+    - [Docker Container](#docker-container)
+    - [Full database and Django set-up](#full-database-and-django-set-up)
 - [Deployment](#deployment)  
 
 - [Research](#research)  
@@ -63,8 +67,10 @@ or:
  Then extract this zip file.
 
 ## Install dependencies
+You can either use our docker container (recommended for novices) or follow the full postgreSQL/postGIS database and 
+Django set-up (more difficult).
 
-### Docker Container (recommended for novices)
+### Docker Container
 We user [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, Mac or Linux machine.
 
 #### Install Docker
@@ -94,7 +100,7 @@ side of main web application page.  User your new log-in credentials to log in.
 See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions on
 how to use this web application, including how to upload new data.
 
-### Full postgreSQL/postGIS database and Django set-up (more difficult)
+### Full database and Django set-up
   
   These instructions are based on the Ubuntu OS. They will need to be adapted to run on other Linux distributions,
   Windows and other OSs.
