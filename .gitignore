@@ -4,7 +4,6 @@
 *.pot
 *.pyc
 __pycache__/
-migrations/
 geo_sensor_gaps/settings/local.py
 geo_sensor_gaps/settings/.env
 geo_sensor_gaps/settings/.docker-env
