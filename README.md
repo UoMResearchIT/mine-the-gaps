@@ -103,34 +103,53 @@ $ docker-compose --version
 docker-compose version 1.29.2, build 5becea4c
 ```
 
+#### Create a .env/.dev-sample file for environment variables
+Using the `geo_sensor_gaps/.env/.dev-sample.template`, copy this file to `geo_sensor_gaps/.env/.dev-sample`
+then fill in the `SECRET_KEY` value with a newly generated key (string) 
+(e.g try this online key generator https://djecrety.ir/)
+
+
+```text
+GEO_SENSOR_GAPS_DEBUG=True
+GEO_SENSOR_GAPS_SECRET_KEY=[INSERT A SECRET_KEY HERE]
+GEO_SENSOR_GAPS_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+
+GEO_SENSOR_GAPS_SQL_ENGINE=django.contrib.gis.db.backends.postgis
+GEO_SENSOR_GAPS_SQL_DATABASE=postgres
+GEO_SENSOR_GAPS_SQL_USER=postgres
+GEO_SENSOR_GAPS_SQL_PASSWORD=postgres
+GEO_SENSOR_GAPS_SQL_HOST=db
+GEO_SENSOR_GAPS_SQL_PORT=5432
+```
+
 #### Run the docker container
 Run the container by changing to the geo_sensor_gaps project directory:\
 `cd geo_sensor_gaps`
 
 and then running the docker container:\
-`docker-compose  up -d`
+`sudo docker-compose  up -d`
 
 The docker container will now run in the background (`-d` specifies run as detached process) 
 until it is stopped. To see a list of all running containers, run either:\
-`docker ps`\
+`sudo docker ps`\
 or\
-`docker container ls`
+`sudo docker container ls`
 
 To stop the docker container run:\
-`docker-compose  down`\
+`sudo docker-compose  down`\
 *Note that in the current set-up, once the container is stopped, any admin users and loaded data 
 (added using instructions below) will be lost.*
 
 #### Test the web app on localhost
-Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.
-*Note that no data has been loaded yet, so the map will be empty.*
+Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\
+*Note that no data has been loaded yet, so the map will be empty.*\
 *Note: you may have to wait a few seconds before the browser can open the link.*
 
 #### How to set up admin users on the web app
 To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
 Django management tool (which runs within the docker container). 
 Run:\
-`docker-compose run web python manage.py createsuperuser`\
+`sudo docker-compose run web python manage.py createsuperuser`\
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 
@@ -183,15 +202,14 @@ https://docs.djangoproject.com/en/3.2/ref/contrib/gis/install/postgis/
 
 #### Add a .envs file
 
-Using the `geo_sensor_gaps/settings/.env.template`
-Fill in the `SECRET_KEY` value with a newly generated key (string) 
+Using the `geo_sensor_gaps/settings/.env.template`, copy this file to `geo_sensor_gaps/settings/.env`
+then fill in the `SECRET_KEY` value with a newly generated key (string) 
 (e.g try this online key generator https://djecrety.ir/)
 
 Fill in the other database log-in values with your own: Replace the NAME, USER and PASSWORD values with 
 those set up when you created your  PostGIS database in previous step.
 
 ```text
-GEO_SENSOR_GAPS_DEBUG=True
 GEO_SENSOR_GAPS_SECRET_KEY=[INSERT_YOUR_SECRET_KEY]
 GEO_SENSOR_GAPS_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
 GEO_SENSOR_GAPS_SQL_DATABASE=geo_sensor_gaps [OR REPLACE WITH YOUR DB NAME]

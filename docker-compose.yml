@@ -1,9 +1,11 @@
-# Install docker and docker-compose
-# Create a docker group
-# $sudo groupadd docker
-# $sudo usermod -aG docker $USER
-# Activate group changes (logging out then back in also works)
-# $newgrp docker
+### Install docker and docker-compose
+## Create a docker group
+#sudo groupadd docker
+## Add your user account to the docker group
+#sudo usermod -aG docker $USER
+## Activate group changes (logging out then back in also works)
+#newgrp docker
+# + Potentially repeat above for docker-compose
 
 version: "3.9"
 
