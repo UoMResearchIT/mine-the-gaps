@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/web/Dockerfile
-    image: geo_sensor_gap_web
+    image: geo_sensor_gaps_webapp
     command: /start
     volumes:
       - .:/app

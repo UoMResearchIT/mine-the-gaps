@@ -126,14 +126,28 @@ GEO_SENSOR_GAPS_SQL_PORT=5432
 Run the container by changing to the geo_sensor_gaps project directory:\
 `cd geo_sensor_gaps`
 
-and then running the docker container:\
+and then start the 2 docker containers (one for the web app and one for the postgis database)
+by running:\
 `sudo docker-compose  up -d`
 
-The docker container will now run in the background (`-d` specifies run as detached process) 
-until it is stopped. To see a list of all running containers, run either:\
+The docker containers will now run in the background (`-d` specifies run as detached process) 
+until they are stopped. To see a list of all running containers, run either:\
 `sudo docker ps`\
 or\
 `sudo docker container ls`
+
+If both containers are running as expected, the output should show the two containers running: 
+one for the `geo_sensor_gaps_webapp` and another for a `postgis` database image.
+The output should look something like:\
+
+```
+CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+88a4aeebe9a8   geo_sensor_gap_web   "/entrypoint /start"     56 minutes ago   Up 56 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   geo_sensor_gaps_web_1
+31f5a454ff2b   postgis/postgis      "docker-entrypoint.s…"   56 minutes ago   Up 56 minutes   5432/tcp                                    geo_sensor_gaps_db_1
+```
+If the output does not look like above, then try running:\
+`sudo docker-compose logs -f`\
+which gives you a detailed log file, showing all logs, including errors, for both containers.
 
 To stop the docker container run:\
 `sudo docker-compose  down`\
