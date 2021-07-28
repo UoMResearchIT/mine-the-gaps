@@ -12,7 +12,6 @@ env = environ.Env()
 environ.Env.read_env()
 
 MAX_NUM_PROCESSORS = 2
-DEBUG = True
 SECRET_KEY = env('GEO_SENSOR_GAPS_SECRET_KEY')
 
 # Database(s)
