@@ -21,7 +21,7 @@ The sections below are:
 A Django web application to display sensor data on a map and allow comparison with regional estimates.
 All data is loaded into the web app's database by the (admin) user at run-time, from 4 CSV files 
 which comprise 2 data files and 2 metadata files. 
-Examples are provided in the `/examples` folder.  
+Example data files are provided in the `/examples` folder.  
 
 Regional estimates can also be calculated at run-time. The estimation methods 
 are those available in the python library: https://pypi.org/project/region-estimators 
@@ -95,6 +95,8 @@ Run the container by changing to the geo_sensor_gaps project directory:
 
 and then running the docker container:
 `docker-compose  up -d`
+
+#### Stop the docker container
 
 #### Test the web app on localhost
 Test the web application by opening `localhost:8000` in a browser.
