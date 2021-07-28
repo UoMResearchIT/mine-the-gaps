@@ -83,20 +83,43 @@ database and Django set-up (more difficult).
 
 ### Docker Container
 We use [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, 
-Mac or Windows machine.
+Mac or Windows machine. As an easy-to-use front-end we use [Docker Compose](https://docs.docker.com/compose/) 
+which is a tool for managing docker:
+```text
+Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to 
+configure your application’s services. Then, with a single command, you create and start all the services from your 
+configuration. 
+```
 
-#### Install Docker
-Install Docker using the [Install Docker Engine](https://docs.docker.com/engine/install/) or 
-[Install Docker Desktop](https://docs.docker.com/desktop/) instructions.
+#### Install Docker Compose
+Install Docker Compose using their [Install Compose](https://docs.docker.com/compose/install/#install-compose) 
+instructions. Once installed, test your docker and docker-compose installations:
+
+```shell
+$ docker --version
+Docker version 20.10.7, build f0df350
+
+$ docker-compose --version
+docker-compose version 1.29.2, build 5becea4c
+```
 
 #### Run the docker container
-Run the container by changing to the geo_sensor_gaps project directory:
+Run the container by changing to the geo_sensor_gaps project directory:\
 `cd geo_sensor_gaps`
 
-and then running the docker container:
+and then running the docker container:\
 `docker-compose  up -d`
 
-#### Stop the docker container
+The docker container will now run in the background (`-d` specifies run as detached process) 
+until it is stopped. To see a list of all running containers, run either:\
+`docker ps`\
+or\
+`docker container ls`
+
+To stop the docker container run:\
+`docker-compose  down`\
+*Note that in the current set-up, once the container is stopped, any admin users and loaded data 
+(added using instructions below) will be lost.*
 
 #### Test the web app on localhost
 Test the web application by opening `localhost:8000` in a browser.
@@ -105,7 +128,7 @@ Test the web application by opening `localhost:8000` in a browser.
 #### How to set up admin users on the web app
 To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
 Django management tool (which runs within the docker container). 
-Run:`docker-compose run web python manage.py createsuperuser` \
+Run:\`docker-compose run web python manage.py createsuperuser` \
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 

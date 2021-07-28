@@ -2,8 +2,6 @@ FROM python:3.8-slim-buster
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV POSTGIS_MAJOR 3
-ENV POSTGIS_VERSION 3.1.2+dfsg-1~exp2.pgdg100+1
 
 # Install system packages required by Wagtail and Django.
 RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-recommends \

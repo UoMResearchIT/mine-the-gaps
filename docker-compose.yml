@@ -1,5 +1,4 @@
 # Install docker and docker-compose
-
 # Create a docker group
 # $sudo groupadd docker
 # $sudo usermod -aG docker $USER
