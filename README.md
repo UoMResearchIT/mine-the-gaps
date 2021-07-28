@@ -18,19 +18,20 @@ The sections below are:
 <!-- toc -->
 
 ## About
-A Django web application that displays sensor data on a map and allows comparison with regional estimates.
-All data is loaded into the web app model/DB by the (admin) user at runtime, from 4 CSV files 
+A Django web application to display sensor data on a map and allow comparison with regional estimates.
+All data is loaded into the web app's database by the (admin) user at run-time, from 4 CSV files 
 which comprise 2 data files and 2 metadata files. 
-Examples are provided in the `/examples` folder. See the Data files section below.
- 
+Examples are provided in the `/examples` folder.  
 
-Users can also upload their own data locally (with a browser/session), 
-again via a CSV file upload, so that their own data can be compared alongside the 
-actuals/estimates data pre-loaded.
-
-The estimation methods (see 'Select estimation method': all options except 'pre-loaded') are the 
-estimation methods (classes) available in the python library: https://pypi.org/project/region-estimators 
+Regional estimates can also be calculated at run-time. The estimation methods 
+are those available in the python library: https://pypi.org/project/region-estimators 
 ('concentric-regions' and 'distance-simple' at time of writing)
+
+Users can also upload their own data locally (within a browser session), 
+again via a CSV file upload, allowing their own data to be compared alongside the 
+actuals/estimates data pre-loaded by admin.
+
+
 
 # Example screenshots
 
@@ -44,14 +45,13 @@ estimation methods (classes) available in the python library: https://pypi.org/p
 # User instructions
 
 See our [user instructions readme](README_instructions.md) for general and admin user instructions on
-how to use this web application. 
-(User our example deployment: [mine-the-gaps](http://minethegaps.manchester.ac.uk/))
+how to use this web application
+(and try this out on our example deployment: [mine-the-gaps](http://minethegaps.manchester.ac.uk/))
 
 
 # Install and test locally
-How to set up a test version running on a development (test) server. 
-The following instructions are to get this web app running on *your machine*, using Django's 
-development server which runs on your machine's localhost.
+The following instructions are to get this Django web app running on any machine, using a browser
+and localhost.
 
 ## Clone this repository 
 Make a copy of this code on your computer by:
@@ -83,17 +83,17 @@ database and Django set-up (more difficult).
 
 ### Docker Container
 We use [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, 
-Mac or Linux machine.
+Mac or Windows machine.
 
 #### Install Docker
-Using the [Install Docker Engine](https://docs.docker.com/engine/install/) or 
+Install Docker using the [Install Docker Engine](https://docs.docker.com/engine/install/) or 
 [Install Docker Desktop](https://docs.docker.com/desktop/) instructions.
 
 #### Run the docker container
-Change to the geo_sensor_gaps project directory:
+Run the container by changing to the geo_sensor_gaps project directory:
 `cd geo_sensor_gaps`
 
-Run the docker container:
+and then running the docker container:
 `docker-compose  up -d`
 
 #### Test the web app on localhost
@@ -101,16 +101,18 @@ Test the web application by opening `localhost:8000` in a browser.
 *Note that no data has been loaded yet, so the map will be empty.*
 
 #### How to set up admin users on the web app
-Run the Django management tool (running inside the docker container). Run:
-`docker-compose run web python manage.py createsuperuser`
-which will ask for details. Fill out the fields as requested. 
+To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
+Django management tool (which runs within the docker container). 
+Run:`docker-compose run web python manage.py createsuperuser` \
+This will ask several questions via the command line. Once the superuser is set up,
+that user can log in to the web application.
 
 #### Log in as superuser and upload data
 Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
-top right-hand side of the main page.  User your new log-in credentials to log in.
+top right-hand side of the main page.  Use the new admin log-in credentials to log in.
 
 See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions 
-on how to use this web application, including how to upload new data.
+on how to use this web application, including how to upload data.
 
 ### Full database and Django set-up
   
@@ -205,11 +207,23 @@ Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
 Using your browser, navigate to http://127.0.0.1:8000/ (or the link shown in your output) and this should 
-open up the web-application.
+open up the web-application. *Note that no data has been loaded yet, so the map will be empty.*
 
 #### How to set admin users
-This web application only allows admins (aka superusers) to upload the sensor and estimations data.
-See the Django documents on how to do this:
+To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
+Django management tool, from the same project directory as in previous steps:\
+Run:`python manage.py createsuperuser` \
+This will ask several questions via the command line. Once the superuser is set up,
+that user can log in to the web application.
+
+#### Log in as superuser and upload data
+Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
+top right-hand side of the main page.  Use the new admin log-in credentials to log in.
+
+See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions 
+on how to use this web application, including how to upload data.
+
+See the Django documents for more details on setting up user authentication:
 https://docs.djangoproject.com/en/3.2/topics/auth/default/
 
 # Deployment
