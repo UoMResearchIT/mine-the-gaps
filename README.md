@@ -159,7 +159,7 @@ To stop the docker container run:\
 Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\
 *Note: you may have to wait a few seconds after running the above `sudo docker-compose up` command 
 before the browser is able to open the link.*
-*Note that no data has been loaded yet, so the map will be empty.*\
+*Note that no data has been loaded yet, so the map will be empty.*
 
 
 #### How to set up admin users on the web app
