@@ -103,12 +103,13 @@ $ docker-compose --version
 docker-compose version 1.29.2, build 5becea4c
 ```
 
-#### Create a /geo_sensor_gaps/settings/.docker-env file for environment variables
-Using the `/geo_sensor_gaps/settings/.docker-env.template`, copy this file to `/geo_sensor_gaps/settings/.docker-env`
+#### Create a .docker-env file for environment variables
+Using the `/geo_sensor_gaps/settings/.docker-env.template`, copy this file to 
+`/geo_sensor_gaps/settings/.docker-env`
 then fill in the `SECRET_KEY` value with a newly generated key (string) 
 (e.g you could try this online secret_key generator https://djecrety.ir/)
 
-
+All other fields should remain the same.
 ```text
 GEO_SENSOR_GAPS_DEBUG=True
 GEO_SENSOR_GAPS_SECRET_KEY=[INSERT A SECRET_KEY HERE]
@@ -123,12 +124,12 @@ GEO_SENSOR_GAPS_SQL_PORT=5432
 ```
 
 #### Run the docker container
-Run the container by changing to the geo_sensor_gaps project directory:\
-`cd geo_sensor_gaps`
+Run the container by changing to the project directory:\
+`cd [my_code_folder]/geo_sensor_gaps`
 
-and then start the 2 docker containers (one for the web app and one for the postgis database)
-by running:\
-`sudo docker-compose  up -d`
+and then the following command starts the 2 docker containers (one for the web app and one for 
+the postgis database):\
+`sudo docker-compose up -d`
 
 The docker containers will now run in the background (`-d` specifies run as detached process) 
 until they are stopped. To see a list of all running containers, run either:\
@@ -156,7 +157,8 @@ To stop the docker container run:\
 
 #### Test the web app on localhost
 Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\
-*Note: you may have to wait a few seconds before the browser can open the link.*
+*Note: you may have to wait a few seconds after running the above `sudo docker-compose up` command 
+before the browser is able to open the link.*
 *Note that no data has been loaded yet, so the map will be empty.*\
 
 
