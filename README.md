@@ -142,8 +142,9 @@ To stop the docker container run:\
 
 #### Test the web app on localhost
 Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\
-*Note that no data has been loaded yet, so the map will be empty.*\
 *Note: you may have to wait a few seconds before the browser can open the link.*
+*Note that no data has been loaded yet, so the map will be empty.*\
+
 
 #### How to set up admin users on the web app
 To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
