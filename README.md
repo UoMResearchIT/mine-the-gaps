@@ -128,7 +128,8 @@ Test the web application by opening `localhost:8000` in a browser.
 #### How to set up admin users on the web app
 To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
 Django management tool (which runs within the docker container). 
-Run:\`docker-compose run web python manage.py createsuperuser` \
+Run:\
+`docker-compose run web python manage.py createsuperuser`\
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 
@@ -211,11 +212,10 @@ Ensure that the new virtual environment is activated and run:
 
  `cd [code-directory]` [Replace [code-directory] with the path of the project folder that contains requirements.txt]
 
-optional test:
-  `python manage.py test`
-
-and
-  `python manage.py runserver`
+optional test:\
+`python manage.py test`\
+and run:\
+`python manage.py runserver`
 
 The output to the last command should be similar to:
 
@@ -237,7 +237,8 @@ open up the web-application. *Note that no data has been loaded yet, so the map 
 #### How to set admin users
 To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
 Django management tool, from the same project directory as in previous steps:\
-Run:`python manage.py createsuperuser` \
+Run:\
+`python manage.py createsuperuser`\
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 
