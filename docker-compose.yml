@@ -21,7 +21,7 @@ services:
     ports:
         - 8000:8000
     env_file:
-      - ./.env/.dev-sample
+      - ./geo_sensor_gaps/settings/.docker-env
     depends_on:
       - db
 

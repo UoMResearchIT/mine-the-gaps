@@ -103,10 +103,10 @@ $ docker-compose --version
 docker-compose version 1.29.2, build 5becea4c
 ```
 
-#### Create a .env/.dev-sample file for environment variables
-Using the `geo_sensor_gaps/.env/.dev-sample.template`, copy this file to `geo_sensor_gaps/.env/.dev-sample`
+#### Create a /geo_sensor_gaps/settings/.docker-env file for environment variables
+Using the `/geo_sensor_gaps/settings/.docker-env.template`, copy this file to `/geo_sensor_gaps/settings/.docker-env`
 then fill in the `SECRET_KEY` value with a newly generated key (string) 
-(e.g try this online key generator https://djecrety.ir/)
+(e.g you could try this online secret_key generator https://djecrety.ir/)
 
 
 ```text

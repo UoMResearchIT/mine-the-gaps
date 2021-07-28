@@ -7,6 +7,7 @@ __pycache__/
 migrations/
 geo_sensor_gaps/settings/local.py
 geo_sensor_gaps/settings/.env
+geo_sensor_gaps/settings/.docker-env
 local_settings.py
 db.sqlite3
 media/
@@ -14,4 +15,3 @@ static/
 temp.json
 geo_sensor_gaps/media
 geo_sensor_gaps/static
-/.env/.dev-sample
