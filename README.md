@@ -103,6 +103,23 @@ $ docker-compose --version
 docker-compose version 1.29.2, build 5becea4c
 ```
 
+#### Extra set-up instructions for Windows Subsystem for Linux (WSL) users
+
+If this applies to you, here are some extra instructions:
+
+* Windows 10 System / Enable Windows Features / Enable Windows Hypervisor-V (if not already)	
+* Install Docker Desktop for Windows\
+    https://hub.docker.com/editions/community/docker-ce-desktop-windows/
+  * When it says "logout" to complete installation, it really means "restart".	
+  * When back up it should complete and show a dashboard. There's a system tray icon.	
+* Follow instructions at: https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers 
+and check WSL Integration etc.
+
+This runs the docker service under Windows 10.\
+WSL2 does not support `systemctl start docker.service` 
+  or the usual service docker start approach that works with Postgresql, but it will communicate with 
+this one.
+
 #### Create a .docker-env file for environment variables
 Using the `/geo_sensor_gaps/settings/.docker-env.template`, copy this file to 
 `/geo_sensor_gaps/settings/.docker-env`
@@ -132,15 +149,16 @@ the postgis database):\
 `sudo docker-compose up -d`
 
 The docker containers will now run in the background (`-d` specifies run as detached process) 
-until they are stopped. To see a list of all running containers, run either:\
+until they are stopped.
+
+To see a list of all running containers, run either:\
 `sudo docker ps`\
 or\
 `sudo docker container ls`
 
 If both containers are running as expected, the output should show the two containers running: 
 one for the `geo_sensor_gaps_webapp` and another for a `postgis` database image.
-The output should look something like:\
-
+The output should look something like:
 ```
 CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
 88a4aeebe9a8   geo_sensor_gap_web   "/entrypoint /start"     56 minutes ago   Up 56 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   geo_sensor_gaps_web_1
@@ -154,6 +172,11 @@ To stop the docker container run:\
 `sudo docker-compose  down`\
 *Note that in the current set-up, once the container is stopped, any admin users and loaded data 
 (added using instructions below) will be lost.*
+
+To access the web app's source code, run:\
+`docker exec -it <container-id> /bin/bash`\
+(Replace `<container-id>` with the `CONTAINER ID` of the geo_sensor_gap_web that is listed when running 
+`sudo docker ps`)
 
 #### Test the web app on localhost
 Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\

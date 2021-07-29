@@ -142,6 +142,12 @@ data links.
 Currently, these can only be changed by accessing HTML files directly. Replace the HTML in the files held in the 
 `/mine_the_gap/templates/flexible_content/` folder with your desired content.
 
+If you used the the Docker container to install this application, you can access the web app's source code via
+the containers shell. Run:\
+`docker exec -it <container-id> /bin/bash`\
+(Replace `<container-id>` with the `CONTAINER ID` of the geo_sensor_gap_web that is listed when running 
+`sudo docker ps`)
+
 
 
   
