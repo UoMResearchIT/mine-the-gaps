@@ -16,6 +16,7 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
     gdal-bin \
     libgdal-dev \
     libsqlite3-mod-spatialite \
+    nano \
   && rm -rf /var/lib/apt/lists/*
 
 # Requirements are installed here to ensure they will be cached.
