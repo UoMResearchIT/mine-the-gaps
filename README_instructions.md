@@ -144,9 +144,9 @@ Currently, these can only be changed by accessing HTML files directly. Replace t
 
 If you used the the Docker container to install this application, you can access the web app's source code via
 the container's shell. Run:\
-`docker exec -it <container-id> /bin/bash`\
-(Replace `<container-id>` with the `CONTAINER ID` of the geo_sensor_gap_web that is listed when running 
-`sudo docker ps`)
+`docker exec -it geo_sensor_gaps_web_1 /bin/bash`\
+*Note: `geo_sensor_gaps_web_1` should match the `NAME` of the container, listed when you get the list
+of all running containers (see above).*
 
 
 

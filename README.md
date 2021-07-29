@@ -176,9 +176,9 @@ To stop the docker container run:\
 (added using instructions below) will be lost.*
 
 To access the web app's source code, run:\
-`docker exec -it <container-id> /bin/bash`\
-(Replace `<container-id>` with the `CONTAINER ID` of the geo_sensor_gap_web that is listed when running 
-`sudo docker ps`)
+`docker exec -it geo_sensor_gaps_web_1 /bin/bash`\
+*Note: `geo_sensor_gaps_web_1` should match the `NAME` of the container, listed when you get the list
+of all running containers (see above).*
 
 #### Test the web app on localhost
 Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\
