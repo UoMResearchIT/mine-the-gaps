@@ -138,6 +138,8 @@ GEO_SENSOR_GAPS_SQL_USER=postgres
 GEO_SENSOR_GAPS_SQL_PASSWORD=postgres
 GEO_SENSOR_GAPS_SQL_HOST=db
 GEO_SENSOR_GAPS_SQL_PORT=5432
+
+EDITOR=nano
 ```
 
 #### Run the docker container
