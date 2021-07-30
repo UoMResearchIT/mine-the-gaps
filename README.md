@@ -17,7 +17,7 @@ The sections below are:
 
 <!-- toc -->
 
-## About
+# About
 A Django web application to display sensor data on a map and allow comparison with regional estimates.
 All data is loaded into the web app's database by the (admin) user at run-time, from 4 CSV files 
 which comprise 2 data files and 2 metadata files. 
