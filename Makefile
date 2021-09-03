@@ -46,7 +46,7 @@ keys : ${KEY_FILE}
 
 
 ${KEY_FILE} :
-	@read -p "Enter : " enter; \
+	@read -p "Enter key string: " enter; \
 	echo $$enter > ${KEY_FILE}
 
 
