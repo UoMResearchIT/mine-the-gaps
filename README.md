@@ -6,10 +6,8 @@ The sections below are:
 - [User instructions](#user-instructions)
 - [Install and test locally](#install-and-test-locally)
   - [Clone this repository](#clone-this-repository)
-  - [Add a local.py Django settings file](#add-a-localpy-django-settings-file)  
-  - [Installation](#installation)
-    - [Docker Container](#docker-container)
-    - [Full database and Django set-up](#full-database-and-django-set-up)
+  - [QUICK START Instructions](#quick-start-instructions)  
+  - [Instructions for full database and Django set-up](#instructions-for-full-database-and-django-set-up-not-using-makefile--docker)
 - [Deployment](#deployment)  
 
 - [Research](#research)  
