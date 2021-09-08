@@ -1,4 +1,4 @@
-[![Django CI](https://github.com/UoMResearchIT/geo_sensor_gaps/actions/workflows/django.yml/badge.svg)](https://github.com/UoMResearchIT/geo_sensor_gaps/actions/workflows/django.yml)
+[![Django CI](https://github.com/UoMResearchIT/mine-the-gaps/actions/workflows/django.yml/badge.svg)](https://github.com/UoMResearchIT/mine-the-gaps/actions/workflows/django.yml)
 
 The sections below are:
 - [About](#about)
@@ -60,95 +60,45 @@ Make a copy of this code on your computer by:
 
 and then either:
 
-`git clone  https://github.com/UoMResearchIT/geo_sensor_gaps.git`
+`git clone  https://github.com/UoMResearchIT/mine-the-gaps.git`
 
 or:
 
  click on 'Code' on this github repository homepage, then 'Download ZIP' and save to your chosen folder.
  Then extract this zip file.
 
-## Add a local.py Django settings file
+## QUICK START Instructions 
+These instructions are for Linux, Mac OS and Windows Sub-system Linux users only. We have created a Makefile which you can easily call from the shell. It runs a docker container which 
+runs the Mine-the-Gaps web app, accessible from a browser, at localhost.
 
-Using the `geo_sensor_gaps/settings/local.template` file as a template, 
-create a new file `geo_sensor_gaps/settings/local.py`  (this should be in same folder as 
-`local.template` and `base.py`)
+### Open a shell/command prompt and check you are in the mine-the-gaps project directory:
+`cd [folder into which you cloned the mine-the-gaps code]/mine-the-gaps`
+You should be in the same folder as `Makefile`
 
-Fill in the `MAX_NUM_PROCESSORS` value with an integer representing the maximum number of processors
-you wish to have available for this web application. This defaults to the number available minus 1.
+### Run the make file
+`make docker-serve`
+This installs and runs the 
 
+### Check the app is running
+Open a browser and navigate to `http://127.0.0.1:8000/` . You should see the mine-the-gaps web app running, but with no
+data.
 
-## Installation
-You can either use our docker container (recommended for novices) or follow the full postgreSQL/postGIS 
-database and Django set-up (more difficult).
+### Set up super-users (admin users) on the web app (after Makefile/docker quick install)
+To load data into the mine-the-gaps app, an admin user is required. To set up an 
+admin user (aka superuser), we need to run the Django management tool (which runs within the docker container). 
+Run:\
+`sudo docker-compose run web python manage.py createsuperuser`\
+This will ask several questions via the command line. Once the superuser is set up,
+that user can log in to the web application.
 
-### Docker Container
-We use [Docker](https://www.docker.com/) to create a container for easy set-up on any Linux, 
-Mac or Windows machine. As an easy-to-use front-end we use [Docker Compose](https://docs.docker.com/compose/) 
-which is a tool for managing docker:
-```text
-Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to 
-configure your application’s services. Then, with a single command, you create and start all the services from your 
-configuration. 
-```
+## Log in as superuser and upload data
+Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
+top right-hand side of the main page.  Use the new admin log-in credentials to log in.
 
-#### Install Docker Compose
-Install Docker Compose using their [Install Compose](https://docs.docker.com/compose/install/#install-compose) 
-instructions. Once installed, test your docker and docker-compose installations:
+See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions 
+on how to use this web application, including how to upload data.
 
-```shell
-$ docker --version
-Docker version 20.10.7, build f0df350
-
-$ docker-compose --version
-docker-compose version 1.29.2, build 5becea4c
-```
-
-#### Extra set-up instructions for Windows Subsystem for Linux (WSL) users
-
-If this applies to you, here are some extra instructions:
-
-* Windows 10 System / Enable Windows Features / Enable Windows Hypervisor-V (if not already)	
-* Install Docker Desktop for Windows\
-    https://hub.docker.com/editions/community/docker-ce-desktop-windows/
-  * When it says "logout" to complete installation, it really means "restart".	
-  * When back up it should complete and show a dashboard. There's a system tray icon.	
-* Follow instructions at: https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers 
-and check WSL Integration etc.
-
-This runs the docker service under Windows 10.\
-WSL2 does not support `systemctl start docker.service` 
-  or the usual service docker start approach that works with Postgresql, but it will communicate with 
-this one.
-
-#### Create a .docker-env file for environment variables
-Using the `/geo_sensor_gaps/settings/.docker-env.template`, copy this file to 
-`/geo_sensor_gaps/settings/.docker-env`
-then fill in the `SECRET_KEY` value with a newly generated key (string) 
-(e.g you could try this online secret_key generator https://djecrety.ir/)
-
-All other fields should remain the same.
-```text
-GEO_SENSOR_GAPS_DEBUG=True
-GEO_SENSOR_GAPS_SECRET_KEY=[INSERT A SECRET_KEY HERE]
-GEO_SENSOR_GAPS_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
-
-GEO_SENSOR_GAPS_SQL_ENGINE=django.contrib.gis.db.backends.postgis
-GEO_SENSOR_GAPS_SQL_DATABASE=postgres
-GEO_SENSOR_GAPS_SQL_USER=postgres
-GEO_SENSOR_GAPS_SQL_PASSWORD=postgres
-GEO_SENSOR_GAPS_SQL_HOST=db
-GEO_SENSOR_GAPS_SQL_PORT=5432
-
-EDITOR=nano
-```
-
-#### Run the docker container
-Run the container by changing to the project directory:\
-`cd [my_code_folder]/geo_sensor_gaps`
-
-and then the following command starts the 2 docker containers (one for the web app and one for 
-the postgis database):\
-`sudo docker-compose up -d`
+### Further details when using the Quick Start set-up (using Makefile and docker)
 
 The docker containers will now run in the background (`-d` specifies run as detached process) 
 until they are stopped.
@@ -159,12 +109,12 @@ or\
 `sudo docker container ls`
 
 If both containers are running as expected, the output should show the two containers running: 
-one for the `geo_sensor_gaps_webapp` and another for a `postgis` database image.
+one for the `mine-the-gaps_webapp` and another for a `postgis` database image.
 The output should look something like:
 ```
 CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-88a4aeebe9a8   geo_sensor_gap_web   "/entrypoint /start"     56 minutes ago   Up 56 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   geo_sensor_gaps_web_1
-31f5a454ff2b   postgis/postgis      "docker-entrypoint.s…"   56 minutes ago   Up 56 minutes   5432/tcp                                    geo_sensor_gaps_db_1
+88a4aeebe9a8   geo_sensor_gap_web   "/entrypoint /start"     56 minutes ago   Up 56 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   mine-the-gaps_web_1
+31f5a454ff2b   postgis/postgis      "docker-entrypoint.s…"   56 minutes ago   Up 56 minutes   5432/tcp                                    mine-the-gaps_db_1
 ```
 If the output does not look like above, then try running:\
 `sudo docker-compose logs -f`\
@@ -172,37 +122,30 @@ which gives you a detailed log file, showing all logs, including errors, for bot
 
 To stop the docker container run:\
 `sudo docker-compose  down`\
+or \
+`docker-stop`\
 *Note that in the current set-up, once the container is stopped, any admin users and loaded data 
 (added using instructions below) will be lost.*
 
+To clean out the docker settings files run:\
+`clean`
+
+To clean out the docker settings files and the Secret Key, run:\
+`clean-all`
+
+To create a new settings file, run:\
+`settings`
+
+To create a new secret key for docker (stored in text file), run:\
+`keys`
+
 To access the web app's source code, run:\
-`docker exec -it geo_sensor_gaps_web_1 /bin/bash`\
-*Note: `geo_sensor_gaps_web_1` should match the `NAME` of the container, listed when you get the list
+`docker exec -it mine-the-gaps_web_1 /bin/bash`\
+*Note: `mine-the-gaps_web_1` should match the `NAME` of the container, listed when you get the list
 of all running containers (see above).*
 
-#### Test the web app on localhost
-Whilst the docker container is running, test the web application by opening `localhost:8000` in a browser.\
-*Note: you may have to wait a few seconds after running the above `sudo docker-compose up` command 
-before the browser is able to open the link.*
-*Note that no data has been loaded yet, so the map will be empty.*
 
-
-#### How to set up admin users on the web app
-To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
-Django management tool (which runs within the docker container). 
-Run:\
-`sudo docker-compose run web python manage.py createsuperuser`\
-This will ask several questions via the command line. Once the superuser is set up,
-that user can log in to the web application.
-
-#### Log in as superuser and upload data
-Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
-top right-hand side of the main page.  Use the new admin log-in credentials to log in.
-
-See our [instructions for admin users](README_instructions.md#admin-users) for admin user instructions 
-on how to use this web application, including how to upload data.
-
-### Full database and Django set-up
+## Instructions for full database and Django set-up (not using Makefile / Docker)
   
   These instructions are based on the Ubuntu OS. They will need to be adapted to run on other Linux distributions,
   Windows and other OSs.
@@ -213,7 +156,7 @@ on how to use this web application, including how to upload data.
         sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
         python -m pip install --upgrade pip
 
-#### Virtual Environment
+### Virtual Environment
 
 See https://docs.python.org/3/tutorial/venv.html for instruction on how to set up a virtual environment 
 (recommended). This virtual environment will hold the required version of Python, Django and other 
@@ -223,14 +166,14 @@ To activate your new virtual environment run:
 
 `source venv/bin/activate` [Replace 'venv' with the path to your new virtual environment]
       
-#### Install Django and additional modules. 
+### Install Django and additional modules. 
 
 Ensure that your newly created virtual environment is activated (see above), and then run:
 
     cd [code-directory] [Replace [code-directory] with the path of the project folder that contains requirements.txt]
     pip install -r requirements.txt
 
-#### Install the PostGIS (Spatial PostreSQL database)
+### Install the PostGIS (Spatial PostreSQL database)
 As this web app requires geographical functionality, we can't rely only on Django's default
 database set-up. We require a database that can hold and process geo-spatial data and 
 PostGIS is used for this purpose.
@@ -242,9 +185,9 @@ https://postgis.net/docs/postgis_installation.html#install_short_version
 For instructions on using PostGIS with Django:
 https://docs.djangoproject.com/en/3.2/ref/contrib/gis/install/postgis/
 
-#### Add a .envs file
+### Add a .envs file
 
-Using the `geo_sensor_gaps/settings/.env.template`, copy this file to `geo_sensor_gaps/settings/.env`
+Using the `mine-the-gaps/settings/.env.template`, copy this file to `mine-the-gaps/settings/.env`
 then fill in the `SECRET_KEY` value with a newly generated key (string) 
 (e.g try this online key generator https://djecrety.ir/)
 
@@ -260,7 +203,7 @@ GEO_SENSOR_GAPS_SQL_PASSWORD=[INSERT_YOUR_DB_PASSWORD]
 GEO_SENSOR_GAPS_SQL_HOST=localhost
 ```
 
-#### Check Django installation
+### Check Django installation
 Ensure your new virtual environment is activated, and then you can check Django is installed using the following
 online set-up instructions.
 
@@ -268,7 +211,7 @@ online set-up instructions.
 https://docs.djangoproject.com/en/3.2/intro/install/
 
 
-#### Run the development server
+### Run the development server
 Ensure that the new virtual environment is activated and run:
 
  `cd [code-directory]` [Replace [code-directory] with the path of the project folder that contains requirements.txt]
@@ -288,22 +231,22 @@ Performing system checks...
 
 System check identified no issues (0 silenced).
 July 22, 2021 - 16:15:44
-Django version 3.2.5, using settings 'geo_sensor_gaps.settings.dev'
+Django version 3.2.5, using settings 'mine-the-gaps.settings.dev'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
 Using your browser, navigate to http://127.0.0.1:8000/ (or the link shown in your output) and this should 
 open up the web-application. *Note that no data has been loaded yet, so the map will be empty.*
 
-#### How to set admin users
-To load data, an admin user is required. To set up an admin user (aka superuser), we need to run the 
-Django management tool, from the same project directory as in previous steps:\
+### Set up super-users (admin users) on the web app (when not using Makefile / docker install)
+To load data into the mine-the-gaps app, an admin user is required. To set up an 
+admin user (aka superuser), we need to run the Django management tool (which runs within the docker container). 
 Run:\
 `python manage.py createsuperuser`\
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 
-#### Log in as superuser and upload data
+### Log in as superuser and upload data
 Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
 top right-hand side of the main page.  Use the new admin log-in credentials to log in.
 
