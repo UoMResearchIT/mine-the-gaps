@@ -91,7 +91,7 @@ Run:\
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 
-## Log in as superuser and upload data
+### Log in as superuser and upload data
 Return to the web application on your browser (`localhost:8000`) and click on `admin login` in the 
 top right-hand side of the main page.  Use the new admin log-in credentials to log in.
 
