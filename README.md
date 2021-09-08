@@ -77,17 +77,17 @@ You should be in the same folder as `Makefile`
 
 ### Run the make file
 `make docker-serve`
-This installs and runs the 
+This installs and runs the app on localhost.
 
 ### Check the app is running
 Open a browser and navigate to `http://127.0.0.1:8000/` . You should see the mine-the-gaps web app running, but with no
-data.
+data. (You may need to wait a few seconds, and/or refresh the browser.)
 
 ### Set up super-users (admin users) on the web app (after Makefile/docker quick install)
 To load data into the mine-the-gaps app, an admin user is required. To set up an 
 admin user (aka superuser), we need to run the Django management tool (which runs within the docker container). 
 Run:\
-`sudo docker-compose run web python manage.py createsuperuser`\
+`docker-compose run web python manage.py createsuperuser`\
 This will ask several questions via the command line. Once the superuser is set up,
 that user can log in to the web application.
 
@@ -104,40 +104,40 @@ The docker containers will now run in the background (`-d` specifies run as deta
 until they are stopped.
 
 To see a list of all running containers, run either:\
-`sudo docker ps`\
+`docker ps`\
 or\
-`sudo docker container ls`
+`docker container ls`
 
 If both containers are running as expected, the output should show the two containers running: 
 one for the `mine-the-gaps_webapp` and another for a `postgis` database image.
 The output should look something like:
 ```
 CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-88a4aeebe9a8   geo_sensor_gap_web   "/entrypoint /start"     56 minutes ago   Up 56 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   mine-the-gaps_web_1
+88a4aeebe9a8   mine-the-gaps_web   "/entrypoint /start"     56 minutes ago   Up 56 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   mine-the-gaps_web_1
 31f5a454ff2b   postgis/postgis      "docker-entrypoint.s…"   56 minutes ago   Up 56 minutes   5432/tcp                                    mine-the-gaps_db_1
 ```
 If the output does not look like above, then try running:\
-`sudo docker-compose logs -f`\
+`docker-compose logs -f`\
 which gives you a detailed log file, showing all logs, including errors, for both containers.
 
 To stop the docker container run:\
-`sudo docker-compose  down`\
+`docker-compose  down`\
 or \
-`docker-stop`\
+`make docker-stop`\
 *Note that in the current set-up, once the container is stopped, any admin users and loaded data 
 (added using instructions below) will be lost.*
 
 To clean out the docker settings files run:\
-`clean`
+`make clean`
 
 To clean out the docker settings files and the Secret Key, run:\
-`clean-all`
+`make clean-all`
 
 To create a new settings file, run:\
-`settings`
+`make settings`
 
 To create a new secret key for docker (stored in text file), run:\
-`keys`
+`make keys`
 
 To access the web app's source code, run:\
 `docker exec -it mine-the-gaps_web_1 /bin/bash`\
@@ -145,7 +145,7 @@ To access the web app's source code, run:\
 of all running containers (see above).*
 
 
-## Instructions for full database and Django set-up (not using Makefile / Docker)
+## Instructions for full database and Django set-up (NOT using Makefile / Docker)
   
   These instructions are based on the Ubuntu OS. They will need to be adapted to run on other Linux distributions,
   Windows and other OSs.
