@@ -65,23 +65,24 @@ or:
  click on 'Code' on this github repository homepage, then 'Download ZIP' and save to your chosen folder.
  Then extract this zip file.
 
-## QUICK START Instructions 
-These instructions are for Linux, Mac OS and Windows Sub-system Linux users only. We have created a Makefile which you can easily call from the shell. It runs a docker container which 
-runs the Mine-the-Gaps web app, accessible from a browser, at localhost.
+## QUICK START (Makefile) Instructions 
+These instructions are for Linux, Mac OS and Windows Sub-system Linux users only. We have created a Makefile which 
+you can easily call from the shell. It runs a docker container which runs the Mine-the-Gaps web app, accessible from 
+a browser, at localhost.
 
 ### Open a shell/command prompt and check you are in the mine-the-gaps project directory:
 `cd [folder into which you cloned the mine-the-gaps code]/mine-the-gaps`
-You should be in the same folder as `Makefile`
+You should be in the same folder as the `Makefile` file.
 
-### Run the make file
-`make docker-serve`
+### Call the Makefile to start the app
+`make docker-serve`\
 This installs and runs the app on localhost.
 
 ### Check the app is running
 Open a browser and navigate to `http://127.0.0.1:8000/` . You should see the mine-the-gaps web app running, but with no
-data. (You may need to wait a few seconds, and/or refresh the browser.)
+data. (You may need to wait a few seconds and/or refresh the browser.)
 
-### Set up super-users (admin users) on the web app (after Makefile/docker quick install)
+### Set up super-users (admin users) on the web app (after Makefile/docker quick installation)
 To load data into the mine-the-gaps app, an admin user is required. To set up an 
 admin user (aka superuser), we need to run the Django management tool (which runs within the docker container). 
 Run:\
@@ -132,10 +133,16 @@ To clean out the docker settings files and the Secret Key, run:\
 `make clean-all`
 
 To create a new settings file, run:\
-`make settings`
+`make settings`\
+Alternatively, you can open the `/geo_sensor_gaps/settings/local.py` file to set the `SECRET_KEY` and the 
+`MAX_NUM_PROCESSORS` settings.
 
 To create a new secret key for docker (stored in text file), run:\
-`make keys`
+`make keys`\
+Alternatively, you can open the `/geo_sensor_gaps/settings/local.py` file to set the `SECRET_KEY` setting.
+
+To set the maximum number of processors to be used:\
+Open the `/geo_sensor_gaps/settings/local.py` file to set the `MAX_NUM_PROCESSORS` setting.
 
 To access the web app's source code, run:\
 `docker exec -it mine-the-gaps_web_1 /bin/bash`\
