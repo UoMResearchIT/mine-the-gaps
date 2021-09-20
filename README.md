@@ -139,7 +139,9 @@ Alternatively, you can open the `/geo_sensor_gaps/settings/local.py` file to set
 
 To create a new secret key for docker (stored in text file), run:\
 `make keys`\
-Alternatively, you can open the `/geo_sensor_gaps/settings/local.py` file to set the `SECRET_KEY` setting.
+Alternatively: 
+1) you can open the `/geo_sensor_gaps/settings/local.py` file to set the `SECRET_KEY` setting.
+2) you can update the secret key in the file `keystring.txt`.
 
 To set the maximum number of processors to be used:\
 Open the `/geo_sensor_gaps/settings/local.py` file to set the `MAX_NUM_PROCESSORS` setting.
