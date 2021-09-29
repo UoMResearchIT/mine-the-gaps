@@ -1,3 +1,70 @@
+div#login{
+    font-size: 12px;
+    font-style: italic;
+    text-align: right;
+}
+
+.row.admin{
+    height:0px;
+}
+
+div#site-charts {
+    overflow-y: scroll;
+    height: 360px;
+}
+
+div#measurement-radios {
+    overflow-y: scroll;
+    height: 400px;
+}
+
+.leaflet-popup-content{
+    overflow-y: scroll;
+    height: 400px;
+}
+
+.score-button {
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 3px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+
+#upload-data-instructions{
+    background: #d9edf7;
+    margin-bottom: 15px;
+}
+
+#site-acknowledgements img{
+    width: 120px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+#site-acknowledgements{
+    padding: 10px;
+    font-style: italic;
+    color: #6d4090;
+    background: #f9f9f9;
+    text-align: justify;
+    margin-bottom: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
 pre {
     white-space: pre-wrap;       /* Since CSS 2.1 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -29,6 +96,15 @@ pre {
   width: 80%; /* Could be more or less, depending on screen size */
 }
 
+#download-options .modal-content{
+    width:700px;
+}
+
+#upload-options .modal-content{
+    width:1200px;
+    margin-left:-250px
+}
+
 /* The Close Button */
 .close {
   color: #aaa;
@@ -54,11 +130,7 @@ pre {
 
 }
 
-#download-options .modal-content{
-    width:700px;
-}
-
-table#download-buttons{
+table.flexible-download-content{
     margin:0;
 }
 table#api-instructions{
@@ -260,9 +332,7 @@ table#api-instructions{
     Timer / spinner to show data loading.
 
  */
-
-
-#loader-outer{
+#loader-outer, #loader-outer-regions{
     position:fixed;
     top: 20%;
     left: 15%;
@@ -272,14 +342,14 @@ table#api-instructions{
 
 
 .ajax-call-loader {
-  border: 16px solid #3e6b8c;
-  border-radius: 50%;
-  border-top: 16px solid #d1eeaa;
-  width: 100px;
-  height: 100px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-  float:left;
+    border: 16px solid #3e6b8c;
+    border-radius: 50%;
+    border-top: 16px solid #d1eeaa;
+    width: 100px;
+    height: 100px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+    float:left;
     border-style: groove;
 }
 
@@ -308,6 +378,8 @@ table#api-instructions{
     padding-left: 5%;
     padding-top: 60px;
     font-weight: bold;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
 }
 
 .ajax-waiting-text.size-1{

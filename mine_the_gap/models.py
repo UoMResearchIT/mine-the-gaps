@@ -1,11 +1,11 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.contrib.gis.db import models as gismodels
 
 
 class Filenames(models.Model):
     actual_data_filename = models.CharField(max_length=50, null=True)
-    sensor_metadata_filename = models.CharField(max_length=50, null=True)
+    site_metadata_filename = models.CharField(max_length=50, null=True)
     estimated_data_filename = models.CharField(max_length=50, null=True)
     region_metadata_filename = models.CharField(max_length=50, null=True)
 
@@ -22,22 +22,6 @@ class Region(gismodels.Model):
     @property
     def adjacent_regions(self):
         return Region.objects.filter(geom__touches=self.geom)
-
-
-class Region_dynamic(gismodels.Model):
-    region_id = models.CharField(max_length=30, primary_key=True)
-    geom = gismodels.MultiPolygonField(null=False)
-    extra_data = JSONField(null=True)
-    estimation_method = models.CharField(max_length=20, null=True)
-
-    @property
-    def popup_content(self):
-        return {'region_id': self.region_id, 'extra_data': self.extra_data}
-
-    @property
-    def adjacent_regions(self):
-        return Region_dynamic.objects.filter(geom__touches=self.geom)
-
 
 
 class Estimated_data(gismodels.Model):
@@ -95,7 +79,7 @@ class Sensor(gismodels.Model):
 
     @property
     def popup_content(self):
-        return {'sensor_id': self.id,
+        return {'site_id': self.id,
                 'name': self.name,
                 'extra_data': self.extra_data}
 
@@ -108,26 +92,25 @@ class Sensor(gismodels.Model):
         return result
 
 
-
 class Actual_data(gismodels.Model):
     timestamp = models.CharField(max_length=30, null=False)
-    sensor = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
+    site = models.ForeignKey(Sensor, null=True, on_delete=models.CASCADE)
 
     @property
-    def join_sensor(self):
+    def join_site(self):
         return {'timestamp': self.timestamp,
-                'name': self.sensor.name,
-                'sensor_id': self.sensor_id,
-                'geom': self.sensor.geom.coords,
-                'sensor_extra_data': self.sensor.extra_data,
-                'regions': self.sensor.within_regions}
+                'name': self.site.name,
+                'site_id': self.site_id,
+                'geom': self.site.geom.coords,
+                'site_extra_data': self.site.extra_data,
+                'regions': self.site.within_regions}
 
     @property
-    def join_sensor_lite(self):
+    def join_site_lite(self):
         return {'timestamp': self.timestamp,
-                'name': self.sensor.name,
-                'sensor_id': self.sensor_id,
-                'regions': self.sensor.within_regions}
+                'name': self.site.name,
+                'site_id': self.site_id,
+                'regions': self.site.within_regions}
 
 
 class Actual_value(gismodels.Model):
@@ -136,24 +119,24 @@ class Actual_value(gismodels.Model):
     value = models.FloatField(null=True)
 
     @property
-    def join_sensor(self):
+    def join_site(self):
         try:
             fvalue = float(self.value)
         except:
             fvalue = None
-        result = self.actual_data.join_sensor
+        result = self.actual_data.join_site
         result.update({'measurement_name': self.measurement_name,
                        'value': fvalue,
                        'actual_data_id': self.actual_data_id})
         return result
 
     @property
-    def join_sensor_lite(self):
+    def join_site_lite(self):
         try:
             fvalue = float(self.value)
         except:
             fvalue = None
-        result = self.actual_data.join_sensor_lite
+        result = self.actual_data.join_site_lite
         result.update({'measurement_name': self.measurement_name,
                        'value': fvalue})
         return result

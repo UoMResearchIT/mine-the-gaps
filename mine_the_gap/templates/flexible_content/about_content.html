@@ -1,0 +1,35 @@
+<!-- ARE YOU CLONING THIS WEB APP FOR YOUR OWN PROJECT?
+     This html page is where you'd want to update the info panels to your own requirements...
+-->
+
+<div id="site-about" class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-about"
+             aria-expanded="false" aria-controls="collapse-about">
+            <div class="panel-title">About</div>
+        </div>
+    </div>
+    <div id="collapse-about" class="panel-collapse collapse">
+        <div class="panel-body">
+            <p>A Django web application to display sensor data on a map, allowing comparison with regional estimates
+                and that can generate time-series graphs for each sensor location.</p>
+            <p> All data is loaded into the web app's database by the (admin) user at runtime, from 4 CSV files
+                comprising 2 data files and 2 metadata files. See the
+            <a href="https://github.com/UoMResearchIT/geo_sensor_gaps#how-to-load-data-to-the-web-application" target="_blank">
+                    github documentation section on how to load data </a> for more detailed instructions.</p>
+            <p>Regional estimates can also be calculated at run-time. The estimation methods
+                (click on 'Select estimation method' and see all options except 'pre-loaded')
+                are those available in the python library:
+                <a href="https://pypi.org/project/region-estimators/" target = _blank>
+                    https://pypi.org/project/region-estimators</a> ('concentric-regions' and 'distance-simple'
+                at time of writing)
+            </p>
+            <p>
+                Users can also upload their own data locally (within a browser session),
+                again via a CSV file upload, so that their own data can be compared alongside the
+                actuals/estimates data pre-loaded.
+            </p>
+
+        </div>
+    </div>
+</div>
