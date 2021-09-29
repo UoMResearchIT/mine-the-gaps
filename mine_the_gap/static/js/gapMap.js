@@ -15,8 +15,20 @@ const initZoom = 6;
 var xhr = null;
 var regions = {};
 
+    $('#timestamp-range').data({
+        was: $('#timestamp-range').val()
+    }).on('input', function () {
+        var data = $(this).data();
+        $(this).data({
+            was: this.value = +data.was + (this.value > data.was || -1)
+        });
+    });
+
+
 export class GapMap {
-    constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn) {
+
+    constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn, centerLatLng, timestampList) {
+        this.svgIcons = new svgIcons();
         this.domId = mapDomId;
         this.accessToken = accessToken;
         this.bounds = null;
