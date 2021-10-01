@@ -37,7 +37,6 @@ urlpatterns = [
     path('all_sites/<slug:measurement>/<slug:timestamp_val>/', views.get_all_sites_at_timestamp),
     path('all_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:site_id>/', views.get_all_timeseries_at_region),
 
-
     #####  API type calls returning json #####
 
     ## Get region and site data ##

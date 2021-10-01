@@ -680,7 +680,7 @@ var MarkerClusterGroup = L.MarkerClusterGroup = L.FeatureGroup.extend({
 	/**
 	 * Removes a marker from all _gridUnclustered zoom levels, starting at the supplied zoom.
 	 * @param marker to be removed from _gridUnclustered.
-	 * @param z integer bottom start.sh zoom level (included)
+	 * @param z integer bottom start zoom level (included)
 	 * @private
 	 */
 	_removeFromGridUnclustered: function (marker, z) {
@@ -965,7 +965,7 @@ var MarkerClusterGroup = L.MarkerClusterGroup = L.FeatureGroup.extend({
 		this._topClusterLevel = new this._markerCluster(this, minZoom - 1);
 	},
 
-	//Zoom: Zoom to start.sh adding at (Pass this._maxZoom to start.sh at the bottom)
+	//Zoom: Zoom to start adding at (Pass this._maxZoom to start at the bottom)
 	_addLayer: function (layer, zoom) {
 		var gridClusters = this._gridClusters,
 		    gridUnclustered = this._gridUnclustered,
@@ -1753,7 +1753,7 @@ var MarkerCluster = L.MarkerCluster = L.Marker.extend({
 
 	//Run the given functions recursively to this and child clusters
 	// boundsToApplyTo: a L.LatLngBounds representing the bounds of what clusters to recurse in to
-	// zoomLevelToStart: zoom level to start.sh running functions (inclusive)
+	// zoomLevelToStart: zoom level to start running functions (inclusive)
 	// zoomLevelToStop: zoom level to stop running functions (inclusive)
 	// runAtEveryLevel: function that takes an L.MarkerCluster as an argument that should be applied on every level
 	// runAtBottomLevel: function that takes an L.MarkerCluster as an argument that should be applied at only the bottom level
@@ -2516,7 +2516,7 @@ L.MarkerClusterGroup.include({
 		this._noanimationUnspiderfy();
 	},
 
-	//On zoom start.sh we add a zoomanim handler so that we are guaranteed to be last (after markers are animated)
+	//On zoom start we add a zoomanim handler so that we are guaranteed to be last (after markers are animated)
 	//This means we can define the animation they do rather than Markers doing an animation to their actual location
 	_unspiderfyZoomStart: function () {
 		if (!this._map) { //May have been removed from the map by a zoomEnd handler

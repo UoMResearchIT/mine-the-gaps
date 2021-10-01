@@ -37,6 +37,16 @@ var xhrRegions = null;
 var xhrUpdate = null;
 var regions = {};
 
+    $('#timestamp-range').data({
+        was: $('#timestamp-range').val()
+    }).on('input', function () {
+        var data = $(this).data();
+        $(this).data({
+            was: this.value = +data.was + (this.value > data.was || -1)
+        });
+    });
+
+
 export class GapMap {
     constructor(mapDomId, regionsFileUrl, csrfToken, onSensorClickFn, centerLatLng, timestampList) {
         this.svgIcons = new svgIcons();
