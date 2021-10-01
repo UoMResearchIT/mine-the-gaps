@@ -1,612 +1,759 @@
+import {LoaderDisplay} from "./loader.js";
+import {GapMap} from "./gapMap.js";
+
+const csrftoken = getCookie('csrftoken');
+const fileSizeLimit = 5;
+var xhr = null;
+
+var curLoader;
+var gapMap;
+var userUploadedData = null;
+var timestampList = []
+
 
 $(document).ready(function(){
-
-    // Initialise layer lists for later use
-    var sensorsLayer = new L.LayerGroup();
-    var regionsLayer = new L.LayerGroup();
-    var regions = {};
-
-    // ******************************************************************
-    // ****************** CSRF-TOKEN SET-UP *****************************
-    // ******************************************************************
-
-   // using jQuery
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-    // ******************************************************************
-    // ****************** CSRF-TOKEN END *****************************
-    // ******************************************************************
+    doPoll();
+    initialise();
 
     // Make the timestamp slider draggable:
     dragElement(document.getElementById("map-slider"));
 
     $("#file-upload-form").on("submit", function(){
         if(confirm('Do you really want to replace these files?')){
-            var loaderOuterDiv = document.getElementById('loader-outer');
-            // Set up loader display
-            var loaderDiv = document.createElement('div');
-            loaderDiv.id = 'loader';
-            loaderOuterDiv.appendChild(loaderDiv);
-            drawLoader(loaderDiv, '<p>Uploading data...</p>');
+            curLoader = new LoaderDisplay('loader-outer','<p>Uploading data...</p>');
             return true;
         }else{
             return false;
         }
     });
 
-
-    $("div#select-files").hide();
+    //$("div#select-files").show();
     // Upload files toggle button
     $("button#btn-select-files").click(function(){
         $("div#select-files").toggle('slow');
     });
 
-    var curEstimatedDataUrl = estimatedDataUrl + '/file/';
-    var curActualDataUrl = actualDataUrl + '/';
+    $('#upload-data-button').change(function(){
+        uploadUserData(this);
+    })
 
-    $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-    $("#estimation-method input").change(function() {
-        $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
-        curEstimatedDataUrl = estimatedDataUrl + '/' + this.value + '/';
-        update_timeseries_map()
-    });
+    function uploadUserData(inputElem){
+        //alert(inputElem);
+        var file = inputElem.files[0];
+        uploadData(file);
+    }
+});
+
+function initialise(){
+
+    var url = abs_uri + 'initialise/';
+    xhr = $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 60000,
+        async: true,
+        beforeSend: function () {
+            // Set up loader display
+            curLoader = new LoaderDisplay('loader-outer', '<p>Initialising...</p>');
+        },
+        success: function (data) {
+            //alert(JSON.stringify(data));
+            timestampList = data['timestamp_list'];
+            var centerLatLng = data['center'];
+            var measurementNames = data['measurement_names'];
+            var methodNames = data['method_names'];
+            // bounds must be set after only the first initialisation of map
+
+            initialiseParameters(centerLatLng, measurementNames, methodNames);
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem initialising the application: "
+                    + "url: " + url + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            curLoader.stopLoader('loader-outer');
+        }
+    })
+}
+
+function initialiseParameters(mapCenterLatLng, measurementNames, methodNames){
+    gapMap = new GapMap('mapid', regionsFileUrl, csrftoken, showTimelineComparisons, mapCenterLatLng,
+        timestampList);
+    initialiseTimeSlider();
+    initialiseMeasurements(measurementNames);
+    initialiseMethods(methodNames);
+    initialiseSiteFields();
+    gapMap.updateTimeseries(get_site_select_url_params(),
+        $("input[name='estimation-method']:checked").val(),
+        timestampList[document.getElementById("timestamp-range").value].trim(),
+        $("input[name='measurement']:checked").val())
+}
+
+function initialiseMeasurements(measurementNames){
+    var measurementDiv = document.getElementById("measurement-radios");
+    var checked = 'checked="checked"';
+
+    for(var i=0; i<measurementNames.length; i++){
+        var measurement = measurementNames[i];
+        if(i > 0){checked = ''}
+        var radioHtml = '<input type="radio" name="measurement" value="' + measurement + '" ' + checked + '">&nbsp;'
+            + measurement + '<br>'
+        measurementDiv.innerHTML += radioHtml;
+    }
 
     $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
     $("#measurement-names input").change(function() {
         $("#measurement-names-label").html('<em>' + $("input[name='measurement']:checked").val() + '</em>');
-        update_timeseries_map();
+        gapMap.updateTimeseries(get_site_select_url_params(),
+            $("input[name='estimation-method']:checked").val(),
+            timestampList[document.getElementById("timestamp-range").value].trim(),
+            $("input[name='measurement']:checked").val());
     });
+}
 
-    $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
-    $("#map-overlays input").change(function() {
-        $("#map-overlays-label").html('<em>' + $("input[name='map-type']:checked").val() + '</em>');
-        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
-        initialise_slider(value=document.getElementById("timestamp-range").value);
-    });
-
-    $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
-    $("#estimation-regions input").change(function() {
-        $("#estimation-regions-label").html('<em>' + $("input[name='region-method']:checked").val() + '</em>');
-        update_map(mapType=this.value, zoomLevel=map.getZoom(), mapCenter=map.getCenter());
-        initialise_slider(value=document.getElementById("timestamp-range").value);
-    });
-
-
-
-
-    //Create map
-    var map = L.map('mapid');
-    var initZoom = 6;
-    try {
-        var initCenter = jQuery.parseJSON(centerLatLng);
-    }catch{
-        var initCenter = ["54.2361", "-4.5481"];
+function initialiseMethods(methodNames){
+    var methodsDiv = document.getElementById("method-radios");
+    var radioHtml = '<input type="radio" name="estimation-method" value="file" checked="checked">&nbsp;pre-loaded<br>';
+    methodsDiv.innerHTML = radioHtml;
+    for(var i=0; i<methodNames.length; i++){
+        var method = methodNames[i];
+        radioHtml = '<input type="radio" name="estimation-method" value="' + method + '" >'
+            + '&nbsp;' + method + '<br>'
+        methodsDiv.innerHTML += radioHtml;
     }
-    map.setView(initCenter, initZoom);
-    map.options.minZoom = 5;
-    map.options.maxZoom = 14;
-    // bounds must be set after only the first initialisation of map
-    var bounds = map.getBounds();
 
-    update_map(map);
-    // bounds must be set after only the first initialisation of map
-    initialise_slider();
+    $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
+    $("#estimation-method input").change(function() {
+        $("#estimation-method-label").html('<em>' + $("input[name='estimation-method']:checked").val() + '</em>');
+        gapMap.dataUrl = dataUrl + '/' + this.value + '/';
+        gapMap.updateTimeseries(get_site_select_url_params(),
+            $("input[name='estimation-method']:checked").val(),
+            timestampList[document.getElementById("timestamp-range").value].trim(),
+            $("input[name='measurement']:checked").val());
+    });
+}
 
-    initialise_sensor_fields();
+function doPoll(){
+    var url = abs_uri + 'progress/';
+    $.post(url, function(data) {
+        processProgress(data);
+        setTimeout(doPoll,1000);
+    });
+}
 
+function processProgress(data){
+    if(Object.keys(data).length !== 0){
+        var newMessage = '';
+        if(data['percent_complete']) {
+            newMessage += 'Percent complete: ' + data['percent_complete'] + '%</br>';
+        }
+        if(data['status']) {
+            newMessage += data['status'] + '</br>';
+        }
+        if(data['sub_status']) {
+            newMessage += data['sub_status'] + '</br>';
+        }
+        curLoader.setMessage(newMessage);
+        if(gapMap){gapMap.updateLoader(newMessage)}
+    }
+}
 
-    function initialise_sensor_fields(){
-        /*
-                Add Sensor fields (to UI sensor selection/filtering mechanism)
-
-         */
-
-        $.getJSON(sensorFieldsUrl, function (data) {
-            // Add GeoJSON layer
-            //alert(JSON.stringify(data));
-
-            // Create the table for sensor fields
-            var sensor_fields = '<table class="table table-striped">';
-
-            for (var i=0; i<data.length; i++){
-                var fieldName = data[i];
-
-                // Add sensor field data to the table
-                var row = '<tr class="select-button-row">' +
-                    '<td class="field-name">' + fieldName + '</td>' +
-                    '<td id="'+ fieldName + '-used' +'" class="field-used"></td></tr>';
-                sensor_fields += row;
-                // Add user input fields for selecting sensors
-                var rows =
-                    '<tr class="select-field-instructions info">' +
-                        '<td></td>' +
-                        '<td><div id="sensor-select-instructions">' +
-                            '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
-                                '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
-                                '(\'Omit values\' ignored if both used)' +
-                    '       </em></div>' +
-                    '   </td>' +
-                    '</tr>' +
-                    '<tr id="' + fieldName + '-select' + '" class="selector-field info">' +
-                        '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
-                    '</tr>' +
-                    '<tr id="' + fieldName + '-omit' + '" class="omittor-field info">' +
-                    '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
-                    '</tr>';
-                sensor_fields += rows;
+// Upload user data functions
+function uploadData(file){
+    var csvType = 'text/csv';
+    var success = false;
+    userUploadedData = null;
+    if(!validateFileSize(file)){
+        alert('File size exceeds limit: ' + fileSizeLimit.toString() + ' MiB');
+        return;
+    }
+    if (file.type.match(csvType)) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                userUploadedData = processCSV(reader.result);
+                //alert(JSON.stringify(userUploadedData));
+                success = true;
+            }catch {
+                success = false;
             }
-            sensor_fields += '</table>';
+        }
+        reader.onloadend = function(e){
+            if(success === true) {
+                gapMap.addUploadedData(userUploadedData);
+            }
+        }
+        reader.readAsText(file);
+    } else {
+        alert("Only CSV files are accepted. File type: " + file.type );
+    }
+}
 
-            // Add the table and instructions to the html div
-            $('#collapseFilterSensors').html(sensor_fields);
+function validateFileSize(file) {
+    // Convert to Megabytes
+    var fileSize = file.size / 1024 / 1024; // in MiB
+    // check OK
+    return (fileSize <= fileSizeLimit);
+}
 
-            // Toggle the field selector / omittor fields (and instructions div) until required
-            $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #sensor-select-instructions").hide();
+// Process the user uploaded CSV file by reading it in to javascript array
+function processCSV(dataString) {
+    var dictAll = {};
+    var allValues = {};
+    var dataRows = dataString.split(/\n/); // Convert to one string per line
+    var strHeaders = dataRows[0];
+    var headers = strHeaders.split(',');
+    if (headers[0] != 'timestamp'){
+        alert("CSV file does not contain required 'timestamp' as 1st column");
+        throw "CSV file does not contain required 'timestamp' as 1st column"
+    }
+    if (headers[1] != 'geom'){
+        alert("CSV file does not contain required 'geom' as 2nd column");
+        throw "CSV file does not contain required 'geom' as 2nd column"
+    }
+    if (headers.length < 3 ){
+        alert("CSV file does not contain any value columns (after the 'timestamp' and 'geom' columns)");
+        throw "CSV file does not contain any value columns (after the 'timestamp' and 'geom' columns)";
+    }
 
-            $("table .select-button-row").on('click', function(){
-                $(this).nextUntil("tr.select-button-row").toggle('slow');
-            });
+    headers = headers.slice(2);
 
-            // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
-            $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
-                if(e.keyCode === 13){ // Enter key
-                    var prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').val();
+    // Read file lines into array (lines)
+    var lines = dataRows
+        .map(function(lineStr) {
+            return lineStr.split(",");   // Convert each line to array (,)
+        })
+        .slice(1);                       // Ignore header line
 
-                    var fieldNameId = this.closest('tr').id;
-                    var fieldName2 = fieldNameId.substr(0, fieldNameId.indexOf('-'));
-                    var selectOrOmit = fieldNameId.substr(fieldNameId.indexOf('-')+1);
+    // Convert to list of dicts. Each dict looks like:
+    /*  {"2016-03-18":{
+            "point (-2.2346505 53.4673973)":[
+                {"how_feeling":{
+                    "value":0,
+                    "percent_score":null
+                    },
+                 "taken_meds_today":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "nose":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "eyes":{
+                    "value":0,
+                    "percent_score":null
+                 },
+                 "breathing":{
+                    "value":0,
+                    "percent_score":null
+                 }
+                }
+               ],
+             "point (-0.1150684 51.5225896)":
+               [...]
+            }
+         }
 
-                    var selectText = $('tr#' + fieldName2 + '-select input').val();
-                    var omitText = $('tr#' + fieldName2 + '-omit input').val();
+    }*/
 
-                    if( selectText.trim() !== '' && check_sensor_select_params(selectText) === true) {
-                        var newVal = '<em>Select: [' + selectText+ ']</em>';
+    // Itererate through lines
+
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        // If line is empty, continue to next
+
+        if (line.join().trim() == '') {
+            continue
+        }
+
+        var dictItem = {};
+        var timestamp = line[0];
+        line.shift();
+        line = line.join(', ');
+        var [geom, line] = getGeom(line);
+        line = line.split(',')
+
+        //alert('headers: ' + JSON.stringify(headers));
+
+        // Iterate through columns
+        for (var j = 0; j < line.length; j++) {
+            // Convert the string value read in from file into a float
+            var fValue = parseFloat(line[j]);  // if not float, assigns null
+
+            // Set the dictionary value
+            dictItem[headers[j]] = {'value': fValue};
+
+            // Collect all the values, so we can set z-scores (after outer (lines) loop has completed).
+            if (!(headers[j] in allValues)) {
+                allValues[headers[j]] = {'values': []};
+            }
+            allValues[headers[j]]['values'].push(fValue);
+        }
+
+        // Add or update the dictItem to dictAll
+        if (!(timestamp in dictAll)) {
+            dictAll[timestamp] = {};
+        }
+        if (!(geom in dictAll[timestamp])) {
+            dictAll[timestamp][geom] = [];
+        }
+        dictAll[timestamp][geom].push(dictItem);
+        //alert('dictItem: ' + JSON.stringify(dictItem));
+    }
+
+    // Now we have processed all values for each values column, set the z-scores.
+
+    // Firstly calculate standard deviations and add to all_values dict
+    for(var measurement in allValues){
+        var valueSet = allValues[measurement];
+        var meanStd = getMeanAndStandardDeviation(valueSet['values']);
+        valueSet['mean'] = meanStd[0];
+        valueSet['std_dev'] = meanStd[1];
+        valueSet['min'] = Math.min.apply(null, valueSet['values']);
+        valueSet['max'] = Math.max.apply(null, valueSet['values']);
+    }
+
+    // Iterate through timestamps
+    for(var timestampKey in dictAll){
+        // Iterate through locations
+        for(var geomKey in dictAll[timestampKey]){
+            // Iterate through items in same location
+            for(var k=0; k<dictAll[timestampKey][geomKey].length; k++) {
+                // Iterate through measurements
+                for (var headerKey in dictAll[timestampKey][geomKey][k]) {
+                    var curVal = dictAll[timestampKey][geomKey][k][headerKey]['value'];
+                    // Calculate percentage score
+                    var min = allValues[headerKey]['min'];
+                    var max = allValues[headerKey]['max'];
+                    var standardDev = allValues[headerKey]['std_dev'];
+                    var mean = allValues[headerKey]['mean'];
+                    // Calculate percentage score (where value falls in range of values - regardless of distribution)
+                    var pScore, zScore = 0;
+                    if(max-min !== 0){
+                        pScore = ((curVal - min) / (max - min));
+                    }
+                    // Calculate Z-score:
+                    if (standardDev !== 0){
+                        zScore = (curVal - mean) / standardDev;
+                    }
+                    dictAll[timestampKey][geomKey][k][headerKey]['z_score'] = zScore;
+                    dictAll[timestampKey][geomKey][k][headerKey]['percent_score'] = pScore;
+                    dictAll[timestampKey][geomKey][k][headerKey]['min'] = min;
+                    dictAll[timestampKey][geomKey][k][headerKey]['max'] = max;
+                    dictAll[timestampKey][geomKey][k][headerKey]['mean'] = mean;
+                    dictAll[timestampKey][geomKey][k][headerKey]['std_dev'] = standardDev;
+                }
+            }
+        }
+    }
+    // Return final dict
+    return dictAll
+}
+
+function getGeom(str){
+    var match = null;
+    var newStr = str;
+
+    if(str.includes('POINT')){
+        try {
+            match = str.split(',')[0]
+        }catch{}
+    }else {
+        if(str.includes('POLYGON')) {
+            var matches = str.match(/"(.*?)"/);
+            match = matches ? matches[1] : null;
+        }
+    }
+    if(match !== null){
+        newStr = str.replace(match, '');
+        newStr = newStr.substr(newStr.indexOf(',') + 1);
+        match = match.replace('"', '');
+    }
+    return [match, newStr];
+}
+
+function getMeanAndStandardDeviation(colData) {
+    var avg = average(colData);
+    var squareDiffs = colData.map(function(value){
+        var diff = value - avg;
+        var sqrDiff = diff * diff;
+        return sqrDiff;
+    });
+
+    var avgSquareDiff = average(squareDiffs);
+
+    var stdDev = Math.sqrt(avgSquareDiff);
+    return [avg, stdDev];
+}
+
+function average(data) {
+    var sum = data.reduce(function (sum, value) {
+        return sum + value;
+    }, 0);
+
+    var avg = sum / data.length;
+    return avg;
+}
+
+
+// Map functions
+
+function initialiseSiteFields(){
+    /*
+            Add Site fields (to UI site selection/filtering mechanism)
+
+     */
+
+    $.getJSON(siteFieldsUrl, function (data) {
+        // Add GeoJSON layer
+        //alert(JSON.stringify(data));
+
+        // Create the table for site fields
+        var site_fields = '<table class="table table-striped">';
+
+        for (var i=0; i<data.length; i++){
+            var fieldName = data[i];
+
+            // Add site field data to the table
+            var row = '<tr class="select-button-row">' +
+                '<td class="field-name">' + fieldName + '</td>' +
+                '<td id="'+ slugify(fieldName) + '-used' +'" class="field-used chosen-option"></td></tr>';
+            site_fields += row;
+            // Add user input fields for selecting sites
+            var rows =
+                '<tr class="select-field-instructions info">' +
+                    '<td></td>' +
+                    '<td><div id="site-select-instructions">' +
+                        '<em>Use comma delimited list of values <br> in <b>either</b> the ' +
+                            '\'Select values\' <b>or</b> \'Omit values\' box. <br>' +
+                            '(\'Omit values\' ignored if both used)' +
+                '       </em></div>' +
+                '   </td>' +
+                '</tr>' +
+                '<tr id="' + slugify(fieldName) + '-select' + '" class="selector-field info">' +
+                    '<td>Select values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                '</tr>' +
+                '<tr id="' + slugify(fieldName) + '-omit' + '" class="omittor-field info">' +
+                '   <td>Omit values:</td><td><input type="text" placeholder="E.G. a,b,c"></td>' +
+                '</tr>';
+            site_fields += rows;
+        }
+        site_fields += '</table>';
+
+        // Add the table and instructions to the html div
+        $('#collapseFilterSites').html(site_fields);
+
+        // Toggle the field selector / omittor fields (and instructions div) until required
+        $("tr.selector-field, tr.omittor-field, tr.select-field-instructions").hide(); //, #site-select-instructions").hide();
+
+        $("table .select-button-row").on('click', function(){
+            $(this).nextUntil("tr.select-button-row").toggle('slow');
+        });
+
+        // If user presses enter while in selector / omittor fields, turn inputs to json and update map (ajax call).
+        $("tr.selector-field input, tr.omittor-field input").on('keypress', function(e){
+            if(e.keyCode === 13){ // Enter key
+
+                // Get the site field name to be filtered
+                var fieldNameId = this.closest('tr').id;
+                var fieldName2 = fieldNameId.replace('-select', '').replace('-omit','');
+
+                // Find previous selection request value, (if it matches new then no need to update map).
+                let prevVal = $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html();
+
+                // Get the text from the select/omit edit boxes
+                var selectText = $('tr#' + fieldName2 + '-select input').val().trim();
+                var omitText = $('tr#' + fieldName2 + '-omit input').val().trim();
+
+                // If valid, create a newVal string and update the select/omit display div with this new value.
+                if( selectText !== '' && check_site_select_params(selectText) === true) {
+                    var newVal = '<em>Select: [' + selectText+ ']</em>';
+                    $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
+                }else{
+                    if( omitText !== '' && check_site_select_params(omitText) === true) {
+                        var newVal = '<em>Omit: [' + omitText + ']</em>';
                         $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
                     }else{
-                        if( omitText.trim() !== '' && check_sensor_select_params(omitText) === true) {
-                            var newVal = '<em>Omit: [' + omitText + ']</em>';
-                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html(newVal);
-                        }else{
-                            $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html('');
-                        }
-                    }
-
-                    if(newVal !== prevVal){
-                        update_timeseries_map(document.getElementById("timestamp-range").value);
+                        $(this.closest('table')).find("tr.select-button-row td#" + fieldName2 + '-used').html('');
                     }
                 }
-            });
-        });
-    }
 
-    function get_sensor_select_url_params(){
-        var result = {'selectors':[]};
-        $('#sensor-field-data table td.field-name').each(function(index){
-            var fieldDict = {};
-            var fieldName = $(this).html();
-            var dictFieldName = {};
-
-            var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
-            var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field') .first().find('input').val().trim();
-            var fieldSelectorsJson = fieldSelectors.split(',').filter(Boolean);
-            var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
-
-            if (fieldSelectorsJson.length > 0){
-                dictFieldName['select_sensors'] = fieldSelectorsJson;
-            }else{
-                if (fieldOmittorsJson.length > 0) {
-                    dictFieldName['omit_sensors'] = fieldOmittorsJson;
-                }
-            }
-            if(Object.keys(dictFieldName).length > 0){
-                fieldDict[fieldName] = dictFieldName;
-                result['selectors'].push(fieldDict);
-            }
-        });
-        return result;
-    }
-
-    function check_sensor_select_params(paramString){
-        // Must return true for empty string
-        return true;
-    }
-
-    function initialise_slider(value=0){
-        var slider = document.getElementById("timestamp-range");
-        var output = document.getElementById("current-timestamp");
-        slider.min = 0;
-        slider.max = timestampList.length-1;
-        slider.value = value;
-        output.innerHTML = timestampList[value]; // Display the default slider value
-        update_timeseries_map(value);
-        // Update the current slider value (each time you drag the slider handle)
-        slider.oninput = function() {
-            output.innerHTML = timestampList[this.value];
-        };
-        slider.onchange = function() {
-            update_timeseries_map(this.value);
-        };
-
-    }
-
-
-    function update_timeseries_map(timeseries_idx=document.getElementById("timestamp-range").value,
-                                   measurement=$("input[name='measurement']:checked").val()){
-        var actualDataUrl = curActualDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
-        var estimatedDataUrl = curEstimatedDataUrl + timeseries_idx.toString() + '/' + measurement + '/';
-        var jsonParams = get_sensor_select_url_params();
-        jsonParams['csrfmiddlewaretoken'] = getCookie('csrftoken');
-
-
-        // Set up loader display
-        var loaderOuterDiv = document.getElementById('loader-outer');
-        var loaderDiv = document.createElement('div');
-        loaderDiv.id = 'loader';
-        loaderOuterDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Collecting sensor data...</p>');
-
-        // 1. Update sensors to show values
-
-        // Clear sensor and region data
-        sensorsLayer.clearLayers();
-        for (var key in regions){
-            regions[key].setStyle({
-                'fillColor': 'transparent',
-                'fillOpacity': 0.2,
-              });
-        };
-
-
-        $.ajax({
-            url: actualDataUrl,
-            data:JSON.stringify(jsonParams),
-            headers: { "X-CSRFToken": csrftoken},
-            dataType: 'json',
-            method: 'POST',
-            timeout: 20000,
-            success: function (data) {
-
-                /*[
-                    {   "extra_data":"['AB', '179 Union St, Aberdeen AB11 6BB, UK']",
-                        "value":66,
-                        "timestamp":"2017-01-01 00:00:00+00",
-                        "percent_score":0.436241610738255,
-                        "sensor_id":757,
-                        "geom":[-2.1031362,57.1453481],
-                        "name": 'Aberdeen Union Street Roadside',
-                        "ignore": False,
-                    }
-                  ]
-                */
-
-                for (var i=0; i<data.length; i++){
-                    var loc = data[i];
-                    /*if(i==0) {
-                        alert(JSON.stringify(loc, null, 1));
-                    };*/
-
-                    var latlng = [loc.geom[1], loc.geom[0]];
-                    var valColor = 'grey';
-                    var locValue = 'null';
-
-                    if (loc['value'] != null){
-                        valColor = getGreenToRed(loc.percent_score * 100).toString();
-                        locValue = loc.value.toString();
-                    };
-                    if (loc['ignore']) {
-                        valColor = 'blue';
-                    };
-
-
-                    var marker = new L.Marker.SVGMarker(latlng,
-                            {   iconOptions: {
-                                    color: valColor,
-                                    iconSize: [30,40],
-                                    circleText: locValue,
-                                    circleRatio: 0.8,
-                                    fontSize:8
-                                }
-                            }
-                        );
-
-                    // Add marker
-
-                    var extraData = '<table class="table table-striped">';
-                    extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
-                    extraData += '<tr><th>Location</th><td>' + loc.geom + '</td></tr>';
-                    extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
-                    extraData += '<tr><th>Value</th><td>' + loc.value + '</td></tr>';
-                    extraData += '<tr><th>Percentage Score</th><td>' +  (loc.percent_score*100).toFixed(2).toString()  + '</td></tr>';
-                    for (var key in loc['extra_data']){
-                        extraData += '<tr><th>' + key  + '</th><td>' + loc['extra_data'][key] + '</td></tr>';
-                    };
-                    extraData += '</table>';
-
-                    marker.bindPopup(extraData);
-
-                    sensorsLayer.addLayer(marker);
-                };
-                sensorsLayer.addTo(map);
-            },
-            error: function (request, state, errors) {
-                    alert("There was an problem fetching the sensor data: " + errors.toString());
-            },
-            complete: function (request, status) {
-                    // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
+                // Check if this edit boxes select/omit values have changed. If so update map.
+                if(newVal !== prevVal){
+                    gapMap.updateTimeseries(get_site_select_url_params(),
+                        $("input[name='estimation-method']:checked").val(),
+                        timestampList[document.getElementById("timestamp-range").value].trim(),
+                        $("input[name='measurement']:checked").val());
                 }
             }
         });
-
-        // Set up loader display
-        drawLoader(loaderDiv, '<p>Collecting estimation data...</p>');
-
-
-        $.ajax({
-            url: estimatedDataUrl,
-            data: JSON.stringify(jsonParams),
-            headers: {"X-CSRFToken": csrftoken},
-            dataType: 'json',
-            method: 'POST',
-            timeout: 20000,
-            success: function (data) {
-
-                /*[
-                    {   "region_extra_data":"['St Albans postcode area', '249911', 'SG/WD/EN/LU/HP/N /HA/NW/UB', 'England']",
-                        "region_id":"AL",
-                        "value":74.5,
-                        "geom":
-                            [[[[-0.25616,51.71952],[-0.26278,51.71111],[-0.30966,51.71255],[-0.34563,51.69573],
-                            [-0.36084,51.69769],[-0.36764,51.68499],[-0.37461,51.69197],[-0.36263,51.69805],
-                            [-0.38517,51.70467],[-0.38338,51.71398],[-0.40342,51.73366],[-0.40146,51.74171],
-                            [-0.41004,51.74744],[-0.41523,51.77464],[-0.5038,51.82062],[-0.46981,51.8514],
-                            [-0.44243,51.84925],[-0.42758,51.83386],[-0.37461,51.84013],[-0.35207,51.83529],
-                            [-0.33364,51.84818],[-0.31503,51.83762],[-0.28103,51.83511],[-0.27405,51.85014],
-                            [-0.23469,51.83333],[-0.22324,51.85981],[-0.18405,51.84979],[-0.13664,51.84138],
-                            [-0.15292,51.80112],[-0.16115,51.7834],[-0.14487,51.7766],[-0.13842,51.75835],
-                            [-0.15059,51.7274],[-0.1633,51.72346],[-0.15882,51.7129],[-0.19962,51.71129],
-                            [-0.2533,51.7197],[-0.25616,51.71952]]]],
-                         "extra_data":"['1']",
-                         "timestamp":"2017-08-22 00:00:00+00",
-                         "percent_score": 0.33557046979865773
-                     }
-                  ]
-                */
-
-                // Update regions to show values
-                for (var i=0; i<data.length; i++){
-                    var region = data[i];
-                    //if (i==0){
-                    //    alert(JSON.stringify(region));
-                    //}
-
-                    var layer = regions[region.region_id];
-                    if (layer == null){
-                        alert(region.region_id);
-                        alert(JSON.stringify(region));
-                    }
-
-                    if (region.value == null){
-                        layer.setStyle({
-                                    'fillColor': 'grey',
-                                    'fillOpacity': 0.7,
-                                    'weight': '1'
-                                  });
-                        var regionValue = 'null';
-
-                    }else {
-                        var valColor = getGreenToRed(region.percent_score * 100).toString();
-                        layer.setStyle({
-                            'fillColor': valColor,
-                            'fillOpacity': 0.2,
-                            'weight': '1'
-                        });
-                        var regionValue = region.value.toString();
-                    }
-                    var extraData = '';
-                    for (var key in region['extra_data']){
-                        extraData += '<br>' + key + ': ' + region['extra_data'][key];
-                    };
-                    layer.bindTooltip(regionValue +
-                        extraData,
-                        {permanent: false, direction: "center", opacity: 1.8, minWidth: 200, maxWidth: 200}
-                    )
-                }
-            },
-            error: function (request, state, errors) {
-                    alert("There was an problem fetching the estimation data: " + errors.toString());
-            },
-            complete: function (request, status) {
-                    // Clear Loader
-                while (loaderOuterDiv.firstChild) {
-                    loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-                }
-            }
-        });
-
-
-
-    }
-
-    function update_map(mapType='street-map', zoomLevel=initZoom, mapCenter=initCenter){
-        map.setView(mapCenter, zoomLevel);
-
-        /*
-                Initialise map
-
-         */
-
-        var accessToken = 'pk.eyJ1IjoiYW5uZ2xlZHNvbiIsImEiOiJjazIwejM3dmwwN2RkM25ucjljOTBmM240In0.2jLikF_JryviovmLE3rKew';
-
-        var mapId = 'mapbox.streets';
-        var mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-        var mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
-                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
-                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
-
-        switch(mapType) {
-          case 'street-map':
-            mapId = 'mapbox.streets';
-            mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-            mapAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
-                ' contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' +
-                ', Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
-            break;
-          case 'topology':
-            mapId = 'mapbox.streets';
-            mapUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
-            mapAttribution = 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
-                ' contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: ' +
-                '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> ' +
-                '(<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)';
-            break;
-        }
-
-        // Set up loader display
-        var loaderOuterDiv = document.getElementById('loader-outer');
-        var loaderDiv = document.createElement('div');
-        loaderDiv.id = 'loader';
-        loaderOuterDiv.appendChild(loaderDiv);
-        drawLoader(loaderDiv, '<p>Setting up map and region data...</p>');
-
-        L.tileLayer(
-            mapUrl,
-           {
-                maxZoom: 18,
-                attribution: mapAttribution,
-                id: mapId,
-                accessToken: accessToken
-            }
-        ).addTo(map);
-
-        function locateBounds () {
-         // geolocate
-        }
-        (new L.Control.ResetView(bounds)).addTo(map);
-
-
-         /*
-                Add Regions to map
-
-         */
-
-        regionsLayer.clearLayers();
-        $.ajax({
-            url: regionDataUrl,
-            dataType: 'json',
-            async: false,
-            success: function(data) {
-
-                // Add GeoJSON layer
-                var geoLayer = L.geoJson(
-                    data,
-                    {   onEachFeature: function (feature, layer) {
-                            regions[feature.properties.popupContent.region_id] = layer;
-                            layer.setStyle({
-                                'fillColor': 'transparent',
-                                'weight': '1'
-                              });
-                            var extraData = '<table class="table table-striped">';
-                            for (var key in feature.properties.popupContent.extra_data){
-                                extraData += '<tr><th>' + key  + '</th><td>' + feature.properties.popupContent.extra_data[key] + '</td></tr>';
-                            };
-                            extraData += '</table>';
-                            layer.on('mouseover', function () {
-                                  this.setStyle({
-                                    //'fillColor': '#ff3b24'
-                                      'weight': '5'
-                                  });
-                                  $('#region-data').html(
-                                      '<p><b>Region: </b>' + feature.properties.popupContent.region_id + '</p>' +
-                                      extraData
-                                  );
-                            });
-                            layer.on('mouseout', function () {
-                              this.setStyle({
-                                //'fillColor': 'transparent'
-                                'weight': '1'
-                              });
-                            });
-                        }
-                    },
-                );
-                regionsLayer.addLayer(geoLayer);
-                regionsLayer.addTo(map);
-            }
-        });
-        //$.getJSON(regionDataUrl, function (data) {
-        //});
-
-        while (loaderOuterDiv.firstChild) {
-            loaderOuterDiv.removeChild(loaderOuterDiv.firstChild);
-        }
-    }
-
-});
-
-function getGreenToRed(percent){
-    g = percent<50 ? 255 : Math.floor(255-(percent*2-100)*255/100);
-    r = percent>50 ? 255 : Math.floor((percent*2)*255/100);
-    return 'rgb('+r+','+g+',0)';
+    });
 }
 
-function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
+function get_site_select_url_params(){
+    var result = {'selectors':[]};
+    $('#site-field-data table td.field-name').each(function(index){
+        var fieldDict = {};
+        var fieldName = $(this).html();
+        var dictFieldName = {};
+
+        var fieldSelectors = $(this).closest('tr').nextAll('tr.selector-field').first().find('input').val().trim();
+        var fieldOmittors =  $(this).closest('tr').nextAll('tr.omittor-field') .first().find('input').val().trim();
+        var fieldSelectorsJson = fieldSelectors.split(',').filter(Boolean);
+        var fieldOmittorsJson =  fieldOmittors.split(',').filter(Boolean);
+
+        if (fieldSelectorsJson.length > 0){
+            dictFieldName['select_sites'] = fieldSelectorsJson.map(Function.prototype.call, String.prototype.trim);
+        }else{
+            if (fieldOmittorsJson.length > 0) {
+                dictFieldName['omit_sites'] = fieldOmittorsJson.map(Function.prototype.call, String.prototype.trim);
+            }
+        }
+        if(Object.keys(dictFieldName).length > 0){
+            fieldDict[fieldName] = dictFieldName;
+            result['selectors'].push(fieldDict);
+        }
+    });
+    result['method'] = $("input[name='estimation-method']:checked").val();
+    result['csrfmiddlewaretoken'] = getCookie('csrftoken');
+    return result;
+}
+
+function check_site_select_params(paramString){
+    //todo check params
+    // Must return true for empty string
+    return true;
+}
+
+function initialiseTimeSlider(value=0){
+    var slider = document.getElementById("timestamp-range");
+    var output = document.getElementById("current-time");
+    slider.min = 0;
+    slider.max = timestampList.length-1;
+    slider.value = value;
+    output.innerHTML = timestampList[value]; // Display the default slider value
+    gapMap.updateTimeseries(get_site_select_url_params(),
+        $("input[name='estimation-method']:checked").val(),
+        value,
+        $("input[name='measurement']:checked").val());
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function() {
+        output.innerHTML = timestampList[this.value];
+    };
+    slider.onchange = function() {
+        gapMap.updateTimeseries(get_site_select_url_params(),
+            $("input[name='estimation-method']:checked").val(),
+            timestampList[this.value],
+            $("input[name='measurement']:checked").val());
+    };
+
+}
+
+// File downloads
+
+function download_csv(url, filename){
+    xhr = $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 60000,
+        async: true,
+        beforeSend: function () {
+            // Set up loader display
+            curLoader = new LoaderDisplay('loader-outer', '<p>Downloading ' + filename + '...</p>');
+        },
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+            var link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem downloading the CSV data: "
+                    + "url: " + url + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            curLoader.stopLoader('loader-outer');
+        }
+    })
+};
+
+function download_geojson(url, filename){
+    xhr = $.ajax({
+        url: url,
+        dataType: 'json',
+        async: true,
+        beforeSend: function () {
+            // Set up loader display
+            curLoader = new LoaderDisplay('loader-outer', '<p>Downloading ' + filename + '...</p>');
+        },
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            var link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem downloading the GeoJSON data: "
+                    + "url: " + url + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            curLoader.stopLoader('loader-outer');
+        }
+    })
+};
+
+
+function download_json(url, filename){
+    xhr = $.ajax({
+        url: url,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 90000,
+        async: true,
+        beforeSend: function () {
+            // Set up loader display
+            curLoader = new LoaderDisplay('loader-outer', '<p>Downloading ' + filename + '...</p>');
+        },
+        success: function (data) {
+            /*
+            A hack found online, to allow the use of success/fail callbacks by using js ajax call.
+            The Django style technique was to call direct from a html link tag: <a href='[URL]'...>
+                ...but this doesn't allow error/success/complete operations.
+            A bit concerning that this method appears to call the url twice :/
+             */
+            var link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.click();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem downloading the JSON data: "
+                    + "url: " + url + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            curLoader.stopLoader('loader-outer');
+        }
+    })
+};
+
+
+// File downloads
+
+function get_csv(url, filename='data.csv', jsonParams={}){
+    xhr = $.ajax({
+        url: url,
+        data: JSON.stringify(jsonParams),
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'text',
+        method: 'POST',
+        timeout: 40000,
+        async: false,
+        beforeSend: function () {
+            // Set up loader display
+            curLoader = new LoaderDisplay('loader-outer', '<p>Downloading ' + filename + '...</p>');
+        },
+        success: function (data) {
+            if (!data.match(/^data:text\/csv/i)) {
+                data = 'data:text/csv;charset=utf-8,' + data;
+            }
+
+            var link = document.createElement('a');
+            link.setAttribute('href', data);
+            link.setAttribute('download', filename);
+            link.click();
+
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem downloading the data: "
+                    + "url: " + url + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        },
+        complete: function (request, status) {
+            // Clear Loader
+            curLoader.stopLoader('loader-outer');
+        }
+    })
 }
 
 
-function drawLoader(loaderDiv, explanation, sizeOneToFive=3){
-    loaderDiv.style.zIndex = 2000;
-    var strClassSuffix = '';
-    if(isNumeric(sizeOneToFive) & parseInt(sizeOneToFive) >=1 & parseInt(sizeOneToFive) <=5) {
-        strClassSuffix = ' size-' + sizeOneToFive.toString();
+function getTimestampValue(data, timestamp) {
+    for (var i=0; i<data.length; i++){
+        if(data[i]['timestamp'].trim() == timestamp.trim()){
+            //alert('timestamp: ' + timestamp + '; dataItem: ' + data[i]['timestamp']);
+            return data[i]['z_score'];
+        }
     }
+    return null;
+}
 
-    // Delete previous if exists
-    if($(loaderDiv).children(".ajax-waiting-explanation").length){
-        // Remove
-        $(loaderDiv).children(".ajax-waiting-explanation").remove();
-    }
 
-    // Draw new loader
-    var divWaitingExplanation = document.createElement('div');
-    divWaitingExplanation.className = 'ajax-waiting-explanation';
-    var divAjaxWaitText = document.createElement('div');
-    divAjaxWaitText.className = 'ajax-waiting-text' + strClassSuffix;
-    divAjaxWaitText.innerHTML = explanation;
-    var divLoader = document.createElement('div');
-    divLoader.className = 'ajax-call-loader' + strClassSuffix;
-    divWaitingExplanation.appendChild(divLoader);
-    divWaitingExplanation.appendChild(divAjaxWaitText);
-    loaderDiv.appendChild(divWaitingExplanation);
+function slugify(string) {
+  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+  const p = new RegExp(a.split('').join('|'), 'g')
+
+  return string.toString().toLowerCase()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
 }
 
 // Make the DIV element draggable:
@@ -652,14 +799,263 @@ function dragElement(elmnt) {
   }
 }
 
+/*function get_region_default(){
+    return '<p><b>Region: </b>None</p>' +
+    '<table class="table table-striped">' +
+        '<tr><td colspan="2"><p>Hover over regions to see region data.</p></td></tr></table>';
+}*/
 
 
+function cloneCanvas(oldCanvas) {
+
+    //create a new canvas
+    var newCanvas = document.createElement('canvas');
+    var context = newCanvas.getContext('2d');
+
+    //set dimensions
+    newCanvas.width = oldCanvas.width;
+    newCanvas.height = oldCanvas.height;
+
+    //apply the old canvas to the new one
+    context.drawImage(oldCanvas, 0, 0);
+
+    //return the new canvas
+    return newCanvas;
+}
+
+function showTimelineComparisons(measurement, siteId, regionId, siteName) {
+    var estimationMethod = $("input[name='estimation-method']:checked").val();
+
+    var listItem = document.createElement('a');
+    listItem.className = "list-group-item list-group-item-action flex-column align-items-start site-chart";
+    listItem.href = '#';
+    var listItemDiv = document.createElement('div');
+    listItemDiv.className = 'd-flex w-100 justify-content-between';
+    var canvasItem = document.createElement('canvas');
+    canvasItem.id = "site-chart";
+    var newChartTitle = document.createElement('div');
+
+    newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
+        'Measurement: ' + measurement + '<br>' +
+        'Estimation Method: ' + estimationMethod + '<br>';
+    if(get_site_select_url_params()['selectors'].length > 0) {
+        newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' + JSON.stringify(get_site_select_url_params()['selectors']) + '</p>';
+    }else{
+        newChartTitle.innerHTML = newChartTitle.innerHTML + 'Filters: None';
+    }
+
+    listItemDiv.appendChild(newChartTitle);
+    listItemDiv.appendChild(canvasItem);
+    listItem.appendChild(listItemDiv);
+    var list = document.getElementById('site-charts');
+    list.insertBefore(listItem, list.firstChild);
+
+    var ctx = canvasItem.getContext('2d');
+    var listChart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+        // The data for our dataset
+        data: {
+            labels: timestampList,
+            datasets: [],
+        },
+        // Configuration options go here
+        options: {}
+    });
 
 
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    var modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    var span = document.createElement('span');
+    span.className = "close";
+    span.innerHTML = '&times';
+
+    modalContent.appendChild(span);
+
+    var modalCanvas = canvasItem.cloneNode(true);
+    modalCanvas.id = 'modal-canvas';
+
+    var ctxModal = modalCanvas.getContext('2d');
+    var modalChart = new Chart(ctxModal, {
+        // The type of chart we want to create
+        type: 'line',
+        // The data for our dataset
+        data: {
+            labels: timestampList,
+            datasets: [],
+        },
+        // Configuration options go here
+        options: {}
+    });
+
+    modalContent.appendChild(modalCanvas);
+    modal.appendChild(modalContent);
+    list.appendChild(modal);
+
+    // When the user clicks the button, open the modal
+    newChartTitle.onclick = function () {
+        modal.style.display = "block";
+    };
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    };
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+
+    getActualTimeseries(measurement, siteId, listChart, modalChart);
+    getEstimatedTimeseries(measurement, estimationMethod, regionId, siteId, listChart, modalChart);
+}
+window.showTimelineComparisons = showTimelineComparisons;
 
 
+function getActualTimeseries(measurement, siteId, listChart, modalChart){
+    //url: site_timeseries/<slug:measurement>/<int:site_id>
+
+    var urlActual = siteTimeseriesUrl + '/' + measurement + '/' + siteId + '/';
+    //alert(actualUrl);
+    var self = this;
+    xhr = $.ajax({
+        url: urlActual,
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 200000,
+        async: true,
+        success: function (data) {
+            var values = [];
+            for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
+                values.push(getTimestampValue(data, timestampList[timestampIdx]));
+            };
+            listChart.data.datasets.push(
+                    {
+                        label: 'Site values',
+                        backgroundColor: 'green',
+                        borderColor: 'green',
+                        fill:false,
+                        data: values
+                    }
+            );
+            listChart.update();
+            modalChart.data.datasets.push(
+                    {
+                        label: 'Site values',
+                        backgroundColor: 'green',
+                        borderColor: 'green',
+                        fill:false,
+                        data: values
+                    }
+            );
+            modalChart.update();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem obtaining the site timeseries data: "
+                    + "url: " + urlActual + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        }
+    });
+}
+
+function getEstimatedTimeseries(measurement, method, regionId, ignoreSiteId, listChart, modalChart){
+    //url: estimated_timeseries/<slug:method_name>/<slug:measurement>/<slug:region_id>/<int:ignore_site_id>/
+    var urlEstimates = estimatedTimeseriesUrl + '/' + method + '/' + measurement + '/' + regionId + '/' + ignoreSiteId + '/';
+    var jsonParams = get_site_select_url_params()
+    //alert(JSON.stringify(jsonParams));
+    var self = this;
+    xhr = $.ajax({
+        url: urlEstimates,
+        data: JSON.stringify(jsonParams),
+        headers: {"X-CSRFToken": csrftoken},
+        dataType: 'json',
+        method: 'POST',
+        timeout: 300000,
+        async: true,
+        success: function (data) {
+            var estValues = [];
+            for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
+                estValues.push(getTimestampValue(data, timestampList[timestampIdx]));
+            };
+            listChart.data.datasets.push(
+                    {
+                        label: 'Estimated values',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill:false,
+                        data: estValues
+                    }
+            );
+            listChart.update();
+            modalChart.data.datasets.push(
+                    {
+                        label: 'Estimated values',
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill:false,
+                        data: estValues
+                    }
+            );
+            modalChart.update();
+        },
+        error: function (xhr, status, error) {
+            if (xhr.statusText !== 'abort') {
+                alert("There was an problem obtaining the estimated timeseries data: "
+                    + "url: " + urlEstimates + '; '
+                    + "message: " + error + "; "
+                    + "status: " + xhr.status + "; "
+                    + "status-text: " + xhr.statusText + "; "
+                    + "error message: " + JSON.stringify(xhr));
+            }
+        }
+    });
+}
 
 
+// ******************************************************************
+// ****************** CSRF-TOKEN SET-UP *****************************
+// ******************************************************************
 
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
 
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+// ******************************************************************
+// ********************* CSRF-TOKEN END *****************************
+// ******************************************************************

@@ -1,33 +1,17 @@
+{% extends "base_generic.html" %}
+
 {% load static leaflet_tags %}
-{% load  %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Gap Mining</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Photos Library - Simple is Better Than Complex{% endblock %}</title>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+  {% block head %}
 
-    <link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet">
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/jquery-ui.min.js' %}" ></script>
-    <script src="{% static 'js/bootstrap.js' %}"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-    <script src="https://kit.fontawesome.com/38a80798f7.js"></script>
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
 
     {% leaflet_css %}
     {% leaflet_js %}
 
+    <!-- Spiderfier -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js"></script>
 
     <!-- Markcluster for Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css">
@@ -42,30 +26,17 @@
     <!--script type='text/javascript' src={% static 'js/leaflet.markercluster.js' %}></script>
     <script type='text/javascript' src={% static 'js/leaflet.markercluster-src.js' %}></script-->
 
+    <!-- terraforma: Converts WKT polygons to co-ordinates format (preferred by Leaflet) -->
+    <script src="https://unpkg.com/terraformer@1.0.8"></script>
+    <script src="https://unpkg.com/terraformer-wkt-parser@1.1.2"></script>
+
     <script src="{% static 'js/svg-icon.js' %}"></script>
 
-    <script src="{% static 'js/main.js' %}"></script>
+    <script type="module" src="{% static 'js/main.js' %}"></script>
 
-    {% block head %}
-       <!-- this can be overruled -->
-    {% endblock %}
+  {% endblock %}
 
-    {% block head-title %}
-        <title xmlns="http://www.w3.org/1999/html">{{ self.title }}</title>
-        <link rel="shortcut icon" type="image/jpg" href="{% static 'image/favicon.ico' %}"/>
-    {% endblock %}
+  {% block content %}
 
+  {% endblock %}
 
-
-  </head>
-
-  <body>
-    <div class="container">
-      {% block content %}
-      {% endblock %}
-    </div>
-
-
-  </body>
-
-</html>

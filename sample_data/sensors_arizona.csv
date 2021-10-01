@@ -1,0 +1,350 @@
+site_id,latitude,longitude,State Code,County Code,Site Number,Elevation,Land Use,Location Setting,Met Site Distance,Met Site Direction,GMT Offset,Owning Agency,Local Site Name,Zip Code,State Name,County Name,City Name
+04_1_1,36.940833000000005,-109.108056,04,1,1,1521.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Apache,Teec Nos Pos
+04_1_3,36.587778,-109.2025,04,1,3,1862.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Apache,Red Rock
+04_1_5,34.11303,-109.29343999999999,04,1,5,2126.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Apache,Eagar
+04_1_6,34.4225,-109.15,04,1,6,1981.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Apache,Saint Johns
+04_1_7,34.128103,-109.30758600000001,04,1,7,2140.0,RESIDENTIAL,RURAL,,,-7,Tucson Electric Power Company,,,Arizona,Apache,Springerville
+04_1_8,34.172824,-109.23036200000001,04,1,8,2286.0,,RURAL,,,-7,Tucson Electric Power Company,,,Arizona,Apache,Springerville
+04_1_9,34.330044,-109.15536200000001,04,1,9,2128.0,INDUSTRIAL,RURAL,,,-7,Tucson Electric Power Company,,,Arizona,Apache,Springerville
+04_1_10,34.313377,-109.14563999999999,04,1,10,2128.0,INDUSTRIAL,RURAL,,,-7,Tucson Electric Power Company,,,Arizona,Apache,Springerville
+04_1_11,34.131714,-109.28230900000001,04,1,11,2128.0,INDUSTRIAL,RURAL,,,-7,Tucson Electric Power Company,,,Arizona,Apache,Springerville
+04_1_12,35.077245,-109.770394,04,1,12,1755.0,DESERT,RURAL,,,-7,National Park Service,,,Arizona,Apache,Petrified Forest National Park
+04_1_1003,34.07339,-109.85801000000001,04,1,1003,2230.0,RESIDENTIAL,RURAL,,,-7,"White Mountain Apache Tribe of Ft Apache Reservation, AZ",White Mountain Fort Apache Reservation,85901.0,Arizona,Apache,McNary
+04_1_1234,35.746005,-109.07238600000001,04,1,1234,0.0,RESIDENTIAL,RURAL,,,-7,"Navajo Nation, AZ, NM, UT",FD,86504.0,Arizona,Apache,Fort Defiance
+04_1_1235,35.880404,-109.43800300000001,04,1,1235,0.0,RESIDENTIAL,RURAL,,,-7,"Navajo Nation, AZ, NM, UT",Nazlini,86503.0,Arizona,Apache,Nazlini (Trading Post)
+04_1_8001,34.058475,-109.441259,04,1,8001,2509.0,FOREST,RURAL,,,-7,National Park Service,Mount Baldy,85925.0,Arizona,Apache,Not in a City
+04_3_1,31.410556,-109.87611100000001,04,3,1,468.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Bisbee
+04_3_2,31.380556,-109.74666699999999,04,3,2,1279.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,85603.0,Arizona,Cochise,Not in a City
+04_3_3,31.364721999999997,-109.594444,04,3,3,1201.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Douglas
+04_3_4,31.365555999999998,-109.583611,04,3,4,1225.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Douglas
+04_3_5,31.358889,-109.738056,04,3,5,1279.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Paul Spur
+04_3_6,31.894444,-110.246389,04,3,6,1117.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Saint David
+04_3_7,31.896666999999997,-110.27361100000002,04,3,7,1132.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Saint David
+04_3_10,31.374167,-109.734167,04,3,10,1292.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Paul Spur
+04_3_11,31.3658,-109.73095,04,3,11,1278.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,PAUL SPUR CHEMICAL LIME PLANT,85607.0,Arizona,Cochise,Paul Spur
+04_3_901,31.34848,-109.548698,04,3,901,0.0,,,,,-7,US EPA - Region 9,,85607.0,Arizona,Cochise,Douglas
+04_3_902,31.348436,-109.548956,04,3,902,0.0,UNKNOWN,UNKNOWN,,,-7,US EPA - Region 9,,,Arizona,Cochise,Douglas
+04_3_903,31.348714,-109.54923400000001,04,3,903,0.0,UNKNOWN,UNKNOWN,,,-7,US EPA - Region 9,,,Arizona,Cochise,Douglas
+04_3_1001,31.351944,-109.582222,04,3,1001,1225.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Douglas
+04_3_1002,31.353889000000002,-109.54111100000001,04,3,1002,1221.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Douglas
+04_3_1003,31.334895,-109.55915800000001,04,3,1003,1250.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,DOUGLAS CUSTOMS BUILDING,85607.0,Arizona,Cochise,Douglas
+04_3_1004,31.349733,-109.539695,04,3,1004,1225.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,DOUGLAS CITY PARK,,Arizona,Cochise,Douglas
+04_3_1005,31.3492,-109.53968300000001,04,3,1005,1231.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,DOUGLAS RED CROSS,85607.0,Arizona,Cochise,Douglas
+04_3_1006,31.350031,-109.53778799999999,04,3,1006,1237.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,DOUGLAS HIGH SCHOOL,,Arizona,Cochise,Douglas
+04_3_2001,31.383435,-109.51728899999999,04,3,2001,0.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Douglas
+04_3_2002,31.566389,-110.3,04,3,2002,1408.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Sierra Vista (Garden Canon)
+04_3_2003,31.555,-110.29,04,3,2003,1401.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,SIERRA VISTA - FRY BLVD,,Arizona,Cochise,Sierra Vista (Garden Canon)
+04_3_3001,31.553333000000002,-110.300278,04,3,3001,1408.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Cochise,Sierra Vista (Garden Canon)
+04_3_8001,32.009409999999995,-109.38906000000001,04,3,8001,1569.0,DESERT,RURAL,,,-7,National Park Service,Chiricahua NM - Entrance Station,85643.0,Arizona,Cochise,Not in a City
+04_3_9000,31.349183,-109.53973300000001,04,3,9000,1233.0,FOREST,RURAL,,,-7,National Park Service,DOUGLASS IMPROVE SITE,85607.0,Arizona,Cochise,Douglas
+04_5_1,36.051403,-112.14214,04,5,1,2121.0,,RURAL,,,-7,National Park Service,,86046.0,Arizona,Coconino,Grand Canyon Village
+04_5_2,36.913889000000005,-111.42388899999999,04,5,2,1219.0,,RURAL,,,-7,Arizona Department Of Environmental Quality,LECHEE CHAPTER HOUSE,86040.0,Arizona,Coconino,Page
+04_5_3,36.15,-111.25,04,5,3,1506.0,UNKNOWN,UNKNOWN,,,-7,Arizona Department Of Environmental Quality,PHS HOSPITAL (TUBA CITY),,Arizona,Coconino,Tuba City
+04_5_4,36.928056,-111.455556,04,5,4,1308.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,PAGE AIRPORT,,Arizona,Coconino,Page
+04_5_5,36.8625,-111.44083300000001,04,5,5,1420.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,LECHEE ROCK,,Arizona,Coconino,Not in a city
+04_5_6,35.260556,-111.725278,04,5,6,232.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,FLAGSTAFF PRIVATE RESIDENCE,,Arizona,Coconino,Flagstaff
+04_5_7,36.867222,-111.590833,04,5,7,972.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Coconino,Lees Ferry
+04_5_9,36.148610999999995,-111.238056,04,5,9,1576.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,TUBA CITY,,Arizona,Coconino,Tuba City
+04_5_10,36.590278000000005,-111.084722,04,5,10,1829.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,KAIBITO,,Arizona,Coconino,Kaibito (Lower Kaibito)
+04_5_11,36.613333000000004,-111.44444399999999,04,5,11,1844.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,COPPERMINE,,Arizona,Coconino,Copper Mines (Trading Post)
+04_5_12,36.374722,-111.695278,04,5,12,1817.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Coconino,Not in a city
+04_5_13,36.771667,-111.08805600000001,04,5,13,1692.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,TSAI SKIZZI ROCK,,Arizona,Coconino,Not in a city
+04_5_14,36.148610999999995,-111.23888899999999,04,5,14,1558.0,COMMERCIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,TUBA CITY AZ,,Arizona,Coconino,Tuba City
+04_5_101,36.05165,-112.14239199999999,04,5,101,2134.0,UNKNOWN,UNKNOWN,,,-7,National Park Service,,,Arizona,Coconino,Grand Canyon
+04_5_1001,35.198889,-111.646111,04,5,1001,2103.0,MOBILE,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,COCONINO COUNTY COURTHOUSE,,Arizona,Coconino,Flagstaff
+04_5_1002,35.198333,-111.645278,04,5,1002,2103.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,"AGASSIZ STREET, FLAGSTAFF",,Arizona,Coconino,Flagstaff
+04_5_1003,35.207896000000005,-111.655625,04,5,1003,2105.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,FLAGSTAFF THORPE PARK,,Arizona,Coconino,Flagstaff
+04_5_1004,35.213889,-111.6125,04,5,1004,2097.0,COMMERCIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,AZ DEPT OF HEALTH SERVICES,,Arizona,Coconino,Flagstaff
+04_5_1005,35.199179,-111.647939,04,5,1005,2103.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Coconino,Flagstaff
+04_5_1007,35.199456,-111.642384,04,5,1007,2103.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Coconino,Flagstaff
+04_5_1008,35.206111,-111.652777,04,5,1008,2120.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,FLAGSTAFF MIDDLE SCHOOL,86001.0,Arizona,Coconino,Flagstaff
+04_5_1009,35.221481,-111.566897,04,5,1009,2134.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,FLAGSTAFF ADOT,86001.0,Arizona,Coconino,Flagstaff
+04_5_1010,34.866665999999995,-111.765,04,5,1010,1279.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,SEDONA POST OFFICE,86336.0,Arizona,Coconino,Sedona
+04_5_1237,36.125018,-111.234727,04,5,1237,1500.0,COMMERCIAL,RURAL,,,-7,"Navajo Nation, AZ, NM, UT",Tuba City,86045.0,Arizona,Coconino,Not in a City
+04_5_2001,36.055261,-112.12211299999998,04,5,2001,2120.0,UNKNOWN,RURAL,,,-7,National Park Service,,,Arizona,Coconino,Grand Canyon
+04_5_2002,36.080539,-112.155726,04,5,2002,2134.0,UNKNOWN,RURAL,,,-7,National Park Service,,,Arizona,Coconino,Grand Canyon
+04_5_2003,36.059705,-112.182948,04,5,2003,2073.0,DESERT,RURAL,,,-7,National Park Service,,,Arizona,Coconino,Grand Canyon
+04_5_8001,36.058640000000004,-112.1836,04,5,8001,2070.0,FOREST,RURAL,,,-7,National Park Service,Grand Canyon NP - The Abyss,86046.0,Arizona,Coconino,Grand Canyon Village
+04_5_8100,36.077814000000004,-112.129551,04,5,8100,1166.0,FOREST,RURAL,,,-7,National Park Service,,86046.0,Arizona,Coconino,Not in a City
+04_5_8101,36.077614000000004,-112.129651,04,5,8101,1166.0,FOREST,RURAL,,,-7,National Park Service,,86046.0,Arizona,Coconino,Not in a City
+04_5_8102,35.973116999999995,-111.98484599999999,04,5,8102,2267.0,FOREST,RURAL,,,-7,National Park Service,,86046.0,Arizona,Coconino,Not in a City
+04_5_8103,35.140634999999996,-111.96993799999998,04,5,8103,2046.0,FOREST,RURAL,,,-7,National Park Service,,86001.0,Arizona,Coconino,Not in a City
+04_5_9000,35.1639,-111.9823,04,5,9000,2046.0,AGRICULTURAL,RURAL,,,-7,National Park Service,,86046.0,Arizona,Coconino,Parks (Maine)
+04_5_9001,35.225136,-111.607603,04,5,9001,2142.7,RESIDENTIAL,SUBURBAN,,,-7,Tribal Air Monitoring Support - NAU,ITEP Flagstaff,86004.0,Arizona,Coconino,Flagstaff
+04_7_1,33.446944,-110.840833,04,7,1,1098.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,CLAYPOOL-AZ HWY DEPT YARD,,Arizona,Gila,Claypool
+04_7_2,33.00626,-110.77309,04,7,2,588.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,WINKLEMAN P.O.,,Arizona,Gila,Winkelman
+04_7_3,33.44,-110.829444,04,7,3,1006.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,"INSPIRATION, MIAMI",,Arizona,Gila,Miami
+04_7_4,33.41,-110.846944,04,7,4,1021.0,COMMERCIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,LOWER MIAMI,,Arizona,Gila,Miami
+04_7_5,33.419167,-110.82611100000001,04,7,5,1067.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,MIAMI EAST,,Arizona,Gila,Miami
+04_7_6,33.404722,-110.817222,04,7,6,1074.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,MIAMI SE LANDFILL,,Arizona,Gila,Miami
+04_7_7,33.395833,-110.8225,04,7,7,1044.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,MIAMI SE #2,,Arizona,Gila,Miami
+04_7_8,34.229733,-111.3295,04,7,8,1497.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,PAYSON WELL SITE,85541.0,Arizona,Gila,Payson
+04_7_9,33.399135,-110.858896,04,7,9,1085.0,RESIDENTIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,MIAMI RIDGELINE,85539.0,Arizona,Gila,Miami
+04_7_10,33.6547,-111.1074,04,7,10,786.0,DESERT,RURAL,,,-7,Arizona Department Of Environmental Quality,TONTO NM,85539.0,Arizona,Gila,Tonto National Monument
+04_7_11,33.3855,-110.867267,04,7,11,1242.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,Miami Jones Ranch,85539.0,Arizona,Gila,Not in a City
+04_7_12,33.397433,-110.87445,04,7,12,1035.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,Miami Townsite,85539.0,Arizona,Gila,Miami
+04_7_901,33.028676000000004,-110.809551,04,7,901,701.0,UNKNOWN,UNKNOWN,,,-7,US EPA - Region 9,,,Arizona,Gila,Hayden
+04_7_902,33.00315,-110.780409,04,7,902,0.0,,,,,-7,US EPA - Region 9,,85292.0,Arizona,Gila,Hayden
+04_7_903,33.003427,-110.78068700000001,04,7,903,0.0,,,,,-7,US EPA - Region 9,,85292.0,Arizona,Gila,Hayden
+04_7_904,33.003705,-110.780965,04,7,904,0.0,,,,,-7,US EPA - Region 9,,85292.0,Arizona,Gila,Hayden
+04_7_906,33.371722999999996,-110.78177600000001,04,7,906,1134.0,UNKNOWN,UNKNOWN,,,-7,US EPA - Region 9,,,Arizona,Gila,Globe
+04_7_1001,33.006178999999996,-110.785797,04,7,1001,625.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,HAYDEN OLD JAIL,85292.0,Arizona,Gila,Hayden
+04_7_1002,33.002517,-110.76546699999999,04,7,1002,602.0,DESERT,RURAL,,,-7,Arizona Department Of Environmental Quality,Globe Highway,85292.0,Arizona,Gila,Not in a City
+04_7_1003,33.0035,-110.7822,04,7,1003,635.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,Hillcrest AMS,85292.0,Arizona,Gila,Hayden
+04_7_1902,33.385278,-110.86638899999998,04,7,1902,1250.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,SMELTER STUDY SITE #2,,Arizona,Gila,Miami
+04_7_1903,33.400084,-110.87069299999999,04,7,1903,0.0,,,,,-7,Arizona Department Of Environmental Quality,,85539.0,Arizona,Gila,Miami
+04_7_1904,33.40064,-110.870971,04,7,1904,0.0,,,,,-7,Arizona Department Of Environmental Quality,,85539.0,Arizona,Gila,Miami
+04_7_2001,33.397555,-110.874001,04,7,2001,1098.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Gila,Miami
+04_7_8000,33.419017,-110.82967,04,7,8000,1012.0,RESIDENTIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,MIAMI GOLF COURSE,85539.0,Arizona,Gila,Globe
+04_7_8020,33.002404999999996,-110.78485,04,7,8020,622.7064,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,US EPA - Region 9,2nd Street and Garfield Ave,85292.0,Arizona,Gila,Hayden
+04_7_8021,32.99304,-110.77145800000001,04,7,8021,608.99,DESERT,RURAL,,,-7,US EPA - Region 9,824 Thorne Ave,85292.0,Arizona,Gila,Winkelman
+04_7_8100,34.090866,-110.942801,04,7,8100,1600.0,FOREST,RURAL,,,-7,National Park Service,Sierra Ancha,85541.0,Arizona,Gila,Young
+04_7_9990,33.404583,-110.85918799999999,04,7,9990,1032.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,MIAMI SOUTH,,Arizona,Gila,Miami
+04_7_9991,33.418889,-110.82416699999999,04,7,9991,0.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,MIAMI SW GAS YARD,,Arizona,Gila,Miami
+04_7_9992,33.396944,-110.698889,04,7,9992,0.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,MIAMI SULLIVAN STREET,,Arizona,Gila,Miami
+04_7_9993,34.109111999999996,-111.352828,04,7,9993,952.0,INDUSTRIAL,RURAL,10.0,,-7,Arizona Department Of Environmental Quality,RYE,,Arizona,Gila,Rye
+04_9_1,32.83388,-109.71861100000001,04,9,1,899.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,SAFFORD,85546.0,Arizona,Graham,Safford
+04_11_1,33.046212,-109.290925,04,11,1,1073.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,85540.0,Arizona,Greenlee,Clifton
+04_11_2,33.062222,-109.305,04,11,2,1056.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,CLIFTON POST OFFICE,,Arizona,Greenlee,Clifton
+04_11_3,33.055278,-109.31944399999999,04,11,3,1248.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Greenlee,Clifton
+04_11_110,33.695454,-109.206112,04,11,110,2438.0,UNKNOWN,UNKNOWN,,,-7,US EPA National Exposure Research Lab,,,Arizona,Greenlee,Not in a city
+04_11_901,33.089507,-109.287571,04,11,901,1676.0,INDUSTRIAL,RURAL,,,-7,US EPA - Region 9,,,Arizona,Greenlee,Morenci
+04_11_902,33.0801,-109.36370500000001,04,11,902,0.0,,,,,-7,US EPA - Region 9,,85540.0,Arizona,Greenlee,Not in a City
+04_11_903,33.0801,-109.36398200000001,04,11,903,0.0,,,,,-7,US EPA - Region 9,,85540.0,Arizona,Greenlee,Not in a City
+04_11_904,33.080378,-109.36426000000002,04,11,904,0.0,,,,,-7,US EPA - Region 9,,85540.0,Arizona,Greenlee,Not in a City
+04_11_1001,33.010278,-109.36388899999999,04,11,1001,1474.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,MORENCI SITE,,Arizona,Greenlee,Morenci
+04_12_1001,34.149722,-114.28861100000002,04,12,1001,128.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,La Paz,Parker
+04_12_8000,34.2439,-113.5586,04,12,8000,376.0,DESERT,RURAL,,,-7,Arizona Department Of Environmental Quality,ALAMO LAKE,85348.0,Arizona,La Paz,Wenden
+04_13_1,33.420631,-112.34434499999999,04,13,1,288.0,RESIDENTIAL,RURAL,,,-7,Maricopa County Air Quality ,,85323.0,Arizona,Maricopa,Avondale
+04_13_2,33.26533,-111.650967,04,13,2,422.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Queen Creek (RittenHouse)
+04_13_3,33.329772,-111.6343,04,13,3,430.0,UNKNOWN,UNKNOWN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_4,33.371431,-112.58488799999999,04,13,4,266.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Buckeye
+04_13_5,33.875316999999995,-111.87431399999998,04,13,5,1134.0,UNKNOWN,RURAL,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Carefree
+04_13_6,33.818095,-111.897924,04,13,6,777.0,UNKNOWN,RURAL,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Carefree
+04_13_7,33.290325,-112.170149,04,13,7,312.0,UNKNOWN,UNKNOWN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Saint Johns Mission
+04_13_8,33.366714,-111.960977,04,13,8,381.0,AGRICULTURAL,RURAL,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Guadalupe
+04_13_9,33.455597999999995,-112.358492,04,13,9,325.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Litchfield Park
+04_13_10,33.443933,-112.079871,04,13,10,330.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_11,33.400045,-112.120149,04,13,11,317.0,INDUSTRIAL,RURAL,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_13,33.405322999999996,-112.074036,04,13,13,328.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,Old South Phoenix Site,,Arizona,Maricopa,Phoenix
+04_13_14,33.449211,-112.097372,04,13,14,327.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_15,33.466711,-111.970701,04,13,15,393.0,RESIDENTIAL,RURAL,,,-7,Maricopa County Air Quality ,Emergency Management,,Arizona,Maricopa,Phoenix
+04_13_16,33.49462,-112.13098000000001,04,13,16,341.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,WEST INDIAN SCHOOL RD,85017.0,Arizona,Maricopa,Phoenix
+04_13_17,33.466153999999996,-112.09931599999999,04,13,17,330.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_18,33.462265,-112.149874,04,13,18,326.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_19,33.483779999999996,-112.14256,04,13,19,333.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,WEST PHOENIX,85019.0,Arizona,Maricopa,Phoenix
+04_13_20,33.485599,-112.12320600000001,04,13,20,0.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_21,33.287828000000005,-111.817361,04,13,21,357.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Chandler
+04_13_22,33.479136,-112.11249299999999,04,13,22,338.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,GRAND AVE,,Arizona,Maricopa,Phoenix
+04_13_1001,33.308382,-111.838195,04,13,1001,371.0,RESIDENTIAL,RURAL,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Chandler
+04_13_1002,33.410046,-111.86486399999998,04,13,1002,379.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Mesa
+04_13_1003,33.41018,-111.86536000000001,04,13,1003,383.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,MESA,85202.0,Arizona,Maricopa,Mesa
+04_13_1004,33.56031,-112.06618999999999,04,13,1004,378.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,NORTH PHOENIX,85020.0,Arizona,Maricopa,Phoenix
+04_13_1005,33.406156,-112.04125800000001,04,13,1005,328.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_1006,33.510875,-112.130707,04,13,1006,348.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_1007,33.429489000000004,-112.01848000000001,04,13,1007,339.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_1008,33.464765,-112.09931599999999,04,13,1008,330.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_1009,33.464765,-112.09931599999999,04,13,1009,330.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_1010,33.45244,-111.73326999999999,04,13,1010,384.0,DESERT,RURAL,,,-7,Maricopa County Air Quality ,FALCON FIELD,85215.0,Arizona,Maricopa,Mesa
+04_13_2001,33.574529999999996,-112.19193,04,13,2001,350.0,RESIDENTIAL,RURAL,,,-7,Maricopa County Air Quality ,GLENDALE,85302.0,Arizona,Maricopa,Glendale
+04_13_2002,33.604208,-112.00348100000001,04,13,2002,426.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Paradise Valley
+04_13_2003,33.493685,-112.12906100000001,04,13,2003,341.0,,,,,-7,Maricopa County Air Quality ,,85017.0,Arizona,Maricopa,Phoenix
+04_13_2004,33.604486,-111.92847900000001,04,13,2004,434.0,COMMERCIAL,RURAL,,,-7,Maricopa County Air Quality ,North Scottsdale,,Arizona,Maricopa,Scottsdale
+04_13_2005,33.70639,-111.85575,04,13,2005,733.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,PINNACLE PEAK,85255.0,Arizona,Maricopa,Scottsdale
+04_13_3001,33.555351,-111.958224,04,13,3001,434.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,85253.0,Arizona,Maricopa,Paradise Valley
+04_13_3002,33.45797,-112.04659,04,13,3002,339.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,CENTRAL PHOENIX,85006.0,Arizona,Maricopa,Phoenix
+04_13_3003,33.47968,-111.91721000000001,04,13,3003,368.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,SOUTH SCOTTSDALE,85257.0,Arizona,Maricopa,Scottsdale
+04_13_3004,33.469766,-111.96708999999998,04,13,3004,0.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,NATIONAL GUARD HQ-CO DEPT OF EMERGENCY MANAGEMENT-N 52ND & MCDOWELL,,Arizona,Maricopa,Phoenix
+04_13_3005,33.360605,-111.769304,04,13,3005,0.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,WATER TREATMENT PLANT-LINDSEY RD NEAR GUADALUPE RD,,Arizona,Maricopa,Gilbert
+04_13_3006,33.474486,-112.19293,04,13,3006,0.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,MARYVALE-POLICE STN-ENCANTO BLVD NEAR 59TH AVE,,Arizona,Maricopa,Phoenix
+04_13_3007,33.417821999999994,-112.104872,04,13,3007,0.0,INDUSTRIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,SALT RIVER SERVICE CENTER-CITY EQUIPMENT SERVICE YARD,,Arizona,Maricopa,Phoenix
+04_13_3009,33.301716,-111.892918,04,13,3009,0.0,INDUSTRIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,WEST CHANDLER-FIRE STN-PRICE RD & CHANDLER BLVD,,Arizona,Maricopa,Chandler
+04_13_3010,33.46093,-112.11748,04,13,3010,325.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,GREENWOOD,85009.0,Arizona,Maricopa,Phoenix
+04_13_4001,33.430602,-111.823752,04,13,4001,382.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Mesa
+04_13_4002,33.481988,-111.9432,04,13,4002,385.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Scottsdale
+04_13_4003,33.40314,-112.07526000000001,04,13,4003,326.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,SOUTH PHOENIX,85041.0,Arizona,Maricopa,Phoenix
+04_13_4004,33.29896,-111.88426000000001,04,13,4004,366.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,WEST CHANDLER,85224.0,Arizona,Maricopa,Chandler
+04_13_4005,33.411229999999996,-111.93471000000001,04,13,4005,352.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,TEMPE,85281.0,Arizona,Maricopa,Tempe
+04_13_4006,33.30995,-111.72003000000001,04,13,4006,391.0,INDUSTRIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,HIGLEY,85295.0,Arizona,Maricopa,Gilbert
+04_13_4007,33.655,-112.3855,04,13,4007,0.0,AGRICULTURAL,RURAL,2000.0,,-7,Maricopa County Air Quality ,SEASONAL SITE,,Arizona,Maricopa,Surprise
+04_13_4008,33.821690000000004,-112.01726000000001,04,13,4008,587.0,RESIDENTIAL,RURAL,,,-7,Maricopa County Air Quality ,CAVE CREEK,85331.0,Arizona,Maricopa,Cave Creek
+04_13_4009,33.40635,-112.14426,04,13,4009,318.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,WEST 43RD AVENUE,85043.0,Arizona,Maricopa,Phoenix
+04_13_4010,33.63718,-112.34185,04,13,4010,359.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,DYSART,85374.0,Arizona,Maricopa,Surprise
+04_13_4011,33.36985,-112.62068000000001,04,13,4011,258.0,AGRICULTURAL,RURAL,,,-7,Maricopa County Air Quality ,BUCKEYE,85326.0,Arizona,Maricopa,Buckeye
+04_13_4014,33.66628,-112.31042,04,13,4014,359.0,COMMERCIAL,SUBURBAN,4400.0,SW,-7,Maricopa County Air Quality ,COYOTE LAKES,85373.0,Arizona,Maricopa,Surprise
+04_13_4015,33.4133,-112.02093,04,13,4015,341.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,FISHER #1,85040.0,Arizona,Maricopa,Phoenix
+04_13_4016,33.68719,-112.29416,04,13,4016,386.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,Zuni Hills,85373.0,Arizona,Maricopa,Not in a City
+04_13_4017,33.684509999999996,-112.08633999999999,04,13,4017,449.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,85027.0,Arizona,Maricopa,Phoenix
+04_13_4018,33.684490000000004,-112.08633,04,13,4018,450.5,INDUSTRIAL,SUBURBAN,23000.0,SSW,-7,Maricopa County Air Quality ,Deer Valley,85027.0,Arizona,Maricopa,Phoenix
+04_13_4019,33.396229999999996,-111.96798999999999,04,13,4019,354.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,Diablo,85282.0,Arizona,Maricopa,Tempe
+04_13_4020,33.461729999999996,-112.12796000000002,04,13,4020,326.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,Thirty-Third,85009.0,Arizona,Maricopa,Phoenix
+04_13_4021,33.41046,-112.00263999999999,04,13,4021,354.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Phoenix
+04_13_5001,33.629207,-112.045149,04,13,5001,487.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Paradise Valley
+04_13_5002,33.608371999999996,-112.284047,04,13,5002,352.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Sun City
+04_13_5100,33.629246,-111.676928,04,13,5100,435.23,AGRICULTURAL,SUBURBAN,,,-7,"Fort McDowell Yavapai Nation, AZ",Fort McDowell/Yuma Frank,85264.0,Arizona,Maricopa,Fort McDowell
+04_13_6001,33.44702,-112.072115,04,13,6001,360.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,,85004.0,Arizona,Maricopa,Phoenix
+04_13_7001,33.489488,-111.923478,04,13,7001,379.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,,Arizona,Maricopa,Scottsdale
+04_13_7002,33.314926,-112.163055,04,13,7002,338.0,RESIDENTIAL,RURAL,,,-7,"Gila River Indian Community of Gila River Indian Reservation, AZ",,,Arizona,Maricopa,Not in a City
+04_13_7003,33.290229,-112.160597,04,13,7003,326.0,RESIDENTIAL,RURAL,,,-7,"Gila River Indian Community of Gila River Indian Reservation, AZ",St Johns Air Monitoring Site,85339.0,Arizona,Maricopa,Not in a City
+04_13_7020,33.488131,-111.855443,04,13,7020,377.0,RESIDENTIAL,RURAL,3.0,E,-7,"Salt River Pima-Maricopa Indian Community of Salt River Reservation, AZ",Senior Center Air Monitoring Station,85256.0,Arizona,Maricopa,Scottsdale
+04_13_7021,33.507992,-111.755334,04,13,7021,394.0,DESERT,RURAL,,,-7,"Salt River Pima-Maricopa Indian Community of Salt River Reservation, AZ",Red Mountain Air Monitoring Station,85256.0,Arizona,Maricopa,Scottsdale
+04_13_7022,33.474609,-111.805769,04,13,7022,412.0,RESIDENTIAL,RURAL,,,-7,"Salt River Pima-Maricopa Indian Community of Salt River Reservation, AZ",Lehi Air Monitoring Station,85203.0,Arizona,Maricopa,Mesa
+04_13_7023,33.50761,-111.83318,04,13,7023,412.0,RESIDENTIAL,RURAL,,,-7,"Salt River Pima-Maricopa Indian Community of Salt River Reservation, AZ",,,Arizona,Maricopa,Scottsdale
+04_13_7024,33.508125,-111.83851999999999,04,13,7024,366.0,RESIDENTIAL,RURAL,,,-7,"Salt River Pima-Maricopa Indian Community of Salt River Reservation, AZ",High School Air Monitoring Station,85256.0,Arizona,Maricopa,Scottsdale
+04_13_8001,33.637013,-112.292401,04,13,8001,358.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,,85351.0,Arizona,Maricopa,Sun City
+04_13_8005,33.383333,-112.372777,04,13,8005,277.0,RESIDENTIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,ESTRELLA PM2.5 1 HOUR NEPH,85338.0,Arizona,Maricopa,Goodyear (Litchfield)
+04_13_8006,33.4349,-112.09299999999999,04,13,8006,325.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,BETHUNE ELEMENTARY SCHOOL,85007.0,Arizona,Maricopa,Phoenix
+04_13_9508,33.9828,-111.79871000000001,04,13,9508,1582.0,FOREST,RURAL,,,-7,Maricopa County Air Quality ,HUMBOLDT MOUNTAIN,199.0,Arizona,Maricopa,Not in a City
+04_13_9604,33.68125,-112.20576399999999,04,13,9604,0.0,RESIDENTIAL,SUBURBAN,10.0,,-7,Maricopa County Air Quality ,ARROWHEAD-FIRE STN-DEER VALLEY RD NEAR 67TH AVE,,Arizona,Maricopa,Peoria
+04_13_9612,33.970308,-112.730733,04,13,9612,0.0,COMMERCIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,WICKENBURG SHERIFF STATION,,Arizona,Maricopa,Wickenburg
+04_13_9701,33.905278,-111.41,04,13,9701,2173.0,FOREST,RURAL,10.0,,-7,Arizona Department Of Environmental Quality,MOUNT ORD,85541.0,Arizona,Maricopa,Mount Ord
+04_13_9702,33.54558,-111.60972,04,13,9702,436.0,DESERT,RURAL,10.0,,-7,Maricopa County Air Quality ,BLUE POINT-SHERIFF STATION-TONTO NF-SALT RIVER RECREATION AREA,85264.0,Arizona,Maricopa,Blue Point (District)
+04_13_9704,33.61092,-111.72533999999999,04,13,9704,505.0,RESIDENTIAL,SUBURBAN,,,-7,Maricopa County Air Quality ,FOUNTAIN HILLS,85268.0,Arizona,Maricopa,Fountain Hills
+04_13_9706,33.71881,-111.67183,04,13,9706,478.0,RESIDENTIAL,SUBURBAN,13000.0,SSW,-7,Maricopa County Air Quality ,RIO VERDE,85263.0,Arizona,Maricopa,Rio Verde
+04_13_9707,33.674492,-111.150401,04,13,9707,0.0,RESIDENTIAL,RURAL,10.0,,-7,Maricopa County Air Quality ,ROOSEVELT LAKE-SRP VACATION RESORT-LAKESIDE,,Arizona,Maricopa,Roosevelt
+04_13_9805,33.870034999999994,-112.28766200000001,04,13,9805,1600.0,DESERT,RURAL,,,-7,Maricopa County Air Quality ,DESERT OUTDOR CENTER,,Arizona,Maricopa,Lake Pleasant
+04_13_9812,33.4265,-112.11821,04,13,9812,317.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Maricopa County Air Quality ,DURANGO COMPLEX,85009.0,Arizona,Maricopa,Phoenix
+04_13_9990,33.391659999999995,-111.92638799999999,04,13,9990,361.0,COMMERCIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,TEMPE COMMUNITY CENTER,85282.0,Arizona,Maricopa,Tempe
+04_13_9991,33.476608,-112.108597,04,13,9991,338.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,MAGNET TRADITIONAL SCHOOL,,Arizona,Maricopa,Phoenix
+04_13_9992,33.476110999999996,-112.199722,04,13,9992,330.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,DESERT WEST,85035.0,Arizona,Maricopa,Phoenix
+04_13_9993,33.348851,-112.831103,04,13,9993,265.0,INDUSTRIAL,RURAL,10.0,,-7,Arizona Department Of Environmental Quality,PALO VERDE,,Arizona,Maricopa,Palo Verde
+04_13_9994,33.488889,-111.8625,04,13,9994,0.0,AGRICULTURAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,SALT RIVER PIMA - MARICOPA ADMINISTRATION COMPLEX,,Arizona,Maricopa,Scottsdale
+04_13_9995,33.466667,-111.9625,04,13,9995,0.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,PAPAGO PARK,,Arizona,Maricopa,Phoenix
+04_13_9996,33.481944,-112.115278,04,13,9996,0.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,PIONEER FORD,,Arizona,Maricopa,Phoenix
+04_13_9997,33.503833,-112.095767,04,13,9997,346.0,RESIDENTIAL,URBAN AND CENTER CITY,10754.0,SE,-7,Arizona Department Of Environmental Quality,JLG SUPERSITE,85015.0,Arizona,Maricopa,Phoenix
+04_13_9998,33.455277,-111.99611100000001,04,13,9998,356.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,VEHICLE EMISSIONS LABORATORY,85008.0,Arizona,Maricopa,Phoenix
+04_15_1,35.187222,-114.064167,04,15,1,1013.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Mohave,Kingman
+04_15_6,35.186111,-114.564444,04,15,6,206.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,US BR DAVIS DAM,,Arizona,Mohave,Davis Dam
+04_15_7,35.211389000000004,-114.566667,04,15,7,192.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,LAKE MOHAVE RESORT,,Arizona,Mohave,Bullhead City
+04_15_8,35.085,-114.559444,04,15,8,168.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,WARDS PLUMBING SERV,,Arizona,Mohave,Riviera
+04_15_9,36.898056,-112.73388899999999,04,15,9,1487.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Mohave,Moccasin
+04_15_13,34.48185,-114.33658999999999,04,15,13,148.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Mohave,Lake Havasu City
+04_15_14,35.371111,-114.153056,04,15,14,1310.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Mohave,Chloride
+04_15_15,34.86,-114.59833300000001,04,15,15,144.0,COMMERCIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Mohave,Not in a city
+04_15_1000,35.540017,-113.41078200000001,04,15,1000,50.0,RESIDENTIAL,RURAL,,,-7,"Hualapai Indian Tribe of Hualapai Indian Reservation, AZ",Peach Springs,86434.0,Arizona,Mohave,Peach Springs
+04_15_1001,35.2,-114.566667,04,15,1001,213.0,UNKNOWN,UNKNOWN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Mohave,Davis Dam
+04_15_1003,35.153888,-114.566111,04,15,1003,156.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,BULLHEAD CITY ADEQ,86429.0,Arizona,Mohave,Bullhead City
+04_15_1004,35.103611,-114.602222,04,15,1004,183.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,BULLHEAD CITY - SCE,86442.0,Arizona,Mohave,Bullhead City
+04_15_1011,35.588726,-113.489025,04,15,1011,1464.0,COMMERCIAL,RURAL,,,-7,"Hualapai Indian Tribe of Hualapai Indian Reservation, AZ",Grand Canyon West,86434.0,Arizona,Mohave,Not in a City
+04_15_1111,34.55199,-113.37236200000001,04,15,1111,305.0,DESERT,RURAL,,,-7,US EPA - Region 9,Big Sandy,86406.0,Arizona,Mohave,Not in a City
+04_15_9000,36.019302,-114.06920500000001,04,15,9000,902.0,FOREST,RURAL,,,-7,National Park Service,,86401.0,Arizona,Mohave,Not in a City
+04_17_1,34.939721999999996,-110.12527800000001,04,17,1,1609.0,UNKNOWN,UNKNOWN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Navajo,Holbrook
+04_17_2,34.959167,-110.331944,04,17,2,1531.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Navajo,Joseph City
+04_17_3,35.924167,-110.65527800000001,04,17,3,1920.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Navajo,Bacobi
+04_17_6,34.924721999999996,-110.26416699999999,04,17,6,1539.0,UNKNOWN,UNKNOWN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Navajo,Holbrook
+04_17_7,34.2525,-110.03638799999999,04,17,7,1924.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,SHOW LOW,85901.0,Arizona,Navajo,Show Low
+04_17_119,34.82251,-109.89249,04,17,119,1712.0,DESERT,RURAL,,,-7,National Park Service,Petrified Forest NP - South Entrance,86025.0,Arizona,Navajo,Not in a City
+04_17_1001,35.021111,-110.71611100000001,04,17,1001,1487.0,UNKNOWN,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Navajo,Winslow
+04_17_1002,33.85815,-109.97028999999999,04,17,1002,1599.0,RESIDENTIAL,RURAL,,,-7,"White Mountain Apache Tribe of Ft Apache Reservation, AZ",Whiteriver - Fort Apache Reservation,85901.0,Arizona,Navajo,Whiteriver
+04_19_1,32.382036,-112.857453,04,19,1,515.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,AJO,85321.0,Arizona,Pima,Ajo
+04_19_2,32.222058000000004,-110.974681,04,19,2,756.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,DOWNTOWN,85701.0,Arizona,Pima,Tucson
+04_19_5,31.95,-112.801,04,19,5,505.0,DESERT,RURAL,,,-7,Arizona Department Of Environmental Quality,ORGAN PIPE NM,14.0,Arizona,Pima,Organ Pipe Cactus National Monument
+04_19_6,32.370665,-111.16819299999999,04,19,6,632.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,85743.0,Arizona,Pima,Picture Rocks
+04_19_7,31.87564,-110.993703,04,19,7,885.0,COMMERCIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Green Valley
+04_19_8,32.004707,-110.792593,04,19,8,937.0,,RURAL,,,-7,Pima County Department of Environmental Quality,CORONA DE TUCSON,85641.0,Arizona,Pima,Corona de Tucson
+04_19_9,32.40122,-111.126525,04,19,9,636.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,85742.0,Arizona,Pima,Marana
+04_19_10,32.420664,-111.18263799999998,04,19,10,618.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,85653.0,Arizona,Pima,Marana
+04_19_11,32.322661,-111.038389,04,19,11,681.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,ORANGE GROVE,85741.0,Arizona,Pima,Tucson
+04_19_12,32.090357,-110.961758,04,19,12,792.0,RESIDENTIAL,RURAL,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_13,32.175077,-110.742306,04,19,13,957.0,RESIDENTIAL,RURAL,,,-7,National Park Service,,,Arizona,Pima,Saguaro National Monument
+04_19_14,32.233409,-110.753417,04,19,14,790.0,UNKNOWN,UNKNOWN,,,-7,Tonto Hills Observatory,,,Arizona,Pima,Tucson
+04_19_15,31.866751,-111.10065,04,19,15,1115.0,INDUSTRIAL,RURAL,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Twin Buttes
+04_19_16,31.880122999999998,-111.113744,04,19,16,1222.0,INDUSTRIAL,RURAL,,,-7,Pima County Department of Environmental Quality,,85736.0,Arizona,Pima,Not in a City
+04_19_17,32.419167,-111.162222,04,19,17,624.0,COMMERCIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,MILLERS MARKET,,Arizona,Pima,Rillito
+04_19_18,32.38924,-111.05371299999999,04,19,18,732.0,RESIDENTIAL,RURAL,,,-7,Pima County Department of Environmental Quality,Arther Pack,,Arizona,Pima,Tucson
+04_19_19,32.290075,-111.000651,04,19,19,689.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,Pomona,,Arizona,Pima,Tucson
+04_19_20,32.414344,-111.154544,04,19,20,626.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,RILLITO,85653.0,Arizona,Pima,Rillito
+04_19_21,32.174538,-110.73711599999999,04,19,21,938.0,DESERT,RURAL,,,-7,National Park Service,SAGUARO PARK,85748.0,Arizona,Pima,Not in a City
+04_19_901,32.371210999999995,-112.86546100000001,04,19,901,0.0,,RURAL,,,-7,US EPA - Region 9,,85321.0,Arizona,Pima,Ajo
+04_19_902,32.371767,-112.86573899999999,04,19,902,0.0,,RURAL,,,-7,US EPA - Region 9,,85321.0,Arizona,Pima,Ajo
+04_19_903,32.372044,-112.866017,04,19,903,0.0,,,,,-7,US EPA - Region 9,,85321.0,Arizona,Pima,Ajo
+04_19_904,32.372322,-112.866295,04,19,904,0.0,,,,,-7,US EPA - Region 9,,85321.0,Arizona,Pima,Ajo
+04_19_1001,32.201978000000004,-110.967905,04,19,1001,738.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,SOUTH TUCSON,85713.0,Arizona,Pima,South Tucson
+04_19_1005,32.179521,-111.00481599999999,04,19,1005,741.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1006,32.363963,-110.970653,04,19,1006,783.0,RESIDENTIAL,RURAL,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1007,32.218171000000005,-110.82151599999999,04,19,1007,792.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,85710.0,Arizona,Pima,Tucson
+04_19_1008,32.179244,-110.875644,04,19,1008,799.0,INDUSTRIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1009,32.272290000000005,-110.989079,04,19,1009,707.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,PRINCE ROAD,85705.0,Arizona,Pima,Tucson
+04_19_1010,32.247298,-110.836753,04,19,1010,777.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1011,32.204411,-110.87806699999999,04,19,1011,789.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,22ND & CRAYCROFT,85711.0,Arizona,Pima,Tucson
+04_19_1012,32.265631,-110.970092,04,19,1012,738.0,COMMERCIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1013,32.192299,-110.791752,04,19,1013,848.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1014,32.207390000000004,-110.910619,04,19,1014,768.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,22ND & ALVERNON,85716.0,Arizona,Pima,Tucson
+04_19_1015,32.192299,-111.015649,04,19,1015,739.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1017,32.223687,-110.892311,04,19,1017,0.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1018,32.425261,-111.06352,04,19,1018,0.0,DESERT,RURAL,,,-7,Pima County Department of Environmental Quality,TANGERINE,85742.0,Arizona,Pima,Marana
+04_19_1019,32.221743,-110.87481100000001,04,19,1019,777.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1020,32.047670000000004,-110.77435700000001,04,19,1020,937.0,DESERT,RURAL,,,-7,Pima County Department of Environmental Quality,FAIRGROUNDS,85747.0,Arizona,Pima,Tucson
+04_19_1021,32.0475,-110.77388899999998,04,19,1021,732.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,CHERRY & GLENN,85747.0,Arizona,Pima,Tucson
+04_19_1022,32.222297999999995,-110.978426,04,19,1022,760.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1023,32.222103000000004,-110.89384199999999,04,19,1023,778.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,BROADWAY & SWAN,85711.0,Arizona,Pima,Tucson
+04_19_1024,32.295909,-110.823422,04,19,1024,811.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,Sabino Canyon,,Arizona,Pima,Tucson
+04_19_1025,32.217576,-110.88008799999999,04,19,1025,774.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_1026,32.125919,-110.982556,04,19,1026,0.0,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,SANTA CLARA,85706.0,Arizona,Pima,Tucson
+04_19_1027,32.231743,-110.952036,04,19,1027,2450.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,CENTRAL SITE FOR URBAN HAZE MONITORING,,Arizona,Pima,Tucson
+04_19_1028,32.29515,-110.9823,04,19,1028,703.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,CHILDREN'S PARK NCore,85704.0,Arizona,Pima,Tucson
+04_19_1030,31.87952,-110.99643999999999,04,19,1030,0.0,COMMERCIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,GREEN VALLEY  -REPLACES SITE 0007 245 W ESPERANZA,85614.0,Arizona,Pima,Green Valley
+04_19_1031,32.1912,-110.84058200000001,04,19,1031,811.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,GOLF LINKS,85730.0,Arizona,Pima,Tucson
+04_19_1032,32.172995,-110.980134,04,19,1032,727.56,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,ROSE ELEMENTARY,85714.0,Arizona,Pima,Tucson
+04_19_1034,32.38082,-111.12716,04,19,1034,679.09,RESIDENTIAL,SUBURBAN,,,-7,Pima County Department of Environmental Quality,COACHLINE,85743.0,Arizona,Pima,Marana
+04_19_1113,32.251843,-110.96529299999999,04,19,1113,747.37,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,GERONIMO,85705.0,Arizona,Pima,Tucson
+04_19_2001,32.231743,-110.952036,04,19,2001,744.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Pima County Department of Environmental Quality,,,Arizona,Pima,Tucson
+04_19_8031,31.8273,-111.0113,04,19,8031,917.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,Green Valley Fire Administration,85614.0,Arizona,Pima,Green Valley
+04_19_9000,32.248712,-111.21849399999999,04,19,9000,714.0,DESERT,RURAL,,,-7,National Park Service,Saguaro National Park - West,85743.0,Arizona,Pima,Not in a City
+04_21_1,32.877583,-111.752222,04,21,1,420.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Pinal County APCD,CASA GRANDE DOWNTOWN,85222.0,Arizona,Pinal,Casa Grande
+04_21_2,32.605,-110.655,04,21,2,1072.0,INDUSTRIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Pinal,San Manuel
+04_21_3,32.625833,-110.6375,04,21,3,1072.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Pinal,San Manuel
+04_21_901,32.606217,-110.632069,04,21,901,0.0,,,,,-7,US EPA - Region 9,,85631.0,Arizona,Pinal,San Manuel
+04_21_902,32.606773,-110.632347,04,21,902,0.0,,,,,-7,US EPA - Region 9,,85631.0,Arizona,Pinal,San Manuel
+04_21_903,32.60705,-110.63262399999999,04,21,903,0.0,,,,,-7,US EPA - Region 9,,85631.0,Arizona,Pinal,San Manuel
+04_21_904,32.607328,-110.632902,04,21,904,0.0,,,,,-7,US EPA - Region 9,,85631.0,Arizona,Pinal,San Manuel
+04_21_1001,33.025,-111.388056,04,21,1001,454.0,COMMERCIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Pinal,Florence
+04_21_1003,33.291389,-111.10166699999999,04,21,1003,860.0,MOBILE,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Pinal,Superior
+04_21_2001,32.598611,-110.63361100000002,04,21,2001,332.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,SAN MANUEL,85631.0,Arizona,Pinal,San Manuel
+04_21_3001,33.4214,-111.5436,04,21,3001,525.0,COMMERCIAL,SUBURBAN,,,-7,Pinal County APCD,A J MAINTENANCE YARD,85219.0,Arizona,Pinal,Apache Junction
+04_21_3002,33.421194,-111.503222,04,21,3002,550.0,RESIDENTIAL,SUBURBAN,,,-7,Pinal County APCD,APACHE JUNCTION FIRE STATION,85219.0,Arizona,Pinal,Apache Junction
+04_21_3003,32.954361,-111.76225,04,21,3003,446.0,COMMERCIAL,SUBURBAN,,,-7,Pinal County APCD,CASA GRANDE AIRPORT,85222.0,Arizona,Pinal,Casa Grande
+04_21_3004,32.978556,-111.51483300000001,04,21,3004,437.0,RESIDENTIAL,SUBURBAN,,,-7,Pinal County APCD,COOLIDGE,85228.0,Arizona,Pinal,Coolidge
+04_21_3005,32.7559,-111.5551,04,21,3005,0.0,COMMERCIAL,SUBURBAN,,,-7,Pinal County APCD,ELOY (DISMANTLED 2007),,Arizona,Pinal,Eloy
+04_21_3006,32.719307,-110.641934,04,21,3006,719.0,RESIDENTIAL,SUBURBAN,,,-7,Pinal County APCD,MAMMOTH,85618.0,Arizona,Pinal,Mammoth
+04_21_3007,32.508306,-111.30805600000001,04,21,3007,579.0,DESERT,RURAL,,,-7,Pinal County APCD,PINAL AIR PARK,85653.0,Arizona,Pinal,Red Rock
+04_21_3008,32.881194,-111.962,04,21,3008,396.0,RESIDENTIAL,SUBURBAN,,,-7,Pinal County APCD,STANFIELD,85272.0,Arizona,Pinal,Stanfield
+04_21_3009,33.219111,-111.56111100000001,04,21,3009,428.0,AGRICULTURAL,SUBURBAN,,,-7,Pinal County APCD,COMBS,85242.0,Arizona,Pinal,Queen Creek
+04_21_3010,33.0585,-112.047219,04,21,3010,358.0,RESIDENTIAL,SUBURBAN,,,-7,Pinal County APCD,MARICOPA,85239.0,Arizona,Pinal,Maricopa
+04_21_3011,32.891056,-111.5705,04,21,3011,440.0,RESIDENTIAL,SUBURBAN,,,-7,Pinal County APCD,PINAL COUNTY HOUSING (aka ELEVEN MILE CORNER),85228.0,Arizona,Pinal,Casa Grande
+04_21_3012,33.105806,-110.974194,04,21,3012,550.0,RESIDENTIAL,RURAL,,,-7,Pinal County APCD,RIVERSIDE,85237.0,Arizona,Pinal,Kearny
+04_21_3013,33.010529999999996,-111.97205,04,21,3013,358.0,AGRICULTURAL,RURAL,,,-7,Pinal County APCD,COWTOWN,85239.0,Arizona,Pinal,Maricopa
+04_21_3014,32.757639000000005,-111.55486100000002,04,21,3014,474.0,COMMERCIAL,SUBURBAN,,,-7,Pinal County APCD,ELOY,85231.0,Arizona,Pinal,Eloy
+04_21_3015,32.884761,-112.03705,04,21,3015,406.0,AGRICULTURAL,RURAL,,,-7,Pinal County APCD,HIDDEN VALLEY,85239.0,Arizona,Pinal,Stanfield
+04_21_3016,33.06115,-112.05203999999999,04,21,3016,406.0,AGRICULTURAL,RURAL,,,-7,Pinal County APCD,MARICOPA 1405,85239.0,Arizona,Pinal,Maricopa
+04_21_7001,33.081703999999995,-111.75294299999999,04,21,7001,146.0,RESIDENTIAL,RURAL,,,-7,"Gila River Indian Community of Gila River Indian Reservation, AZ",Sacaton Air Monitoring Site,85247.0,Arizona,Pinal,Sacaton
+04_21_7004,33.117556,-111.885814,04,21,7004,359.0,RESIDENTIAL,RURAL,,,-7,"Gila River Indian Community of Gila River Indian Reservation, AZ",Casa Blanca Air Monitoring Site,85247.0,Arizona,Pinal,Not in a City
+04_21_7030,33.031038,-112.078111,04,21,7030,359.0,AGRICULTURAL,RURAL,,,-7,"Ak Chin Indian Community of Maricopa (Ak Chin) Indian Reservation, AZ",Ak Chin Museum,85239.0,Arizona,Pinal,Ak-Chin Village
+04_21_8001,33.293465000000005,-111.28559399999999,04,21,8001,634.0,DESERT,RURAL,,,-7,Arizona Department Of Environmental Quality,QUEEN VALLEY,85218.0,Arizona,Pinal,Queen Valley
+04_23_1,31.333472999999998,-110.86734399999999,04,23,1,1189.0,,,,,-7,Arizona Department Of Environmental Quality,,85621.0,Arizona,Santa Cruz,Not in a City
+04_23_2,31.341389000000003,-110.92944399999999,04,23,2,1178.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Santa Cruz,Nogales
+04_23_3,31.340278,-110.94,04,23,3,1175.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Santa Cruz,Nogales
+04_23_4,31.337203999999996,-110.936718,04,23,4,1176.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,NOGALES POST OFFICE,85621.0,Arizona,Santa Cruz,Nogales
+04_23_5,31.348739000000002,-110.93610100000001,04,23,5,1158.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,NOGALES CARILLO PLACE,,Arizona,Santa Cruz,Nogales
+04_23_6,31.367321999999998,-110.932503,04,23,6,1158.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,NOGALES BORDER PATROL STATION,,Arizona,Santa Cruz,Nogales
+04_23_7,31.3654,-110.933103,04,23,7,1158.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,NOGALES MARIPOSA COMMUNITY HEALTH CENTER,,Arizona,Santa Cruz,Nogales
+04_23_9000,31.33745,-110.93715,04,23,9000,1172.0,RESIDENTIAL,SUBURBAN,,,-7,National Park Service,,85621.0,Arizona,Santa Cruz,Nogales
+04_25_1,34.534721999999995,-112.479722,04,25,1,1649.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Yavapai,Prescott
+04_25_2,34.558611,-112.4825,04,25,2,1658.0,COMMERCIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,PRESCOTT - COUNTY MAINTENANCE YARD,,Arizona,Yavapai,Prescott
+04_25_3,34.77,-112.05555,04,25,3,330.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,CLARKDALE ADEQ,86324.0,Arizona,Yavapai,Clarkdale
+04_25_5,34.42888,-112.96194399999999,04,25,5,1499.0,DESERT,RURAL,10.0,,-7,Arizona Department Of Environmental Quality,HILLSIDE,86332.0,Arizona,Yavapai,Hillside
+04_25_15,35.513486,-113.322198,04,25,15,1554.0,INDUSTRIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,NELSON LIME PLANT WEST,,Arizona,Yavapai,Nelson
+04_25_1001,34.767222,-112.06333300000001,04,25,1001,1082.0,INDUSTRIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,,,Arizona,Yavapai,Clarkdale
+04_25_1002,34.582386,-111.824607,04,25,1002,1222.0,UNKNOWN,RURAL,,,-7,National Park Service,MONTEZUMA CASTLE,,Arizona,Yavapai,Montezuma Castle National Monument
+04_25_2001,34.539147,-112.46773300000001,04,25,2001,1588.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,PRESCOTT,,Arizona,Yavapai,Prescott
+04_25_2002,34.595,-112.331,04,25,2002,1556.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,PRESCOTT VALLEY,86314.0,Arizona,Yavapai,Prescott Valley
+04_25_8033,34.5467,-112.4761,04,25,8033,1591.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,PRESCOTT COLLEGE AQD,86305.0,Arizona,Yavapai,Prescott
+04_25_8034,34.612055,-112.46321299999998,04,25,8034,1602.0,RESIDENTIAL,SUBURBAN,,,-7,Arizona Department Of Environmental Quality,Prescott Pioneer Park,,Arizona,Yavapai,Prescott
+04_25_8104,34.340556,-111.683923,04,25,8104,1298.0,FOREST,RURAL,,,-7,National Park Service,Mazatzal Wilderness - Ike's Backbone,86336.0,Arizona,Yavapai,Not in a City
+04_27_1,32.723968,-114.6244,04,27,1,15.0,,,,,-7,Arizona Department Of Environmental Quality,,85364.0,Arizona,Yuma,Yuma
+04_27_2,32.723333000000004,-114.62206499999999,04,27,2,42.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,YUMA HEALTH DEPARTMENT,85364.0,Arizona,Yuma,Yuma
+04_27_3,32.700509000000004,-114.62266899999999,04,27,3,43.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,YUMA CITY YARD,85364.0,Arizona,Yuma,Yuma
+04_27_4,32.677001000000004,-114.648905,04,27,4,30.0,RESIDENTIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,YUMA COURTHOUSE,85364.0,Arizona,Yuma,Yuma
+04_27_5,32.685171000000004,-114.492374,04,27,5,61.0,COMMERCIAL,RURAL,,,-7,Arizona Department Of Environmental Quality,YUMA ARIZONA WESTERN COLLEGE,85365.0,Arizona,Yuma,Yuma
+04_27_6,32.677855,-114.47586100000001,04,27,6,60.0,AGRICULTURAL,RURAL,,,-7,Arizona Department Of Environmental Quality,YUMA GAME & FISH,85365.0,Arizona,Yuma,Yuma
+04_27_8011,32.690278,-114.61443999999999,04,27,8011,51.0,COMMERCIAL,URBAN AND CENTER CITY,,,-7,Arizona Department Of Environmental Quality,YUMA SUPERSITE,85365.0,Arizona,Yuma,Yuma

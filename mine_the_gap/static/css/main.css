@@ -1,5 +1,68 @@
-#load-files{
-    display: None;
+div#login{
+    font-size: 12px;
+    font-style: italic;
+    text-align: right;
+}
+
+.row.admin{
+    height:0px;
+}
+
+div#site-charts {
+    overflow-y: scroll;
+    height: 360px;
+}
+
+div#measurement-radios {
+    overflow-y: scroll;
+    height: 400px;
+}
+
+.leaflet-popup-content{
+    overflow-y: scroll;
+    height: 400px;
+}
+
+.score-button {
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 3px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+
+#upload-data-instructions{
+    background: #d9edf7;
+    margin-bottom: 15px;
+}
+
+#site-acknowledgements img{
+    width: 120px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+#site-acknowledgements{
+    padding: 10px;
+    font-style: italic;
+    color: #6d4090;
+    background: #f9f9f9;
+    text-align: justify;
+    margin-bottom: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 pre {
@@ -10,12 +73,106 @@ pre {
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 2% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+#download-options .modal-content{
+    width:700px;
+}
+
+#upload-options .modal-content{
+    width:1200px;
+    margin-left:-250px
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+#sensor-charts{
+    overflow-y: scroll;
+    height: 300px;
+}
+
+#sensor-chart{
+
+}
+
+table.flexible-download-content{
+    margin:0;
+}
+table#api-instructions{
+    margin:0;
+}
+
+.download-instructions{
+    background-color: lightblue;
+    font-size:14px;
+}
+
+.sample-api-call{
+    font-size:10px;
+}
+
+.download-instructions.sub-instructions{
+    background-color: #d9edf7;
+    font-size:12px;
+}
+
+.download-file button{
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  /*optional*/
+  font-family: arial, sans-serif;
+  /*input has OS specific font-family*/
+  color: #069;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .chosen-option{
     color: #78008f;
     float:right;
 }
 
-.panel-group {
+.field-used.chosen-option{
+    float:none;
+}
+
+#map-options .panel-group {
     margin-bottom: 0px;
 
 }
@@ -67,17 +224,36 @@ pre {
 
 #map-options{
     height: 800px;
-    padding-left:0;
-    padding-right:0;
+    padding-left:5px;
+    padding-right:5px;
 }
 
 #map-options div{
     padding: 5px;
 }
 
+#further-data{
+    padding:5px;
+}
+
 
 #region-data{
-    border-style: ridge;
+    border-style: double;
+    height:250px;
+}
+
+#region-data table{
+    width: 100%;
+    table-layout: fixed;
+}
+
+#region-data table td{
+    overflow-wrap: break-word;
+}
+
+#sensor-data{
+    border-style: double;
+
 }
 
 
@@ -98,19 +274,20 @@ pre {
 
 #map-sliderheader {
   padding: 2px;
-  cursor: move;
   z-index: 1001;
   background-color: #e0e0e0;
   color: #000000;
 }
 
 #map-slider{
-    position:absolute;
-    width: 100%;
+    /*position:absolute;
     z-index: 1000;
     border-style: ridge;
-    height:50px;
-    resize: horizontal;
+    width: 100%;
+     */
+
+
+    height:100px;
     overflow: hidden;
 }
 
@@ -120,7 +297,7 @@ pre {
   appearance: none;
   width: 100%; /* Full-width */
   height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
+  background: #e8ebee; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
   -webkit-transition: .2s; /* 0.2 seconds transition on hover */
@@ -155,9 +332,7 @@ pre {
     Timer / spinner to show data loading.
 
  */
-
-
-#loader-outer{
+#loader-outer, #loader-outer-regions{
     position:fixed;
     top: 20%;
     left: 15%;
@@ -167,14 +342,14 @@ pre {
 
 
 .ajax-call-loader {
-  border: 16px solid #3e6b8c;
-  border-radius: 50%;
-  border-top: 16px solid #d1eeaa;
-  width: 100px;
-  height: 100px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-  float:left;
+    border: 16px solid #3e6b8c;
+    border-radius: 50%;
+    border-top: 16px solid #d1eeaa;
+    width: 100px;
+    height: 100px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+    float:left;
     border-style: groove;
 }
 
@@ -203,6 +378,8 @@ pre {
     padding-left: 5%;
     padding-top: 60px;
     font-weight: bold;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
 }
 
 .ajax-waiting-text.size-1{

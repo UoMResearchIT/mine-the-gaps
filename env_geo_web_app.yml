@@ -1,0 +1,15 @@
+name: geo_web_app
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - django
+  - django-leaflet
+  - psycopg2-binary
+  - djangorestframework
+  - slugify
+  - pandas
+  - geojson
+  - shapely
+  - geopandas
+prefix: /home/ann/anaconda3/envs/geo_web_app

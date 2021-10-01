@@ -1,97 +1,45 @@
 {% extends "base.html" %}
 {% load leaflet_tags static %}
 
-
 {% block body-class %}page-head{% endblock %}
 
 {% block content %}
+    <script type="text/javascript">
+        var abs_uri = '{{ request.build_absolute_uri }}'
+        var url = '{{ request.path }}';
+        var dataUrl = url + 'all_data';
+        var dataUrlRegions = url + 'all_regions';
+        var dataUrlSites = url + 'all_sites';
+        var mapIconPath = "{% static 'image/leaflet' %}";
+        var siteDataUrl = '{% url "sites_metadata" %}';
+        var regionsFileUrl = '{% url "regions_metadata" %}';
 
+        var siteFieldsUrl = url + 'site_fields';
 
-    <div id="load-files" class="container">
-        <div class="row">
-            <div class="col-sm-2">
-                <button id="btn-select-files">Select data files</button>
-            </div>
-        </div>
-        <div class="row" id="select-files">
-            {% with filepaths|first as filepath %}
-                <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
-                    <div id="upload-fields" class='col-sm-12'>
-                        {% csrf_token %}
-                        <table class="table table-striped">
-                            <tr>
-                              <th scope="col"></th>
-                                <th scope="col">Timestamped data</th>
-                                <th scope="col">Metadata</th>
-                            </tr>
-                            <tr>
-                                <th scope="row">Actual data</th>
-                                <td><span class="current-filename">Sensor data file: (current: {{ filepath.actual_data_file|safe }})</span>
-                                    <br>{{ form.actual_data_file }}</td>
-                                <td><span class="current-filename">Sensor metadata file: (current: {{ filepath.sensor_data_file|safe }})</span>
-                                    <br>{{ form.sensor_data_file }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Estimated data</th>
-                                <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_file|safe }})</span>
-                                    <br>{{ form.estimated_data_file }}</td>
-                                <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_data_file|safe }})</span>
-                                    <br>{{ form.region_data_file }}</td>
-                            </tr>
-                        </table>
-                        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-                    </div>
+        var siteTimeseriesUrl = url + 'site_timeseries';
+        var estimatedTimeseriesUrl = url + 'estimated_timeseries';
 
-                </form>
-            {% endwith %}
-        </div>
-    </div>
+    </script>
 
-    <div id="map-main-info" class="container">
+    <div id="map-main-info" class="container-fluid">
         <div class="row" id="main">
-            <div id="map" class="col-sm-8">
-                <div id="loader-outer"></div>
 
-                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
-                <div id="mapid"></div>
+            <div id="map-options" class="col-sm-3">
 
-                <div id="map-slider">
-                    <div class="slidecontainer">
-                      <input type="range" min="0" max="100" value="0" class="slider" id="timestamp-range">
-
-                        <div id="map-sliderheader">
-                            <div id="slider-value">Value: <span id="current-timestamp"></span></div>
-
-                        </div>
-
-                    </div>
-                </div>
-
-                <script type="text/javascript">
-                    var timestampRange = "{{timestamp_range|escapejs }}";
-                    var centerLatLng = "{{center|escapejs }}";
-                    var timestampList = timestampRange.replace('[','').replace(']','').split(',');
-                    var actualDataUrl = '{{ request.path }}' + 'actual_data';
-                    var estimatedDataUrl = '{{ request.path }}' + 'estimated_data';
-                    var mapIconPath = "{% static 'image/leaflet' %}";
-                    var sensorDataUrl = '{% url "sensor" %}';
-                    var regionDataUrl = '{% url "region" %}';
-                    var sensorFieldsUrl = '{{ request.path }}' + 'sensor_fields';
-
-                </script>
-
-            </div>
-            <div id="map-options" class="col-sm-4">
-
-                <div id="download-options" class="panel-group">
+                <div class="panel-group">
                     <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseDownload" aria-expanded="false" aria-controls="collapseDownload">
-                            <div class="panel-title">Download data</div>
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <div id="map-slider">
+                                    <div class="slidecontainer">
+                                        <input type="range" min="0" max="100" value="0" class="slider" step="1" id="timestamp-range">
+                                        <div id="map-sliderheader">
+                                            <div id="slider-value">Timestamp: <span id="current-time" class="chosen-option"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="collapseDownload" class="panel-collapse collapse">
-                        <input type="checkbox" name="download" value="csv">CSV file<br>
-                        <input type="checkbox" name="download" value="GeoJSON">GeoJSON<br>
                     </div>
                 </div>
 
@@ -103,23 +51,7 @@
                     </div>
                     <div id="collapseMeasurement" class="panel-collapse collapse">
                         <div class="panel-body">
-                            {% for measurement in measurement_names %}
-                                <input type="radio" name="measurement" value="{{ measurement }}" checked="checked"> {{ measurement }}<br>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                <div id="map-overlays" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseMapType" aria-expanded="false" aria-controls="collapseMapType">
-                            <div class="panel-title">Select map  <span class="chosen-option" id="map-overlays-label"></span></div>
-                        </div>
-                    </div>
-                    <div id="collapseMapType" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <input type="radio" name="map-type" value="street-map" checked="checked"> Default<br>
-                            <input type="radio" name="map-type" value="topology"> Topology <br>
+                            <div id="measurement-radios"></div>
                         </div>
                     </div>
                 </div>
@@ -131,46 +63,247 @@
                         </div>
                     </div>
                     <div id="collapseEstimationMethod" class="panel-collapse collapse">
-                        <input type="radio" name="estimation-method" value="file" checked="checked"> Use estimates from input file<br>
-                        <input type="radio" name="estimation-method" value="diffusion"> Diffusion (rings)<br>
-                        <input type="radio" name="estimation-method" value="distance-simple"> Distance (simple)<br>
+                        <div id="method-radios"></div>
                     </div>
                 </div>
 
-                <div id="estimation-regions" class="panel-group">
+                <div id="site-field-data" class="panel-group">
                     <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseEstimationRegion" aria-expanded="false" aria-controls="collapseEstimationRegion">
-                            <div class="panel-title">Select estimation regions <span class="chosen-option" id="estimation-regions-label"></span></div>
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSites" aria-expanded="false" aria-controls="collapseFilterSites">
+                            <div class="panel-title"> Filter sites by... <span class="chosen-option" id="site-field-label"></span> </div>
                         </div>
                     </div>
-                    <div id="collapseEstimationRegion" class="panel-collapse collapse">
-                        <input type="radio" name="region-method" value="file" checked="checked"> Use regions from input file<br>
-                        <input type="radio" name="region-method" value="squares-1"> Squares (10km) INCOMPLETE<br>
-                        <input type="radio" name="region-method" value="squares-10"> Squares (100km) INCOMPLETE<br>
-                        <input type="radio" name="region-method" value="hexagon-1"> Hexagons (10km) INCOMPLETE<br>
-                    </div>
+                    <div id="collapseFilterSites" class="panel-collapse collapse"></div>
                 </div>
 
-
-                <div id="sensor-field-data" class="panel-group">
+                <div id="upload-data" class="panel-group">
                     <div class="panel panel-default">
-                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseFilterSensors" aria-expanded="false" aria-controls="collapseFilterSensors">
-                            <div class="panel-title"> Filter sensors by... <span class="chosen-option" id="sensor-field-label"></span> </div>
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
+                            <div class="panel-title">Upload data and visualise<span class="chosen-option" id="upload-data-label"></span></div>
                         </div>
                     </div>
-                    <div id="collapseFilterSensors" class="panel-collapse collapse"></div>
+                    <div id="collapseUpload" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div id="upload-data-instructions">
+                                Upload geographical time-series data as a CSV file.
+                                The csv file must have the following columns: <br/><br/>
+                                Column 1: has header 'timestamp' and contains timestamps as strings,
+                                matching those available on the timestamp slider, <br/>
+                                Example: 2016-10-12 <br/> <br/>
+                                Column 2: has header 'geom' and contains geographical locations (currently points only), <br/>
+                                Example: POINT (-2.254 53.397) <br/><br/>
+                                Columns remaining: header(s) will be used as measurement name(s) and
+                                values should be numeric (non numeric will be converted to null)<br/><br/>
+                                <em>Note that the uploaded file's data is stored locally on the browser, and only used
+                                    for visualisation on the map, within this browser session.</em>
+                            </div>
+                            <input id="upload-data-button" type="file">
+                        </div>
+                    </div>
                 </div>
 
+                <div id="download-options" class="panel-group">
+                    <div class="panel panel-default" data-toggle="modal" data-target="#modalDownload">
+                        <div class="panel-heading">
+                            <div class="panel-title">Download data</div>
+                        </div>
+                    </div>
+                    <div id="modalDownload" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
 
-                <div id="region-data" class="panel-group">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Download Data</h4>
+                                </div>
+                                <div class="modal-body">
+                                     <!-- Where the flexible download content gets loaded in. -->
+                                    {% include "flexible_content/flexible_download_content.html" %}
 
+                                    <table id="api-instructions" class="table table-condensed">
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr id="api-call-instructions" class="download-instructions">
+                                            <td colspan="4"><em><b>Obtain data using REST API:</b></em>
+                                            <em>Prefix all calls with: <br>
+                                                The url of this web app
+                                                (e.g. <code>localhost:8000</code> or
+                                                <code>minethegaps.manchester.ac.uk</code>)<br>
+                                                Check the browser address bar if you're not sure.
+                                            </em></td>
+                                        </tr>
+
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get geoJson of sites or regions metadata:</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                /sites_metadata.geojson<br>
+                                                /regions_metadata.geojson
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get data for particular measurement, timestamp and region/site</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /site_data/[str:measurement]/[str:timestamp]/[int:site_id]/<br>
+                                                    /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/[str:region_id]/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get data for particular measurement and timestamp</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /site_data/[str:measurement]/[str:timestamp]/<br>
+                                                    /estimated_data/[str:estimation_method]/[str:measurement]/[str:timestamp]/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                        <tr><td colspan="4"></td> </tr>
+                                        <tr class="download-instructions sub-instructions">
+                                            <td colspan="4"><em>Get timeseries data for particular measurement and region/site_id</em></td>
+                                        </tr>
+                                        <tr class="sample-api-call">
+                                            <td colspan="4">
+                                                <code>
+                                                    /site_timeseries/[str:measurement]/[int:site_id]/<br>
+                                                    /estimated_timeseries/[str:estimation_method]/[str:measurement]/[str:region_id]/
+                                                </code>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+                {% if user.is_authenticated %}
+                    <div id="upload-options" class="panel-group">
+                        <div class="panel panel-default" data-toggle="modal" data-target="#modalUpload">
+                            <div class="panel-heading">
+                                <div class="panel-title">Upload environment data</div>
+                            </div>
+                        </div>
+                        <div id="modalUpload" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Upload environment data</h4>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <div id="load-files" class="container">
+                                            <div class="row" id="select-files">
+
+                                                {% with filepaths|first as filepath %}
+                                                    <form  method="POST" id="file-upload-form" enctype="multipart/form-data">
+                                                        <div id="upload-fields" class='col-sm-12'>
+                                                            {% csrf_token %}
+                                                            <table class="table table-striped">
+                                                                <tr>
+                                                                  <th scope="col"></th>
+                                                                    <th scope="col">Timestamped data</th>
+                                                                    <th scope="col">Metadata</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    {% if message %}<div class='imp_message'>{{ message }}</div>{% endif %}
+                                                                    <th scope="row">Actual data</th>
+                                                                    <td><span class="current-filename">Site data file: (current: {{ filepath.actual_data_filename|safe }})</span>
+                                                                        {% if form.actual_data_file %}<br>{{form.actual_data_file}}{% endif %}</td>
+                                                                    <td><span class="current-filename">Site metadata file: (current: {{ filepath.site_metadata_filename|safe }})</span>
+                                                                        {% if form.site_metadata_file %}<br>{{ form.site_metadata_file }}{% endif %}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Estimated data</th>
+                                                                    <td><span class="current-filename">Estimated data file: (current: {{ filepath.estimated_data_filename|safe }})</span>
+                                                                        {% if form.estimated_data_file %}<br>{{ form.estimated_data_file }}{% endif %}</td>
+                                                                    <td><span class="current-filename">Estimation metadata file: (current: {{ filepath.region_metadata_filename|safe }})</span>
+                                                                        {% if form.region_metadata_file %}<br>{{ form.region_metadata_file }} {% endif %}</td>
+                                                                </tr>
+                                                            </table>
+                                                            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                                                        </div>
+                                                        {% if form.errors %}
+                                                            {% for error in form.non_field_errors %}
+                                                                <div class="alert alert-danger">
+                                                                    <strong>{{ error|escape }}</strong>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </form>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+
+            </div>
+            <div id="map" class="col-sm-6">
+                <div id="loader-outer"></div>
+                <div id="loader-outer-regions"></div>
+
+                <!--{-% leaflet_map "mapid" callback="main_map_init" %}-->
+                <div id="mapid"></div>
+
+            </div>
+
+
+            <div id="further-data" class="col-sm-3">
+
+                <!-- Where the flexible project content gets loaded in. -->
+                {% include "flexible_content/acknowledgement_content.html" %}
+                {% include "flexible_content/data_sources_content.html" %}
+                {% include "flexible_content/about_content.html" %}
+                {% include "flexible_content/instructions_content.html" %}
+
+                <div id="time-series" class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-timeseries"
+                             aria-expanded="false" aria-controls="collapse-timeseries">
+                            <div class="panel-title">Time-series graphs</div>
+                        </div>
+                    </div>
+                    <div id="collapse-timeseries" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div id="site-charts"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
-
 {% endblock %}
+
+
+
 
 
 
