@@ -380,6 +380,7 @@ def actuals(request, measurement, timestamp_val=None, site_id=None, return_all_f
         new_row['ignore'] = False if select_site(new_row, site_params) else True
         new_row['percent_score'] = percentage_score
         new_row['z_score'] = z_score
+        new_row['score'] = row.value
         new_row['min'] = min_val
         new_row['max'] = max_val
         new_row['mean'] = mean_val
@@ -537,6 +538,7 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
             new_row['percent_score'] = percentage_score
             new_row['method_name'] = method_name
             new_row['z_score'] = z_score
+            new_row['score'] = row.value
             new_row['min'] = min_val
             new_row['max'] = max_val
             new_row['mean'] = mean_val
