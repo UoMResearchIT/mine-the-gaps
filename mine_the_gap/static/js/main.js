@@ -734,7 +734,7 @@ function getTimestampValue(data, timestamp) {
     for (var i=0; i<data.length; i++){
         if(data[i]['timestamp'].trim() == timestamp.trim()){
             //alert('timestamp: ' + timestamp + '; dataItem: ' + data[i]['timestamp']);
-            return data[i]['z_score'];
+            return data[i]['score'];
         }
     }
     return null;
