@@ -826,29 +826,33 @@ function cloneCanvas(oldCanvas) {
 function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
-    var listItem = document.createElement('a');
-    listItem.className = "list-group-item list-group-item-action flex-column align-items-start site-chart";
-    listItem.href = '#';
     var listItemDiv = document.createElement('div');
-    listItemDiv.className = 'd-flex w-100 justify-content-between';
+    listItemDiv.className = 'site-chart';
     var canvasItem = document.createElement('canvas');
-    canvasItem.id = "site-chart";
     var newChartTitle = document.createElement('div');
+
+    var deleteIcon = document.createElement('i');
+    deleteIcon.className="far fa-window-close";
+    listItemDiv.appendChild(deleteIcon);
+    deleteIcon.addEventListener("click", function(e){
+        this.parentNode.remove();
+        e.stopPropagation();
+    });
 
     newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
         'Measurement: ' + measurement + '<br>' +
         'Estimation Method: ' + estimationMethod + '<br>';
     if(get_site_select_url_params()['selectors'].length > 0) {
-        newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' + JSON.stringify(get_site_select_url_params()['selectors']) + '</p>';
+        newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' +
+            JSON.stringify(get_site_select_url_params()['selectors']) + '</p>';
     }else{
         newChartTitle.innerHTML = newChartTitle.innerHTML + 'Filters: None';
     }
 
     listItemDiv.appendChild(newChartTitle);
     listItemDiv.appendChild(canvasItem);
-    listItem.appendChild(listItemDiv);
     var list = document.getElementById('site-charts');
-    list.insertBefore(listItem, list.firstChild);
+    list.insertBefore(listItemDiv, list.firstChild);
 
     var ctx = canvasItem.getContext('2d');
     var listChart = new Chart(ctx, {
@@ -894,8 +898,8 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     modal.appendChild(modalContent);
     list.appendChild(modal);
 
-    // When the user clicks the button, open the modal
-    newChartTitle.onclick = function () {
+    // When the user clicks the list item, open the modal
+    listItemDiv.onclick = function () {
         modal.style.display = "block";
     };
 
