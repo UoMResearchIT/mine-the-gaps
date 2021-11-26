@@ -826,8 +826,6 @@ function cloneCanvas(oldCanvas) {
 function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
-    var listItem = document.createElement('div');
-    listItem.className = "site-chart";
     var listItemDiv = document.createElement('div');
     listItemDiv.className = 'site-chart';
     var canvasItem = document.createElement('canvas');
@@ -836,7 +834,10 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var deleteIcon = document.createElement('i');
     deleteIcon.className="far fa-window-close";
     listItemDiv.appendChild(deleteIcon);
-    deleteIcon.addEventListener("click", function(){this.parentNode.remove()});
+    deleteIcon.addEventListener("click", function(e){
+        this.parentNode.remove();
+        e.stopPropagation();
+    });
 
     newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
         'Measurement: ' + measurement + '<br>' +
@@ -897,8 +898,8 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     modal.appendChild(modalContent);
     list.appendChild(modal);
 
-    // When the user clicks the button, open the modal
-    newChartTitle.onclick = function () {
+    // When the user clicks the list item, open the modal
+    listItemDiv.onclick = function () {
         modal.style.display = "block";
     };
 
