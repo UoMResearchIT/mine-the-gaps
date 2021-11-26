@@ -823,10 +823,6 @@ function cloneCanvas(oldCanvas) {
     return newCanvas;
 }
 
-function deleteParentItem(){
-    this.parentNode.remove();
-}
-
 function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
@@ -837,11 +833,10 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var canvasItem = document.createElement('canvas');
     var newChartTitle = document.createElement('div');
 
-    var deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-parent-button';
-    deleteButton.textContent = 'x';
-    listItemDiv.appendChild(deleteButton);
-    deleteButton.addEventListener("click", deleteParentItem);
+    var deleteIcon = document.createElement('i');
+    deleteIcon.className="far fa-window-close";
+    listItemDiv.appendChild(deleteIcon);
+    deleteIcon.addEventListener("click", function(){this.parentNode.remove()});
 
     newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
         'Measurement: ' + measurement + '<br>' +
