@@ -823,32 +823,40 @@ function cloneCanvas(oldCanvas) {
     return newCanvas;
 }
 
+function deleteParentItem(){
+    this.parentNode.remove();
+}
+
 function showTimelineComparisons(measurement, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
-    var listItem = document.createElement('a');
-    listItem.className = "list-group-item list-group-item-action flex-column align-items-start site-chart";
-    listItem.href = '#';
+    var listItem = document.createElement('div');
+    listItem.className = "site-chart";
     var listItemDiv = document.createElement('div');
-    listItemDiv.className = 'd-flex w-100 justify-content-between';
+    listItemDiv.className = 'site-chart';
     var canvasItem = document.createElement('canvas');
-    canvasItem.id = "site-chart";
     var newChartTitle = document.createElement('div');
+
+    var deleteButton = document.createElement('button');
+    deleteButton.className = 'delete-parent-button';
+    deleteButton.textContent = 'x';
+    listItemDiv.appendChild(deleteButton);
+    deleteButton.addEventListener("click", deleteParentItem);
 
     newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
         'Measurement: ' + measurement + '<br>' +
         'Estimation Method: ' + estimationMethod + '<br>';
     if(get_site_select_url_params()['selectors'].length > 0) {
-        newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' + JSON.stringify(get_site_select_url_params()['selectors']) + '</p>';
+        newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' +
+            JSON.stringify(get_site_select_url_params()['selectors']) + '</p>';
     }else{
         newChartTitle.innerHTML = newChartTitle.innerHTML + 'Filters: None';
     }
 
     listItemDiv.appendChild(newChartTitle);
     listItemDiv.appendChild(canvasItem);
-    listItem.appendChild(listItemDiv);
     var list = document.getElementById('site-charts');
-    list.insertBefore(listItem, list.firstChild);
+    list.insertBefore(listItemDiv, list.firstChild);
 
     var ctx = canvasItem.getContext('2d');
     var listChart = new Chart(ctx, {
