@@ -7,7 +7,7 @@ dependencies:
   - django-leaflet
   - psycopg2-binary
   - djangorestframework
-  - slugify
+  - python-slugify
   - pandas
   - geojson
   - shapely
