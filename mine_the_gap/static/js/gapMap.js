@@ -628,6 +628,11 @@ export class GapMap {
 
             var extraData = '<table class="table table-striped popup-table">';
             extraData += '<tr><th>Name</th><td>' + loc.name + '</td></tr>';
+            if (loc.unit && loc.unit.trim !== ''){
+                extraData += '<tr><th>Unit</th><td>' + loc.unit + '</td></tr>';
+            }else{
+                extraData += '<tr><th>Unit</th><td>None</td></tr>';
+            }
             extraData += '<tr><th>Timestamp</th><td>' + loc.timestamp.toString() + '</td></tr>';
             extraData += '<tr><th>Value</th><td><button class="score-button">' + loc.value + '</button></td></tr>';
             extraData += '<tr><th>Z Score</th><td><button class="score-button" style="background-color:' +
@@ -663,7 +668,8 @@ export class GapMap {
             popButton.className = 'get-timeseries';
             popButton.value = 'Get timeseries';
             popButton.setAttribute("onclick",
-                "showTimelineComparisons('"+measurement+"','" +loc.site_id + "','" + loc.regions + "','" + loc.name + "')");
+                "showTimelineComparisons('"+measurement+"','" + loc.unit + "','"  + loc.site_id
+                + "','" + loc.regions + "','" + loc.name + "')");
 
             siteMarker.bindPopup(popButton.outerHTML + extraData);
             sitesLayer.addLayer(siteMarker);

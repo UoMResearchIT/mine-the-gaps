@@ -117,6 +117,7 @@ class Actual_value(gismodels.Model):
     actual_data = models.ForeignKey(Actual_data, null=True, on_delete=models.CASCADE)
     measurement_name = models.CharField(max_length=30, null=False, db_index=True)
     value = models.FloatField(null=True)
+    unit = models.CharField(max_length=20, null=True, db_index=False)
 
     @property
     def join_site(self):
@@ -127,6 +128,7 @@ class Actual_value(gismodels.Model):
         result = self.actual_data.join_site
         result.update({'measurement_name': self.measurement_name,
                        'value': fvalue,
+                       'unit': self.unit,
                        'actual_data_id': self.actual_data_id})
         return result
 
@@ -138,5 +140,6 @@ class Actual_value(gismodels.Model):
             fvalue = None
         result = self.actual_data.join_site_lite
         result.update({'measurement_name': self.measurement_name,
-                       'value': fvalue})
+                       'value': fvalue,
+                       'unit': self.unit})
         return result

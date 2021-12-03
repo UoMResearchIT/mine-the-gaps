@@ -769,6 +769,7 @@ def upload_actual_data(request):
     reader = csv.reader(file_actual)
     # skip/get the headers
     field_titles = next(reader, None)
+    field_units = next(reader, None)
     row_count = reader.line_num
 
     value_idxs = []
@@ -788,6 +789,7 @@ def upload_actual_data(request):
     # Read in the data
     try:
         line_no = 0
+
         for row in reader:
             line_no += 1
             progress_update.progress_json = {'percent_complete': (line_no / row_count)*100,
@@ -802,7 +804,7 @@ def upload_actual_data(request):
                     print('Site', site_id, 'not returned for this actual datapoint, due to:', err)
                 else:
                     if site:
-                        actual = Actual_data(   timestamp=slugify(row[timestamp_idx]),
+                        actual = Actual_data(   timestamp=slugify(str(row[timestamp_idx])),
                                                 site=site)
                         actual.save()
 
@@ -822,9 +824,11 @@ def upload_actual_data(request):
                             try:
                                 #print('Adding value ({}) in field {} as float.'.format(fvalue, field_titles[idx]))
                                 name = slugify(field_titles[idx].replace('val_', '', 1), lowercase=True, separator='_')
+                                s_unit = slugify(str(field_units[idx]))
                                 actual_value = Actual_value(    measurement_name=name,
-                                                                value = fvalue,
-                                                                actual_data = actual)
+                                                                value=fvalue,
+                                                                unit=s_unit,
+                                                                actual_data=actual)
                                 actual_value.save()
                             except Exception as err:
                                 # value could not be added
@@ -902,10 +906,10 @@ def upload_estimated_data(request):
                                 extra_data=extra_data
                                 )
 
-                print("Saving a region")
+                #print("Saving a region")
                 region.save()
             except Exception as err1:
-                #print('Region file error. ', err1)
+                print('Region file error. ', err1)
                 #print('Region file error. Row: ', row[0])
                 continue
     except Exception as err:

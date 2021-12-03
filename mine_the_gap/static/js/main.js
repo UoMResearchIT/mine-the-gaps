@@ -823,7 +823,7 @@ function cloneCanvas(oldCanvas) {
     return newCanvas;
 }
 
-function showTimelineComparisons(measurement, siteId, regionId, siteName) {
+function showTimelineComparisons(measurement, unitStr, siteId, regionId, siteName) {
     var estimationMethod = $("input[name='estimation-method']:checked").val();
 
     var listItemDiv = document.createElement('div');
@@ -839,8 +839,12 @@ function showTimelineComparisons(measurement, siteId, regionId, siteName) {
         e.stopPropagation();
     });
 
+    if(!unitStr || unitStr.trim() == ''){
+        unitStr = 'None';
+    }
     newChartTitle.innerHTML = '<b>Site Name: ' + siteName + '</b><br>' +
         'Measurement: ' + measurement + '<br>' +
+        'Unit: ' + unitStr + '<br>' +
         'Estimation Method: ' + estimationMethod + '<br>';
     if(get_site_select_url_params()['selectors'].length > 0) {
         newChartTitle.innerHTML = newChartTitle.innerHTML +'Filters: ' +
