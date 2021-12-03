@@ -92,6 +92,8 @@ Sample data files are provided in the `/sample_data` folder:
 
 * An actual sensor values data file with all timeseries data-points
   * e.g: /examples/actuals_USA_Chloride_pm25.csv
+  * The second row contains a string representation of the unit used for 
+measurement in that column: e.g. `percent`, `ug-m3` or `degC`
   * Mandatory fields (in order): timestamp, site_id, and at least one field with header prefix 'val_'
 * A sensors metadata file
   * e.g. /examples/sensors_arizona.csv
