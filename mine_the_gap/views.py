@@ -767,10 +767,17 @@ def upload_actual_data(request):
 
     file_actual = TextIOWrapper(filepath_actual.file, encoding=request.encoding)
     reader = csv.reader(file_actual)
-    # skip/get the headers
+
+    # Count the rows
+    row_count = len(list(reader)) - 2  # First 2 lines are titles and units
+
+    # Go back to start of file (both lines required!)
+    file_actual.seek(0)
+    reader = csv.reader(file_actual)
+
+    # skip/get the headers / units
     field_titles = next(reader, None)
     field_units = next(reader, None)
-    row_count = reader.line_num
 
     value_idxs = []
     timestamp_idx = None
@@ -922,10 +929,16 @@ def upload_estimated_data(request):
 
     file_estimates = TextIOWrapper(filepath_estimated.file, encoding=request.encoding)
     reader = csv.reader(file_estimates)
+
+    # Count the rows
+    row_count = len(list(reader)) - 1
+
+    # Go back to start of file (both lines required!)
+    file_estimates.seek(0)
+    reader = csv.reader(file_estimates)
+
     # skip/get the headers
     field_titles = next(reader, None)
-    print('field titles:', field_titles)
-    row_count = reader.line_num
 
     value_idxs = []
     extra_field_idxs = []
