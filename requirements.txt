@@ -27,7 +27,7 @@ Mako==1.1.0
 MarkupSafe==1.1.1
 munch==2.5.0
 numpy==1.23.0
-pandas==0.25.3
+pandas==1.4.3
 psycopg2-binary==2.8.4
 pyproj>=2.4.0
 python-dateutil==2.8.1
