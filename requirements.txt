@@ -26,8 +26,8 @@ lazy-object-proxy==1.4.3
 Mako==1.1.0
 MarkupSafe==1.1.1
 munch==2.5.0
-numpy==1.23.0
-pandas==1.4.3
+numpy
+pandas
 psycopg2-binary==2.8.4
 pyproj>=2.4.0
 python-dateutil==2.8.1
@@ -35,7 +35,7 @@ pytz==2019.3
 redis==3.3.11
 regex
 region-estimators==1.1.5
-scipy==1.8.1
+scipy
 Shapely>=1.6.0
 six==1.14.0
 speaklater==1.3
