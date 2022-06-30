@@ -8,7 +8,7 @@ cligj
 cmake
 csvs
 Django
-django-contrib-postgres=
+django-contrib-postgres
 django-environ
 django-floppyforms
 django-geojson
