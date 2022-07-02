@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path
 from mine_the_gap import views
-from django.conf.urls import url, include
+from django.conf.urls import include
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -42,13 +42,13 @@ urlpatterns = [
     ## Get region and site data ##
 
     # Get geoJson (only works on models with a geom field)
-    url(r'^sites_metadata.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sites_metadata'),
-    url(r'^regions_metadata.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='regions_metadata'),
+    re_path(r'^sites_metadata.geojson$', GeoJSONLayerView.as_view(model=Sensor, properties=['popup_content']), name='sites_metadata'),
+    re_path(r'^regions_metadata.geojson$', GeoJSONLayerView.as_view(model=Region, properties=['popup_content']), name='regions_metadata'),
 
     ## Get actual and estimated data points ##
 
     # Get data for particular measurement, timestamp and region / site  (and estimation method for estimated_data)
-    path('site_data/<slug:measurement>/<slug:timestamp_val>/<int:site_id>/', views.get_actuals),
+    re_path('site_data/<slug:measurement>/<slug:timestamp_val>/<int:site_id>/', views.get_actuals),
     path('estimated_data/<slug:method_name>/<slug:measurement>/<slug:timestamp_val>/<slug:region_id>/', views.get_estimates),
 
     # Get data for particular measurement and timestamp  (and estimation method for estimated_data)  - ALL REGIONS/SITES
