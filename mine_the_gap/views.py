@@ -185,6 +185,7 @@ def get_all_data_at_timestamp(request, method_name, measurement=None, timestamp_
 
 
 def get_all_regions_at_timestamp(request, method_name, measurement=None, timestamp_val=None,):
+    response = None
     try:
         data = {
             'estimated_data': estimates(request, method_name, measurement, timestamp_val=timestamp_val,
@@ -408,10 +409,6 @@ def calculate_z_score(value, mean, standard_deviation):
 def load_region_estimators(measurement, site_params=[]):
     global estimators_dict, prev_site_params, prev_measurement, progress_update
 
-    progress_update.progress_json = {'percent_complete': None,
-                                     'status': 'Loading region estimators',
-                                     'sub_status': 'Beginning'}
-
     ### Sites ###
     progress_update.progress_json = {'percent_complete': None,
                                      'status': 'Loading region estimators',
@@ -439,7 +436,9 @@ def load_region_estimators(measurement, site_params=[]):
     regions = Region.objects.all()
     df_regions = pd.DataFrame.from_records(regions.values('region_id', 'geom'), index='region_id')
     # convert regions geometry (multipolygone) into a universal format (wkt) for use in region_estimations package
+
     df_regions['geometry'] = df_regions.apply(lambda row: wkt.loads(row.geom.wkt), axis=1)
+
     df_regions = df_regions.drop(columns=['geom'])
 
     ### Actuals ###
@@ -598,6 +597,7 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
                                  'value': value,
                                  'percent_score': percentage_score,
                                  'z_score': z_score,
+                                 'value': value,
                                  'min': min_val,
                                  'max': max_val,
                                  'mean': mean_val,
@@ -703,6 +703,7 @@ def handle_uploaded_files(request):
     # Use can upload actual data and/or estimated data (but in each case both data and meta-data files must be input)
     upload_actual_data(request)
     upload_estimated_data(request)
+
 
 def upload_actual_data(request):
     global progress_update
