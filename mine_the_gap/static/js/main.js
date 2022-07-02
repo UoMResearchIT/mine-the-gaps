@@ -731,10 +731,12 @@ function get_csv(url, filename='data.csv', jsonParams={}){
 
 
 function getTimestampValue(data, timestamp) {
+    //alert(JSON.stringify(data) + '; ' + timestamp)
     for (var i=0; i<data.length; i++){
-        if(data[i]['timestamp'].trim() == timestamp.trim()){
+        if(data[i]['timestamp'].trim() == timestamp.toString().trim()){
             //alert('timestamp: ' + timestamp + '; dataItem: ' + data[i]['timestamp']);
-            return data[i]['score'];
+            //alert(JSON.stringify(data[i]));
+            return data[i]['value'];
         }
     }
     return null;
@@ -992,10 +994,12 @@ function getEstimatedTimeseries(measurement, method, regionId, ignoreSiteId, lis
         timeout: 300000,
         async: true,
         success: function (data) {
+            //alert(JSON.stringify(data));
             var estValues = [];
             for (var timestampIdx=0; timestampIdx<timestampList.length; timestampIdx++){
                 estValues.push(getTimestampValue(data, timestampList[timestampIdx]));
             };
+            //alert(JSON.stringify(estValues));
             listChart.data.datasets.push(
                     {
                         label: 'Estimated values',

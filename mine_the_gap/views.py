@@ -597,6 +597,7 @@ def estimates(request, method_name, measurement, timestamp_val=None, region_id=N
                                  'value': value,
                                  'percent_score': percentage_score,
                                  'z_score': z_score,
+                                 'value': value,
                                  'min': min_val,
                                  'max': max_val,
                                  'mean': mean_val,
